@@ -17,6 +17,7 @@
     "tween"
   ],
   "author": "Markus Madeja",
+  "repository" : "Kauto/animationvideo",
   "license": "MIT",
   "dependencies": {
     "color": "^1.0.3",
