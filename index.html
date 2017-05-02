@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" width="800" height="300">Browser too old</canvas>
+<script src="lib/animationvideo.js"></script>
+<script>
+  var scene = new AnimationVideo.Scenes.Default(),
+    engine = new AnimationVideo.Engine(document.getElementById('canvas'), scene),
+    SP = AnimationVideo.Sprites,
+    ANI = AnimationVideo.Animations,
+    Sequence = AnimationVideo.Sequence,
+    Easing = AnimationVideo.Easing;
+
+  scene.init({
+    "arrow": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAp1JREFUeNqEU21IU1EYfu7unW5Ty6aBszYs6MeUjGVYokHYyH5E1B9rZWFEFPQnAwmy6Hc/oqhfJsRKSSZGH1JIIX3MNCsqLTD9o1Oj6ebnnDfvvefezrnbdCHhCw/n433P8z7nPe/hBEEAtX0U7hc164uwuvVSXKwZLoOmaRDim+7m9vZa0WiEKSUFFpNpCWlmMyypqTDRuYn6t3k8vmQ2gRDCxs0t9fW45F52aBTROJLtZl7nEZad2m+KtoQCQ0FBARyOCGRZ/q92I1WgqqXlfdd95VsrK8/pChIEqqpCkiQsiCII0aBQZZoWl8lzFDwsFjMl0DBLY8Lj41hBwK4jSQrWOIphL6xYyhwJDWGo6wFSaH1Y3PTCAsITE1oyAa8flhWkbSiCLX8vun11eiGIpiJ/z2nYdx5HqLdVV7elrOzsuqysL3rmBIGiKPizKCHHWY4PLVeQbnXAdegqdhy+hu8dDTBnbqQJZJ1A7u+vz7RaiymWCZgCRSF6Edk8b9cx+B/W6WuVxPaZnyiqXoPpyUmVYvkKTIFClHigEieKjYuSvETUllaF4GAUM1NT6ooaJDKx+aDfC9fByxj90REb+9ppmIoAscH/6leg8MS9DJXPAM9xHCM443K57C6biMjcHDaVVCHw9RmCA2/RGC5C00AqXk/m4p20HZK4CM/J3Zk9n0ecMBhDQnJHcrTisyMfdQXOilrdMfxcwoHq/fg5R59TiQV3hYGKo6X2J/c7LyQIjOx9GXhOw/zoJ8wEevRGyp53o/lGMNYsBgPtEwLecwov7/jGDKa1twT6o3KpL4MdZgGsWZLtfPr7f1q58k1JNHy7YYaM+J+K3Y2PmAIbRavX66229hrGVvvL5uzsHDEUvUu+NT1my78CDAAMK1a8/QaZCgAAAABJRU5ErkJggg=="
+  }).scene((scene, layer) => {
+    var l;
+    l = [
+      (ctx) => {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#334';
+        ctx.fillRect(0, 0, scene.w, scene.h);
+      },
+    ];
+    layer.unshift(l);
+    l = [
+      new SP.Scroller({
+        text: "Hi People! This is a D€mø!!!\uD83D\uDCA9",
+        x: 820,
+        y: 10,
+        animation: function (i) {
+          return new Sequence(true, -i * 100, [[
+            new ANI.ChangeTo({
+              x: [-400, 1800, -200, -200, 1500, 0],
+              y: 290
+            }, 3000, Easing.quadOut),
+            new ANI.WaitDisabled(10000),
+            new ANI.ChangeTo({
+              x: 820,
+              y: 10,
+              a: 1
+            })
+          ], [
+            new ANI.Wait(2700),
+            new ANI.ChangeTo({
+              a: 0
+            }, 300),
+            new ANI.WaitDisabled(10000),
+          ], [
+            new ANI.ChangeTo({
+              color: '#FF0'
+            }, 300),
+            new ANI.ChangeTo({
+              color: '#F00'
+            }, 300)
+          ]])
+        }
+
+      }),
+      new SP.Group({
+        sprite: [
+          glow(120, 120, 300),
+          new SP.Image({
+            image: 'arrow',
+
+            scaleX: 10,
+            scaleY: 10
+          })
+
+        ],
+        y: 200,
+        animation: new Sequence(true, 0, [[
+          new ANI.ChangeTo({
+            x: 500,
+            y: 150
+          }, 500, Easing.quadInOut),
+          new ANI.ChangeTo({
+            x: 200,
+            y: 150
+          }, 500, Easing.quadInOut)
+        ]])
+      }),
+      new SP.Group({
+        sprite: [
+          new SP.Image({
+            image: 'arrow',
+            y: -20,
+            animation: new Sequence(true, 0, [[
+              new ANI.ChangeTo({
+                scaleX: 5,
+                scaleY: 5
+              }, 250),
+              new ANI.ChangeTo({
+                scaleX: 1
+              }, 250),
+              new ANI.ChangeTo({
+                scaleY: 1
+              }, 250)
+            ]])
+          }),
+          new SP.Image({
+            image: 'arrow',
+            y: 20
+          })
+        ],
+        y: 200,
+        x: -50,
+        animation: new Sequence(true, -1000, [[
+          new ANI.ChangeTo({
+            x: 850,
+            y: [400, 0, 200]
+          }, 1000),
+          new ANI.ChangeTo({
+            x: -50
+          })
+        ], [
+          new ANI.ChangeTo({
+            arc: 360
+          }, 250),
+          new ANI.ChangeTo({
+            arc: 0
+          })
+        ]])
+      }),
+      explosion(100, 100, 0),
+      explosion(600, 180, 200),
+      explosion(270, 230, 400),
+      explosion(520, 80, 600),
+      explosion(200, 160, 800),
+    ];
+    layer.unshift(l);
+    l = [
+      new SP.FastBlur({
+        alphaMode: 'lighter',
+        scaleX: 20,
+        scaleY: 20,
+        darker: 0.3,
+        a: 0.4
+      })
+    ];
+    layer.unshift(l);
+
+    function explosion(x, y, timeshift) {
+      return new SP.Emitter({
+        'class': SP.Particle,
+        x: x,
+        y: y,
+        scaleX: 48,
+        scaleY: 48,
+        alphaMode: function (i) {
+          return ((i % 2)) ? 'lighter' : 'source-over'
+        },
+        count: 30,
+        color: function () {
+          return 'rgb(' + ~~(Math.random() * 128 + 127) + ',' + ~~(Math.random() * 64 + 32) + ',' + ~~(Math.random() * 16) + ')'
+        },
+        a: function (i) {
+          return ((i % 2)) ? 0.8 : 0.5
+        },
+        animation: function (i) {
+          return new Sequence(true, -i * 1 - timeshift, [[
+            new ANI.ChangeTo({
+              x: ANI.ChangeTo.createChangeByFunction(function () {
+                return Math.random() * 50 - 25;
+              }),
+              y: ANI.ChangeTo.createChangeByFunction(function () {
+                return Math.random() * 50 - 25;
+              })
+            }, 300),
+            new ANI.ChangeTo({
+              x: ANI.ChangeTo.createChangeByFunction(function () {
+                return Math.random() * 100 - 50;
+              }),
+              y: ANI.ChangeTo.createChangeByFunction(function () {
+                return Math.random() * 100 - 50;
+              }),
+              a: 0,
+              scaleX: 10,
+              scaleY: 10
+            }, 300),
+            new ANI.WaitDisabled(2000),
+            new ANI.ChangeTo({
+              x: ANI.ChangeTo.createChangeToFunction(function () {
+                return x
+              }),
+              y: ANI.ChangeTo.createChangeToFunction(function () {
+                return y
+              }),
+              a: ((i % 2)) ? 0.8 : 0.5,
+              scaleX: 48,
+              scaleY: 48
+            }),
+          ]])
+        }
+      })
+    }
+
+    function glow(width, height, count) {
+      function getX(i) {
+        var t = i / count;
+        if (t < 0.25) {
+          return 4 * t * width - width / 2;
+        } else if (t < 0.5) {
+          return width / 2;
+        } else if (t < 0.75) {
+          return -width / 2;
+        }
+        return (1 - t) * 4 * width - width / 2;
+      }
+
+      function getY(i) {
+        var t = i / count;
+        if (t < 0.25) {
+          return -height / 2;
+        } else if (t < 0.5) {
+          return (t - 0.25) * 4 * height - height / 2;
+        } else if (t < 0.75) {
+          return (t - 0.5) * 4 * height - height / 2;
+        }
+        return height / 2;
+      }
+
+
+      return new SP.Emitter({
+        'class': SP.Particle,
+        x: getX,
+        y: getY,
+        scaleX: 48,
+        scaleY: 48,
+        alphaMode: 'lighter',
+        count: count,
+        color: function () {
+          return 'rgb(' + ~~(Math.random() * 16) + ',' + ~~(Math.random() * 16) + ',' + ~~(Math.random() * 64 + 195) + ')'
+        },
+        a: 0,
+        animation: function (i) {
+          var x = getX(i),
+            y = getY(i);
+          return new Sequence(true, 0, [[
+            new ANI.ChangeTo({
+              x: ANI.ChangeTo.createChangeToFunction(function () {
+                return x + Math.random() * 50 - 25;
+              }),
+              y: ANI.ChangeTo.createChangeToFunction(function () {
+                return y + Math.random() * 50 - 25;
+              })
+            }, 800),
+            new ANI.ChangeTo({
+              x: ANI.ChangeTo.createChangeToFunction(function () {
+                return x + Math.random() * 50 - 25;
+              }),
+              y: ANI.ChangeTo.createChangeToFunction(function () {
+                return y + Math.random() * 50 - 25;
+              })
+            }, 800),
+          ], [
+            new ANI.Wait(1000),
+            new ANI.ChangeTo({
+              a: 1
+            }, 1500),
+
+            new ANI.Stop()
+          ]])
+        }
+      })
+    }
+
+    return layer;
+  });
+  engine.run();
+</script>
+</body>
+</html>

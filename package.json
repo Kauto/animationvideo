@@ -1,0 +1,32 @@
+{
+  "name": "animationvideo",
+  "version": "0.1.0",
+  "description": "Javascript-Libary for animation and audio syncing",
+  "main": "src/animationvideo.js",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development webpack --progress --hide-modules",
+    "watch": "cross-env NODE_ENV=development webpack --watch --progress --hide-modules",
+    "hmr": "cross-env NODE_ENV=development webpack-dev-server --inline --hot",
+    "production": "cross-env NODE_ENV=production webpack --progress --hide-modules",
+    "test": "cross-env NODE_ENV=test ./node_modules/mocha/bin/_mocha --compilers js:babel-core/register --ui bdd --recursive ./test"
+  },
+  "keywords": [
+    "animation",
+    "canvas",
+    "audio",
+    "tween"
+  ],
+  "author": "Markus Madeja",
+  "license": "MIT",
+  "dependencies": {
+    "color": "^1.0.3",
+    "eases": "^1.0.8",
+    "lodash": "^4.17.4"
+  },
+  "devDependencies": {
+    "babel-plugin-transform-class-properties": "^6.22.0",
+    "chai": "^3.5.0",
+    "laravel-mix": "^0.8.8",
+    "mocha": "^3.2.0"
+  }
+}
