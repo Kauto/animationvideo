@@ -1,6 +1,6 @@
 {
   "name": "animationvideo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Javascript-Libary for animation and audio syncing",
   "main": "src/animationvideo.js",
   "scripts": {
@@ -17,7 +17,7 @@
     "tween"
   ],
   "author": "Markus Madeja",
-  "repository" : "Kauto/animationvideo",
+  "repository": "Kauto/animationvideo",
   "license": "MIT",
   "dependencies": {
     "color": "^1.0.3",
