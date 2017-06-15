@@ -1,8 +1,6 @@
 import calc from '../../func/calc';
 import Circle from './Circle';
 
-const degToRad = 0.017453292519943295; //Math.PI / 180;
-
 // Sprite
 // Draw a Circle
 export default class Rect extends Circle {

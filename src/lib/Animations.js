@@ -2,6 +2,7 @@ import _ChangeTo from './Animations/ChangeTo';
 import _End from './Animations/End';
 import _EndDisabled from './Animations/EndDisabled';
 import _Image from './Animations/Image';
+import _ImageFrame from './Animations/ImageFrame';
 import _Move from './Animations/Move';
 import _Once from './Animations/Once';
 import _Play from './Animations/Play';
@@ -15,6 +16,7 @@ var ChangeTo = (...args) => new _ChangeTo(...args),
   End = (...args) => new _End(...args),
   EndDisabled = (...args) => new _EndDisabled(...args),
   Image = (...args) => new _Image(...args),
+  ImageFrame = (...args) => new _ImageFrame(...args),
   Move = (...args) => new _Move(...args),
   Once = (...args) => new _Once(...args),
   Play = (...args) => new _Play(...args),
@@ -32,6 +34,7 @@ export default {
   End,
   EndDisabled,
   Image,
+  ImageFrame,
   Move,
   Once,
   Play,
