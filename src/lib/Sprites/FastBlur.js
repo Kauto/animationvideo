@@ -11,6 +11,7 @@ export default class FastBlur extends Circle {
     this.height = calc(params.height);
     // Darker
     this.darker = ifNull(calc(params.darker), 0);
+    this.pixelated = ifNull(calc(params.pixelated), false);
   }
 
   generateTempCanvas(context) {
@@ -58,7 +59,9 @@ export default class FastBlur extends Circle {
 
         context.globalCompositeOperation = this.alphaMode;
         context.globalAlpha = a;
+        context.imageSmoothingEnabled = !this.pixelated;
         context.drawImage(this.temp_canvas, 0, 0, targetW, targetH, this.x, this.y, w, h);
+        context.imageSmoothingEnabled = true;
       }
     }
   }
