@@ -17,6 +17,9 @@ export default class Letter extends Circle {
         this.font = ifNull(calc(params.font), '26px monospace');
         // position
         this.position = ifNull(calc(params.position), Letter.CENTER);
+
+        this.borderColor = calc(params.borderColor);
+        this.lineWidth = ifnull(calc(params.lineWidth), 1)
     }
 
     // draw-methode
@@ -40,6 +43,13 @@ export default class Letter extends Circle {
             context.font = this.font;
             context.fillStyle = this.color;
             context.fillText(this.text, 0, 0);
+
+            if (this.borderColor) {
+                context.strokeStyle = this.borderColor;
+                context.lineWidth = this.lineWidth;
+                context.strokeText(this.text, 0, 0);
+            }
+
             context.restore();
         }
     };
