@@ -1,3 +1,4 @@
+import ifNull from '../../func/ifnull';
 import calc from '../../func/calc';
 import Circle from './Circle';
 
@@ -14,7 +15,7 @@ export default class Rect extends Circle {
     this.height = calc(params.height);
 
     this.borderColor = calc(params.borderColor);
-    this.lineWidth = ifnull(calc(params.lineWidth), 1)
+    this.lineWidth = ifNull(calc(params.lineWidth), 1);
   }
 
   // Draw-Funktion

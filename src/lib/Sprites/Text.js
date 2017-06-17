@@ -19,7 +19,7 @@ export default class Letter extends Circle {
         this.position = ifNull(calc(params.position), Letter.CENTER);
 
         this.borderColor = calc(params.borderColor);
-        this.lineWidth = ifnull(calc(params.lineWidth), 1)
+        this.lineWidth = ifNull(calc(params.lineWidth), 1);
     }
 
     // draw-methode
