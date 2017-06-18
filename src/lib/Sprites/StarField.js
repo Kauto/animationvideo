@@ -94,7 +94,7 @@ export default class StarField extends Rect {
 
   animate (timepassed) {
     let ret = super.animate(timepassed);
-    if (this.enabled) {
+    if (this.enabled && this.width && this.height) {
       let i = this.count;
       while (i--) {
         this.moveStar(i, timepassed >> 4, true);
