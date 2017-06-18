@@ -9,8 +9,9 @@ import _Text from './Sprites/Text';
 import _Particle from './Sprites/Particle';
 import _Rect from './Sprites/Rect';
 import _Scroller from './Sprites/Scroller';
+import _StarField from './Sprites/StarField';
 
-var
+const
   Callback = (...args) => new _Callback(...args),
   Canvas = (...args) => new _Canvas(...args),
   Circle = (...args) => new _Circle(...args),
@@ -21,7 +22,8 @@ var
   Text = (...args) => new _Text(...args),
   Particle = (...args) => new _Particle(...args),
   Rect = (...args) => new _Rect(...args),
-  Scroller = (...args) => new _Scroller(...args);
+  Scroller = (...args) => new _Scroller(...args),
+  StarField = (...args) => new _StarField(...args);
 
 export default {
   Callback,
@@ -34,5 +36,6 @@ export default {
   Text,
   Particle,
   Rect,
-  Scroller
+  Scroller,
+  StarField
 };

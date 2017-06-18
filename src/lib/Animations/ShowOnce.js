@@ -7,6 +7,6 @@ export default class ShowOnce {
     run(sprite, time) {
         sprite.enabled = sprite.enabled && this.showOnce;
         this.showOnce = false;
-        return -1;
+        return 0;
     }
 }

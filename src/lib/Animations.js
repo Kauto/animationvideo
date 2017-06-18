@@ -1,3 +1,4 @@
+import _Callback from './Animations/Callback';
 import _ChangeTo from './Animations/ChangeTo';
 import _End from './Animations/End';
 import _EndDisabled from './Animations/EndDisabled';
@@ -12,7 +13,9 @@ import _Stop from './Animations/Stop';
 import _Wait from './Animations/Wait';
 import _WaitDisabled from './Animations/WaitDisabled';
 
-var ChangeTo = (...args) => new _ChangeTo(...args),
+const
+  Callback = (...args) => new _Callback(...args),
+  ChangeTo = (...args) => new _ChangeTo(...args),
   End = (...args) => new _End(...args),
   EndDisabled = (...args) => new _EndDisabled(...args),
   Image = (...args) => new _Image(...args),
@@ -30,6 +33,7 @@ ChangeTo.createChangeToFunction = _ChangeTo.createChangeToFunction;
 ChangeTo.createChangeByFunction = _ChangeTo.createChangeByFunction;
 
 export default {
+  Callback,
   ChangeTo,
   End,
   EndDisabled,
