@@ -1,6 +1,6 @@
 {
   "name": "animationvideo",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Javascript-Libary for animation and audio syncing",
   "main": "lib/animationvideo.min.js",
   "scripts": {
