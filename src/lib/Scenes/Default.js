@@ -39,7 +39,6 @@ class Scene {
     this.initCallback && this.initCallback(output, parameter);
 
     this.engine = engine;
-    this.reset(output);
   }
 
   destroy(callback) {
@@ -102,7 +101,8 @@ class Scene {
         return false;
       }
     }
-
+    
+    this.reset(output);
     return true;
   }
 
