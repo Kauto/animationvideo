@@ -4,7 +4,7 @@ import Circle from './Circle';
 
 const degToRad = 0.017453292519943295; //Math.PI / 180;
 
-export default class Letter extends Circle {
+export default class Text extends Circle {
     // const
     static LEFT_TOP = 0;
     static CENTER = 1;
@@ -16,8 +16,9 @@ export default class Letter extends Circle {
         // font
         this.font = ifNull(calc(params.font), '26px monospace');
         // position
-        this.position = ifNull(calc(params.position), Letter.CENTER);
+        this.position = ifNull(calc(params.position), Text.CENTER);
 
+        this.color = calc(params.color);
         this.borderColor = calc(params.borderColor);
         this.lineWidth = ifNull(calc(params.lineWidth), 1);
     }
@@ -25,15 +26,14 @@ export default class Letter extends Circle {
     // draw-methode
     draw(context, additionalModifier) {
         if (this.enabled) {
-            let a = this.a,
-                size = -this.size >> 1;
+            let a = this.a;
             if (additionalModifier) {
                 a *= additionalModifier.a;
             }
             context.globalCompositeOperation = this.alphaMode;
             context.globalAlpha = a;
             context.save();
-            if (Letter.LEFT_TOP) {
+            if (Text.LEFT_TOP) {
                 context.textAlign = 'left';
                 context.textBaseline = 'top';
             }
@@ -41,8 +41,11 @@ export default class Letter extends Circle {
             context.scale(this.scaleX, this.scaleY);
             context.rotate(this.arc * degToRad);
             context.font = this.font;
-            context.fillStyle = this.color;
-            context.fillText(this.text, 0, 0);
+
+            if (this.color) {
+                context.fillStyle = this.color;
+                context.fillText(this.text, 0, 0);
+            }
 
             if (this.borderColor) {
                 context.strokeStyle = this.borderColor;

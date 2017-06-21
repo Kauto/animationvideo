@@ -3,6 +3,7 @@ import ifNull from '../../func/ifnull';
 import EasingLinear from 'eases/linear';
 import isArray from 'lodash/isArray';
 import Color from 'color';
+import pasition from 'pasition';
 
 function moveDefault(progress, data) {
   return data.from + progress * data.delta;
@@ -26,6 +27,10 @@ function moveColor(progress, data, sprite) {
   return data.colorTo.mix(data.colorFrom, progress).string();
 }
 
+function movePath(progress, data, sprite) {
+  return pasition._lerp(data.pathFrom, data.pathTo, progress);
+}
+
 // to values of a object
 export default class ChangeTo {
 
@@ -35,6 +40,7 @@ export default class ChangeTo {
     for (let k in changeValues) {
       let value = changeValues[k],
         isColor = k === 'color',
+        isPath = k === 'path',
         isFunction = typeof value === 'function',
         isBezier = !isColor && isArray(value);
       this.changeValues.push({
@@ -42,8 +48,9 @@ export default class ChangeTo {
         to: isBezier ? value[value.length - 1] : calc(value, 1, {}),
         bezier: isBezier ? value : false,
         isColor: isColor,
+        isPath: isPath,
         isFunction: isFunction,
-        moveAlgorithm: isFunction ? value : isColor ? moveColor : isBezier ? moveBezier : moveDefault
+        moveAlgorithm: isFunction ? value : isColor ? moveColor : isPath ? movePath : isBezier ? moveBezier : moveDefault
       });
     }
     this.duration = ifNull(calc(duration), 0);
@@ -66,6 +73,8 @@ export default class ChangeTo {
       } else if (data.isColor) {
         data.colorFrom = Color(sprite[data.name]);
         data.colorTo = Color(data.to);
+      } else if (data.isPath) {
+        [data.pathFrom, data.pathTo] = pasition._preprocessing(pasition.path2shapes(sprite[data.name]), pasition.path2shapes(data.to));
       } else if (data.bezier) {
         data.values = [sprite[data.name], ...data.bezier];
       } else {
@@ -82,7 +91,7 @@ export default class ChangeTo {
     }
 
     // return time left
-    if (this.duration < time || this.duration === 0) {
+    if (this.duration <= time) {
       let l = this.changeValues.length,
         data;
 
