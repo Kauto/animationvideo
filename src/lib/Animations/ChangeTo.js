@@ -74,7 +74,7 @@ export default class ChangeTo {
         data.colorFrom = Color(sprite[data.name]);
         data.colorTo = Color(data.to);
       } else if (data.isPath) {
-        [data.pathFrom, data.pathTo] = pasition._preprocessing(pasition.path2shapes(sprite[data.name]), pasition.path2shapes(data.to));
+        [data.pathFrom, data.pathTo] = pasition._preprocessing(isArray(sprite[data.name]) ? sprite[data.name] : pasition.path2shapes(sprite[data.name]), isArray(data.to) ? data.to : pasition.path2shapes(data.to));
       } else if (data.bezier) {
         data.values = [sprite[data.name], ...data.bezier];
       } else {

@@ -101,7 +101,7 @@ class Scene {
         return false;
       }
     }
-    
+
     this.reset(output);
     return true;
   }
