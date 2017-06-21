@@ -83,7 +83,7 @@ class Scene {
   }
 
   loading(callback) {
-    if (typeof callbackOrImages === 'function') {
+    if (typeof callback === 'function') {
       this.loadingCallback = callback;
     }
     return this;
