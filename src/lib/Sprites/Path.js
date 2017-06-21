@@ -9,8 +9,9 @@ export default class Path extends Text {
   constructor (params) {
     super(params);
 
-    this.oldPath = this.path = calc(params.path);
-    this.path2D = new Path2D(this.path);
+    this.oldPath = undefined;
+    this.path = calc(params.path);
+    this.path2D = new Path2D();
   }
 
   // draw-methode
