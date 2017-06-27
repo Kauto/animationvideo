@@ -75,7 +75,7 @@ export default class StarField extends Rect {
     }
 
     var projectX = ~~(this.centerX + (x / z) * this.scaleZ),
-      projectY = ~~(this.centerY + (y / z) * this.scaleZ >> 1);
+      projectY = ~~(this.centerY + (y / z) * this.scaleZ / 2);
 
     this.starsEnabled[i] = this.starsEnabled[i] && projectX >= this.x && projectY >= this.y && projectX < this.width && projectY < this.height;
 
@@ -97,7 +97,7 @@ export default class StarField extends Rect {
     if (this.enabled && this.width && this.height) {
       let i = this.count;
       while (i--) {
-        this.moveStar(i, timepassed >> 4, true);
+        this.moveStar(i, timepassed / 16, true);
         if (this.starsEnabled[i]) {
           this.moveStar(i, -3, false);
         }

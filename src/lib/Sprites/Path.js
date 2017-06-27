@@ -1,7 +1,6 @@
 import calc from '../../func/calc';
 import Text from './Text';
 import _isArray from 'lodash/isArray';
-import pasition from 'pasition';
 
 const degToRad = 0.017453292519943295; //Math.PI / 180;
 
@@ -71,6 +70,4 @@ export default class Path extends Text {
       context.restore();
     }
   };
-
-  static path2shapes = pasition.path2shapes;
 }

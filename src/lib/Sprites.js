@@ -27,8 +27,6 @@ const
   Scroller = (...args) => new _Scroller(...args),
   StarField = (...args) => new _StarField(...args);
 
-Path.path2shapes = _Path.path2shapes;
-
 export default {
   Callback,
   Canvas,
