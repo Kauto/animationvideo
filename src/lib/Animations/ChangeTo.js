@@ -49,8 +49,8 @@ export default class ChangeTo {
         bezier: isBezier ? value : false,
         isColor: isColor,
         isPath: isPath,
-        isFunction: isFunction,
-        moveAlgorithm: isFunction ? value : isColor ? moveColor : isPath ? movePath : isBezier ? moveBezier : moveDefault
+        isFunction: isFunction ? value : false,
+        moveAlgorithm: isColor ? moveColor : isPath ? movePath : isBezier ? moveBezier : moveDefault
       });
     }
     this.duration = ifNull(calc(duration), 0);
@@ -68,8 +68,22 @@ export default class ChangeTo {
       data = this.changeValues[l];
       if (data.isFunction) {
         data.from = sprite[data.name];
-        data.moveAlgorithm(0, data);
-        data.to = data.moveAlgorithm(1, data);
+        data.to = data.isFunction(data.from);
+        if (data.isColor) {
+          data.colorFrom = Color(data.from);
+          data.colorTo = Color(data.to);
+          data.moveAlgorithm = moveColor;
+        } else if (data.isPath) {
+          [data.pathFrom, data.pathTo] = pasition._preprocessing(pasition.path2shapes(data.from), pasition.path2shapes(data.to));
+          data.moveAlgorithm = movePath;
+        }
+        else if (isArray(data.to)) {
+          data.values = [sprite[data.name], ...data.to];
+          data.moveAlgorithm = moveBezier;
+        } else {
+          data.delta = data.to - data.from;
+          data.moveAlgorithm = moveDefault;
+        }
       } else if (data.isColor) {
         data.colorFrom = Color(sprite[data.name]);
         data.colorTo = Color(data.to);
@@ -111,28 +125,5 @@ export default class ChangeTo {
       }
     }
     return time - this.duration;
-  }
-
-  static createChangeToFunction = (callbackOrValue) => {
-    return (progress, data) => {
-      if (progress) {
-        return data.from + progress * data.delta;
-      } else {
-          data.to = typeof(callbackOrValue) === 'function' ? callbackOrValue() : callbackOrValue;
-          data.delta = data.to - data.from;
-          return data.from;
-      }
-    }
-  }
-
-  static createChangeByFunction = (callbackOrValue) => {
-    return (progress, data) => {
-      if (progress) {
-        return data.from + progress * data.delta;
-      } else {
-        data.delta = typeof(callbackOrValue) === 'function' ? callbackOrValue() : callbackOrValue;
-        return data.from;
-      }
-    }
   }
 }

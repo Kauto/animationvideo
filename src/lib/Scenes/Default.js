@@ -17,6 +17,7 @@ class Scene {
   sceneCallback = null;
   engine = null;
   endTime = false;
+  loadingShow = true;
 
   constructor(endTime) {
     this.endTime = endTime;
@@ -81,25 +82,38 @@ class Scene {
     this.engine && this.engine.normalizeContext(ctx);
   }
 
-  loading(callback) {
+  loading(callbackOrBool) {
     if (typeof callback === 'function') {
       this.loadingCallback = callback;
+      this.loadingShow = true;
+    } else {
+      this.loadingCallback = null;
+      this.loadingShow = !!callbackOrBool;
     }
     return this;
   }
 
   callLoading(output) {
-    if (ImageManager.getCount() && ImageManager.getLoaded() < ImageManager.getCount()) {
-      this.loadingscreen(output, ImageManager.getLoaded() / ImageManager.getCount());
-      return false;
+    const imagePercentage = ImageManager.getCount() && ImageManager.getLoaded() < ImageManager.getCount() && ImageManager.getLoaded() / ImageManager.getCount();
+
+    if (this.loadingShow) {
+      if (this.loadingCallback) {
+        let result = this.loadingCallback(output, imagePercentage);
+        if (result === null) {
+          return false;
+        } else if (result !== true) {
+          this.loadingscreen(output, result ? result : (imagePercentage || 'Loading...'));
+          return false;
+        }
+      } else {
+        if (imagePercentage) {
+          this.loadingscreen(output, imagePercentage);
+        }
+      }
     }
 
-    if (this.loadingCallback) {
-      let result = this.loadingCallback(output);
-      if (result !== true) {
-        this.loadingscreen(output, result ? result : 'Loading...');
-        return false;
-      }
+    if (imagePercentage) {
+      return false;
     }
 
     this.reset(output);

@@ -1,7 +1,7 @@
 import calc from '../func/calc';
 import ifNull from '../func/ifnull';
 
-export default class Sequenz {
+export default class Sequence {
   static TIMELAPSE_TO_FORCE_DISABLE = null;
   static TIMELAPSE_TO_STOP = false;
 
@@ -72,7 +72,7 @@ export default class Sequenz {
 
     // search for additional animations
     for (i in this.animation) {
-      if (typeof this.animationPosition[i] === "object" && this.animationPosition[i].object instanceof Sequenz) {
+      if (typeof this.animationPosition[i] === "object" && this.animationPosition[i].object instanceof Sequence) {
         this.animationPosition[i].object.changeAnimationStatus(ani);
       }
     }
@@ -117,9 +117,9 @@ export default class Sequenz {
                 // Do the animation
                 timeleft = current_animationPosition.object.run(sprite, current_animationPosition.timelapsed);
 
-                if (timeleft === Sequenz.TIMELAPSE_TO_FORCE_DISABLE) {
+                if (timeleft === Sequence.TIMELAPSE_TO_FORCE_DISABLE) {
                   return timepassed;
-                } else if (timeleft === Sequenz.TIMELAPSE_TO_STOP) {
+                } else if (timeleft === Sequence.TIMELAPSE_TO_STOP) {
                   // reset current animation for the future
                   current_animationPosition.timelapsed = 0;
                   // create next obj

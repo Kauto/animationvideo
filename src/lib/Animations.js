@@ -29,9 +29,6 @@ const
   Wait = (...args) => new _Wait(...args),
   WaitDisabled = (...args) => new _WaitDisabled(...args);
 
-ChangeTo.createChangeToFunction = _ChangeTo.createChangeToFunction;
-ChangeTo.createChangeByFunction = _ChangeTo.createChangeByFunction;
-
 export default {
   Callback,
   ChangeTo,
