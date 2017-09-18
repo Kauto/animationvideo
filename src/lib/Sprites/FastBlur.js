@@ -12,6 +12,7 @@ export default class FastBlur extends Circle {
     // Darker
     this.darker = ifNull(calc(params.darker), 0);
     this.pixel = ifNull(calc(params.pixel), false);
+    this.clear = ifNull(calc(params.clear), false);
   }
 
   generateTempCanvas(context) {
@@ -47,14 +48,23 @@ export default class FastBlur extends Circle {
       if (additionalModifier) {
         a *= additionalModifier.a;
       }
+
       if (a > 0) {
+        this.tctx.globalCompositeOperation = "copy";
+        this.tctx.globalAlpha = 1;
         this.tctx.drawImage(context.canvas, this.x, this.y, w, h, 0, 0, targetW, targetH);
 
         if (this.darker > 0) {
-          this.tctx.globalCompositeOperation = "source-over";
-          this.tctx.globalAlpha = 1;
+          this.tctx.globalCompositeOperation = "source-atop";
           this.tctx.fillStyle = "rgba(0,0,0," + this.darker + ")";
           this.tctx.fillRect(0, 0, targetW, targetH);
+        }
+
+        // optional: clear screen
+        if (this.clear) {
+          context.globalCompositeOperation = "source-over";
+          context.globalAlpha = 1;
+          context.clearRect(this.x, this.y, w, h);
         }
 
         context.globalCompositeOperation = this.alphaMode;
@@ -62,6 +72,13 @@ export default class FastBlur extends Circle {
         context.imageSmoothingEnabled = !this.pixel;
         context.drawImage(this.temp_canvas, 0, 0, targetW, targetH, this.x, this.y, w, h);
         context.imageSmoothingEnabled = true;
+      }
+    } else {
+      // optional: clear screen
+      if (this.clear) {
+        context.globalCompositeOperation = "source-over";
+        context.globalAlpha = 1;
+        context.clearRect(this.x, this.y, w, h);
       }
     }
   }

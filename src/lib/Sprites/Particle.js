@@ -34,7 +34,7 @@ export default class Particle extends Circle {
   }
 
   static generateGradientImage(cr, cg, cb) {
-    var canvas = document.createElement('canvas');
+    let canvas = document.createElement('canvas');
     canvas.width = canvas.height = gradientSize;
 
     let txtc = canvas.getContext('2d');
@@ -56,7 +56,8 @@ export default class Particle extends Circle {
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {
-      if (!(this.color instanceof Color && this.color.model === 'rgb')) {
+      // faster as: if (!(this.color instanceof Color && this.color.model === 'rgb')) {
+      if (!this.color || !this.color.color) {
         this.color = Color(this.color).rgb();
       }
       let a = this.a,

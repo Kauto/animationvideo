@@ -1,3 +1,4 @@
+import ifNull from '../../func/ifnull';
 import Circle from './Circle';
 
 const degToRad = 0.017453292519943295; //Math.PI / 180;
@@ -6,7 +7,7 @@ export default class Group extends Circle {
   constructor(params) {
     super(params);
     // Sprite
-    this.sprite = params.sprite;
+    this.sprite = ifNull(params.sprite, []);
   }
 
   // overwrite changeAnimationStatus
