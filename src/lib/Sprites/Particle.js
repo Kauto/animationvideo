@@ -5,9 +5,7 @@ const gradientSize = 64;
 const gradientResolution = 4;
 const gradientSizeHalf = gradientSize >> 1;
 
-export default class Particle extends Circle {
-
-  static Gradient = null;
+class Particle extends Circle {
 
 
   constructor(params) {
@@ -73,3 +71,7 @@ export default class Particle extends Circle {
     }
   }
 }
+
+Particle.Gradient = null;
+
+export default Particle;

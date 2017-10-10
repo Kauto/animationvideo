@@ -18,23 +18,44 @@
     Sequence = AnimationVideo.Sequence,
     Easing = AnimationVideo.Easing;
 
+  let x = 0, y = -2, click = false;
+  document.getElementById('canvasNorm').addEventListener('mousemove', function(e) {[x, y] = sceneNorm.transformPoint(e.offsetX, e.offsetY)});
+  document.getElementById('canvasNorm').addEventListener('mousedown', function(e) {click = true;});
+  document.getElementById('canvasNorm').addEventListener('mouseup', function(e) {click = false;});
   sceneNorm.init().scene((scene, layer) => {
     var l;
     l = [
-      (ctx) => {
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = '#334';
-        ctx.fillRect(0, 0, scene.w, scene.h);
-      },
+      new SP.FastBlur({
+        a: 0.9,
+        x: -1,
+        y: -0.375,
+        width: 2,
+        height: 0.75,
+        scaleX: 10,
+        scaleY: 10,
+        darker: 0.3,
+        clear: true,
+        pixel: true
+      })
     ];
     layer.unshift(l);
     l = [
-      new SP.Rect({
-        x: 0.1,
-        width: 1,
-        height: 0.5,
-        color: '#F00'
+      new SP.Circle({
+        x: x,
+        y: y,
+        scaleX: 0.1,
+        scaleY: 0.1,
+        color: '#F00',
+        animation: Sequence(true, 0, [[
+          ANI.ChangeTo({
+            x: () => x,
+            y: () => y
+          }, 500, Easing.cubicInOut)
+        ],[
+            ANI.ChangeTo({
+            color: () => click ? '#00F' : '#F00'
+          }, 100, Easing.cubicInOut)
+        ]])
       })
     ];
     layer.unshift(l);

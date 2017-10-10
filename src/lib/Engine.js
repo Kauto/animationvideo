@@ -1,29 +1,30 @@
 'use strict';
 
 class Engine {
-  _output = {
-    canvas: null,
-    context: null,
-    w: 0,
-    h: 0,
-    ratio: 1
-  };
-
-  // the current _scene-object
-  _scene = null;
-  // is a _scene ready for action?
-  _isSceneInitialized = false;
-  // new _scene to initialize
-  _newScene = null;
-
-  // time measurement
-  _lastTimestamp = 0;
-  _timePassed = 0;
-
-  // reference to
-  _referenceRequestAnimationFrame = null;
-
   constructor(canvas, scene, autoresize) {
+    this._output = {
+      canvas: null,
+      context: null,
+      w: 0,
+      h: 0,
+      ratio: 1
+    };
+
+    // the current _scene-object
+    this._scene = null;
+    // is a _scene ready for action?
+    this._isSceneInitialized = false;
+    // new _scene to initialize
+    this._newScene = null;
+
+    // time measurement
+    this._lastTimestamp = 0;
+    this._timePassed = 0;
+
+    // reference to
+    this._referenceRequestAnimationFrame = null;
+
+
     // data about the _output canvas
     this._output.canvas = canvas;
     if (!(typeof(canvas) === "object" && canvas !== null && canvas.getContext)) {

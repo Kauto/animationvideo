@@ -1,10 +1,7 @@
 import calc from '../func/calc';
 import ifNull from '../func/ifnull';
 
-export default class Sequence {
-  static TIMELAPSE_TO_FORCE_DISABLE = null;
-  static TIMELAPSE_TO_STOP = false;
-
+class Sequence {
   constructor(loop, timeShift, obj) {
     this.loop = loop;
     // Timeshift - put the sprite into the future
@@ -195,3 +192,7 @@ export default class Sequence {
     return -1;
   }
 }
+Sequence.TIMELAPSE_TO_FORCE_DISABLE = null;
+Sequence.TIMELAPSE_TO_STOP = false;
+
+export default Sequence;

@@ -3,23 +3,21 @@ import ImageManager from '../ImageManager';
 import isNumeric from 'lodash/isNumber';
 
 class Scene {
-  // Layer consists of Sprites
-  layer = [];
-
-  // For precalculation if a layer is a function
-  _cacheLayerIsFunction = [];
-
-  totalTimePassed = 0;
-
-  initCallback = null;
-  loadingCallback = null;
-  destroyCallback = null;
-  sceneCallback = null;
-  engine = null;
-  endTime = false;
-  loadingShow = true;
-
   constructor(endTime) {
+    // Layer consists of Sprites
+    this.layer = [];
+
+    // For precalculation if a layer is a function
+    this._cacheLayerIsFunction = [];
+
+    this.totalTimePassed = 0;
+
+    this.initCallback = null;
+    this.loadingCallback = null;
+    this.destroyCallback = null;
+    this.sceneCallback = null;
+    this.engine = null;
+    this.loadingShow = true;
     this.endTime = endTime;
   }
 

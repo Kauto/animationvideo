@@ -1,9 +1,6 @@
 import isString from 'lodash/isString';
 
 class ImageManager {
-  static Images = {};
-  static count = 0;
-  static loaded = 0;
 
   static add(Images, Callbacks) {
     const self = this || ImageManager;
@@ -59,5 +56,9 @@ class ImageManager {
     return isString(nameOrImage) ? (this || ImageManager).Images[nameOrImage] : nameOrImage;
   }
 }
+
+ImageManager.Images = {};
+ImageManager.count = 0;
+ImageManager.loaded = 0;
 
 export default ImageManager;

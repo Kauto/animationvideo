@@ -1,11 +1,9 @@
 import calc from '../../func/calc';
 import ChangeTo from './ChangeTo';
 
+const DURATION_FOR_1PX = 10;
 
 export default class Move extends ChangeTo {
-
-  static DURATION_FOR_1PX = 10;
-
   constructor(x, y, speed, ease) {
     super({
       x,
@@ -30,7 +28,7 @@ export default class Move extends ChangeTo {
 
       const hypotenuse = Math.sqrt(x.delta * x.delta + y.delta * y.delta);
 
-      this.duration = hypotenuse * Move.DURATION_FOR_1PX / this.speed;
+      this.duration = hypotenuse * DURATION_FOR_1PX / this.speed;
     }
 
     super.init(sprite, time);
