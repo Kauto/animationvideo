@@ -2,7 +2,7 @@
   "name": "animationvideo",
   "version": "0.7.1",
   "description": "Javascript-Libary for animation and audio syncing",
-  "main": "src/animationvideo.js",
+  "main": "lib/animationvideo.js",
   "scripts": {
     "dev": "NODE_ENV=development webpack --progress --hide-modules",
     "watch": "NODE_ENV=development webpack --watch --progress --hide-modules",

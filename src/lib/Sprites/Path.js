@@ -17,6 +17,7 @@ export default class Path extends Group {
     this.borderColor = calc(params.borderColor);
     this.lineWidth = ifNull(calc(params.lineWidth), 1);
     this.clip = ifNull(calc(params.clip), false);
+    this.fixed = ifNull(calc(params.fixed), false);
   }
 
   // draw-methode
@@ -41,11 +42,24 @@ export default class Path extends Group {
       if (additionalModifier) {
         a *= additionalModifier.a;
       }
+
+      let scaleX = this.scaleX,
+        scaleY = this.scaleY;
+
+      if (this.fixed) {
+        if (scaleX == 0) {
+          scaleX = 0.0000000001;
+        }
+        if (scaleY == 0) {
+          scaleY = 0.0000000001;
+        }
+      }
+
       context.globalCompositeOperation = this.alphaMode;
       context.globalAlpha = a;
       context.save();
       context.translate(this.x, this.y);
-      context.scale(this.scaleX, this.scaleY);
+      context.scale(scaleX, scaleY);
       context.rotate(this.arc * degToRad);
 
       if (this.color) {
@@ -61,6 +75,11 @@ export default class Path extends Group {
 
       if (this.clip) {
         context.clip(this.path2D);
+        if (this.fixed) {
+          context.rotate(-this.arc * degToRad);
+          context.scale(1/scaleX, 1/scaleY);
+          context.translate(-this.x, -this.y);
+        }
       }
 
       // draw all sprites
