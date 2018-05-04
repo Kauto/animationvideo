@@ -123,7 +123,7 @@ class Sequence {
                   current_animationPosition.object = null;
                   //disable_vote++;
                   timeleft = 0;
-                } else if (timeleft >= 0) {
+                } else if (timeleft !== false && timeleft >= 0) {
                   // yes, next animation
                   current_animationPosition.position++;
                   // loop animation?
