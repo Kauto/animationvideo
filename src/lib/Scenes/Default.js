@@ -19,6 +19,7 @@ class Scene {
     this.engine = null;
     this.loadingShow = true;
     this.endTime = endTime;
+    this.additionalModifier = undefined;
   }
 
   currentTime() {
@@ -168,7 +169,7 @@ class Scene {
             }
           }
           else {
-            this.layer[l][i].draw(output.context);
+            this.layer[l][i].draw(output.context, this.additionalModifier);
           }
         }
       }

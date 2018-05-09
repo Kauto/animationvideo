@@ -51,6 +51,9 @@ export default class Group extends Circle {
             a:this.a
           };
         }
+      } else {
+        additionalModifier = Object.assign({}. additionalModifier);
+        additionalModifier.a *= this.a;
       }
 
       context.save();

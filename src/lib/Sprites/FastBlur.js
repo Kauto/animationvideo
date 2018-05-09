@@ -19,8 +19,8 @@ export default class FastBlur extends Circle {
     let w = context.canvas.width,
       h = context.canvas.height;
     this.temp_canvas = document.createElement('canvas');
-    this.temp_canvas.width = Math.round(w / this.scaleX);
-    this.temp_canvas.height = Math.round(h / this.scaleY);
+    this.temp_canvas.width = Math.ceil(w / this.scaleX);
+    this.temp_canvas.height = Math.ceil(h / this.scaleY);
     this.tctx = this.temp_canvas.getContext('2d');
     this.tctx.globalCompositeOperation = "source-over";
     this.tctx.globalAlpha = 1;
@@ -47,15 +47,19 @@ export default class FastBlur extends Circle {
 
       if (additionalModifier) {
         a *= additionalModifier.a;
+        if (additionalModifier.w) {
+          targetW = Math.round(w * additionalModifier.w / this.scaleX);
+          targetH = Math.round(h * additionalModifier.h / this.scaleY);
+        }
       }
 
-      if (a > 0) {
+      if (a > 0 && targetW && targetH) {
         this.tctx.globalCompositeOperation = "copy";
         this.tctx.globalAlpha = 1;
         this.tctx.drawImage(context.canvas, 0, 0, context.canvas.width, context.canvas.height, 0, 0, targetW, targetH);
 
         if (this.darker > 0) {
-          this.tctx.globalCompositeOperation = "source-over";
+          this.tctx.globalCompositeOperation = this.clear ? "source-atop" : "source-over"; // "source-atop"; source-atop works with transparent background but source-over is much faster
           this.tctx.fillStyle = "rgba(0,0,0," + this.darker + ")";
           this.tctx.fillRect(0, 0, targetW, targetH);
         }
@@ -64,7 +68,6 @@ export default class FastBlur extends Circle {
         if (this.clear) {
           context.clearRect(this.x, this.y, w, h);
         }
-
         context.globalCompositeOperation = this.alphaMode;
         context.globalAlpha = a;
         context.imageSmoothingEnabled = !this.pixel;
@@ -74,7 +77,13 @@ export default class FastBlur extends Circle {
     } else {
       // optional: clear screen
       if (this.clear) {
-        context.clearRect(this.x, this.y, w, h);
+        if (!this.width) {
+          this.width = context.canvas.width;
+        }
+        if (!this.height) {
+          this.height = context.canvas.height;
+        }
+        context.clearRect(this.x, this.y, this.width, this.height);
       }
     }
   }

@@ -61,8 +61,8 @@ export default class Circle {
       context.translate(this.x, this.y);
       context.scale(this.scaleX, this.scaleY);
       context.beginPath();
-      context.arc(0, 0, 1, (90 + this.arc) * degToRad, (450 - this.arc) * degToRad, false);
       context.fillStyle = this.color;
+      context.arc(0, 0, 1, (90 + this.arc) * degToRad, (450 - this.arc) * degToRad, false);
       context.fill();
       context.closePath();
       context.restore();

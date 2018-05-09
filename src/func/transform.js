@@ -103,4 +103,10 @@ Transform.prototype.transformPoint = function(px, py) {
   return [px, py];
 };
 
+Transform.prototype.clone = function() {
+  var n = new Transform();
+  n.m = this.m.slice(0);
+  return n;
+}
+
 export default Transform;
