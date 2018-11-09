@@ -1,6 +1,5 @@
 import calc from '../../func/calc';
 import ifNull from '../../func/ifnull';
-import isArray from 'lodash/isArray';
 
 export default class ImageFrame {
 
@@ -9,7 +8,7 @@ export default class ImageFrame {
         this.frameNumber = calc(frameNumber);
         this.framesToRight = ifNull(calc(framesToRight), true);
         this.durationBetweenFrames = ifNull(calc(durationBetweenFrames), 0);
-        if (isArray(this.frameNumber)) {
+        if (Array.isArray(this.frameNumber)) {
             this.count = this.frameNumber.length;
         } else {
             this.frameNumber = [this.frameNumber];

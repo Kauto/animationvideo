@@ -1,6 +1,5 @@
 'use strict';
 import ImageManager from '../ImageManager';
-import isNumeric from 'lodash/isNumber';
 
 class Scene {
   constructor(endTime) {
@@ -73,7 +72,8 @@ class Scene {
     ctx.textBaseline = 'bottom';
     let text = progress;
 
-    if (isNumeric(progress)) {
+    // isNumber
+    if (!isNaN(parseFloat(progress)) && !isNaN(progress - 0)) {
       text = "Loading " + Math.round(100 * progress) + "%";
     }
     ctx.fillText(text, 10 + Math.random() * 3, output.h - 10 + Math.random() * 3);

@@ -1,7 +1,6 @@
 import ifNull from '../../func/ifnull';
 import calc from '../../func/calc';
 import Group from './Group';
-import _isArray from 'lodash/isArray';
 
 const degToRad = 0.017453292519943295; //Math.PI / 180;
 
@@ -25,7 +24,7 @@ export default class Path extends Group {
     if (this.enabled) {
       let a = this.a;
       if (this.oldPath !== this.path) {
-        if (_isArray(this.path)) {
+        if (Array.isArray(this.path)) {
           this.path2D = new Path2D();
           this.path.forEach((curve) => {
             this.path2D.moveTo(curve[0][0], curve[0][1]);

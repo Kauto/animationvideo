@@ -1,7 +1,5 @@
 import calc from '../../func/calc';
 import ifNull from '../../func/ifnull';
-import EasingLinear from 'eases/linear';
-import isArray from 'lodash/isArray';
 import Color from 'color';
 import pasition from 'pasition';
 
@@ -42,7 +40,7 @@ export default class ChangeTo {
         isColor = k === 'color',
         isPath = k === 'path',
         isFunction = typeof value === 'function',
-        isBezier = !isColor && isArray(value);
+        isBezier = !isColor && Array.isArray(value);
       this.changeValues.push({
         name: k,
         to: isBezier ? value[value.length - 1] : calc(value, 1, {}),
@@ -54,7 +52,7 @@ export default class ChangeTo {
       });
     }
     this.duration = ifNull(calc(duration), 0);
-    this.ease = ifNull(ease, EasingLinear);
+    this.ease = ifNull(ease, (t)=>t);
   }
 
   reset() {
@@ -77,7 +75,7 @@ export default class ChangeTo {
           [data.pathFrom, data.pathTo] = pasition._preprocessing(pasition.path2shapes(data.from), pasition.path2shapes(data.to));
           data.moveAlgorithm = movePath;
         }
-        else if (isArray(data.to)) {
+        else if (Array.isArray(data.to)) {
           data.values = [sprite[data.name], ...data.to];
           data.moveAlgorithm = moveBezier;
         } else {

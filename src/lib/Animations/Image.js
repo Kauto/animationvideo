@@ -1,7 +1,6 @@
 import calc from '../../func/calc';
 import ifNull from '../../func/ifnull';
 import ImageManager from '../ImageManager';
-import isArray from 'lodash/isArray';
 
 export default class Image {
 
@@ -9,7 +8,7 @@ export default class Image {
     this.initialized = false;
     this.image = calc(image);
     this.durationBetweenFrames = ifNull(calc(durationBetweenFrames), 0);
-    if (isArray(this.image)) {
+    if (Array.isArray(this.image)) {
       this.count = this.image.length;
     } else {
       this.image = [this.image];

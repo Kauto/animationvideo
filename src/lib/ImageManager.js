@@ -1,5 +1,3 @@
-import isString from 'lodash/isString';
-
 class ImageManager {
 
   static add(Images, Callbacks) {
@@ -53,7 +51,7 @@ class ImageManager {
   }
 
   static getImage(nameOrImage) {
-    return isString(nameOrImage) ? (this || ImageManager).Images[nameOrImage] : nameOrImage;
+    return typeof nameOrImage === 'object' ? nameOrImage : (this || ImageManager).Images[nameOrImage];
   }
 }
 

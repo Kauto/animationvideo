@@ -1,12 +1,11 @@
 import calc from '../../func/calc';
 import ifNull from '../../func/ifnull';
-import isNumber from 'lodash/isNumber';
 
 export default class Callback {
 
     constructor(callback, duration) {
       this.callback = callback;
-      this.duration = ifNull(calc(duration), 0);
+      this.duration = ifNull(calc(duration), undefined);
       this.initialized = false;
     }
 
@@ -17,7 +16,7 @@ export default class Callback {
     run(sprite, time) {
       let result;
 
-      if (isNumber(this.duration)) {
+      if (this.duration !== undefined) {
         this.callback(sprite, Math.min(time, this.duration), !this.initialized);
         this.initialized = true;
         return time - this.duration;
