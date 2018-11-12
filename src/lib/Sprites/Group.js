@@ -52,7 +52,7 @@ export default class Group extends Circle {
           };
         }
       } else {
-        additionalModifier = Object.assign({}. additionalModifier);
+        additionalModifier = Object.assign({}, additionalModifier);
         additionalModifier.a *= this.a;
       }
 
