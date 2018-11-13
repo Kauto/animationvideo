@@ -132,7 +132,6 @@ export default class StarField extends Rect {
         this.x = this.x === undefined ? additionalModifier.x : this.x;
         this.y = this.y === undefined ? additionalModifier.y : this.y;
 				this.lineWidth = this.lineWidth || (additionalModifier.h / additionalModifier.orgH) / 4;
-				console.log(this.lineWidth);
         this.init();
         return;
       }
