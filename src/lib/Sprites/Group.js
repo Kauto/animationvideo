@@ -45,13 +45,7 @@ export default class Group extends Circle {
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {
-      if (!additionalModifier) {
-        if (this.a < 1) {
-          additionalModifier = {
-            a:this.a
-          };
-        }
-      } else {
+      if (this.a < 1) {
         additionalModifier = Object.assign({}, additionalModifier);
         additionalModifier.a *= this.a;
       }

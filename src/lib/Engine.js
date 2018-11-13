@@ -133,7 +133,8 @@ class Engine {
       }
 
       let now = this._scene.currentTime();
-      this._timePassed = now - this._lastTimestamp;
+      this._timePassed = this._scene.clampTime(now - this._lastTimestamp);
+
       this._lastTimestamp = now;
 
       if (this._isSceneInitialized) {

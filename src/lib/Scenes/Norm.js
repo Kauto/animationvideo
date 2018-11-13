@@ -13,15 +13,12 @@ export default class SceneNorm extends Scene {
     if (!this.engine) return new Transform();
 
     if (!this.transform) {
-        this.additionalModifier = {
-          a: 1,
-          w: this.engine._output.w / 2,
-          h: this.engine._output.h / 2
-        };
-        const scale = this.engine._output.ratio > 1 ? this.additionalModifier.w : this.additionalModifier.h;
+        const hw = this.engine._output.w / 2
+        const hh = this.engine._output.h / 2
+        const scale = this.engine._output.ratio > 1 ? hw : hh;
 
       this.transform = (new Transform())
-        .translate(this.additionalModifier.w, this.additionalModifier.h)
+        .translate(hw, hh)
         .scale(scale, scale);
       this.transformInvert = null;
 
@@ -31,6 +28,19 @@ export default class SceneNorm extends Scene {
       //output.context.translate(-0.5,-0.5);
     }
     return this.transform
+  }
+
+  resize(output) {
+    this.transform = undefined;
+    this.additionalModifier = {
+      a: 1,
+      x: -1,
+      y: -1,
+      w: 2,
+      h: 2,
+      orgW: output.w,
+      orgH: output.h
+    };
   }
 
   transformPoint(x, y) {

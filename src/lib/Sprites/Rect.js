@@ -13,6 +13,8 @@ export default class Rect extends Circle {
     // Size
     this.width = calc(params.width);
     this.height = calc(params.height);
+    this.x = calc(params.x);
+    this.y = calc(params.y);
 
     this.borderColor = calc(params.borderColor);
     this.lineWidth = ifNull(calc(params.lineWidth), 1);
@@ -22,17 +24,20 @@ export default class Rect extends Circle {
   draw(context, additionalModifier) {
     if (this.enabled) {
       if (!this.width) {
-        this.width = context.canvas.width;
+        this.width = additionalModifier.w;
       }
       if (!this.height) {
-        this.height = context.canvas.height;
+        this.height = additionalModifier.h;
       }
-      let a = this.a;
-      if (additionalModifier) {
-        a *= additionalModifier.a;
+      if (this.x === undefined) {
+        this.x = additionalModifier.x;
       }
+      if (this.y === undefined) {
+        this.y = additionalModifier.y;
+      }
+      
       context.globalCompositeOperation = this.alphaMode;
-      context.globalAlpha = a;
+      context.globalAlpha = this.a * additionalModifier.a;
       if (this.arc === 0) {
         context.fillStyle = this.color;
         context.fillRect(this.x, this.y, this.width, this.height);

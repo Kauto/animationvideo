@@ -25,6 +25,13 @@ class Scene {
     return Date.now();
   }
 
+  clampTime(timePassed) {
+    if (timePassed > 2000) {
+      return 2000;
+    }
+    return timePassed;
+  }
+
   init(callbackOrImages) {
     if (typeof callbackOrImages === 'function') {
       this.initCallback = callbackOrImages;
@@ -35,9 +42,21 @@ class Scene {
   }
 
   callInit(output, parameter, engine) {
-    this.initCallback && this.initCallback(output, parameter);
-
     this.engine = engine;
+    this.initCallback && this.initCallback(output, parameter);
+    this.resize(output)
+  }
+
+  resize(output) {
+    this.additionalModifier = {
+      a: 1,
+      x: 0,
+      y: 0,
+      w: output.w,
+      h: output.h,
+      orgW: output.w,
+      orgH: output.h
+    }
   }
 
   destroy(callback) {
@@ -187,7 +206,7 @@ class Scene {
   }
 
   reset(output) {
-    this.layer = this.sceneCallback(output, []);
+    this.layer = this.sceneCallback(output, []).reverse();
     this.calcLayerIsFunction();
   }
 }

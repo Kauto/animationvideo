@@ -22,12 +22,8 @@ class Text extends Circle {
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {
-      let a = this.a;
-      if (additionalModifier) {
-        a *= additionalModifier.a;
-      }
       context.globalCompositeOperation = this.alphaMode;
-      context.globalAlpha = a;
+      context.globalAlpha = this.a * additionalModifier.a;
       context.save();
       if (Text.LEFT_TOP) {
         context.textAlign = 'left';

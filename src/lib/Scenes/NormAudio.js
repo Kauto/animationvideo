@@ -6,6 +6,18 @@ export default class SceneNormAudio extends SceneAudio {
     super(audioElement);
   }
 
+  resize(output) {
+    this.additionalModifier = {
+      a: 1,
+      x: -1,
+      y: -1,
+      w: 2,
+      h: 2,
+      orgW: output.w,
+      orgH: output.h
+    };
+  }
+
   draw(output) {
     output.context.save();
     output.context.translate(output.w / 2, output.h / 2);

@@ -12,7 +12,7 @@ export default class Canvas extends Group {
     this.height = calc(params.height);
   }
 
-  generateTempCanvas(context) {
+  generateTempCanvas(context, additionalModifier) {
     let w = context.canvas.width,
       h = context.canvas.height;
     this.temp_canvas = document.createElement('canvas');
@@ -22,10 +22,10 @@ export default class Canvas extends Group {
     this.tctx.globalCompositeOperation = "source-over";
     this.tctx.globalAlpha = 1;
     if (!this.width) {
-      this.width = w;
+      this.width = additionalModifier.w;
     }
     if (!this.height) {
-      this.height = h;
+      this.height = additionalModifier.h;
     }
   }
 
@@ -33,18 +33,13 @@ export default class Canvas extends Group {
   draw(context, additionalModifier) {
     if (this.enabled) {
       if (!this.temp_canvas) {
-        this.generateTempCanvas(context);
+        this.generateTempCanvas(context, additionalModifier);
       }
 
-      let a = this.a,
-        w = this.width,
+      let w = this.width,
         h = this.height,
-        wh = w >> 1,
-        hh = h >> 1;
-
-      if (additionalModifier) {
-        a *= additionalModifier.a;
-      }
+        wh = w / 2,
+        hh = h / 2;
 
       // draw all sprites
       for (let i in this.sprite) {
@@ -53,11 +48,11 @@ export default class Canvas extends Group {
 
       context.save();
       context.globalCompositeOperation = this.alphaMode;
-      context.globalAlpha = a;
+      context.globalAlpha = this.a * additionalModifier.a;
       context.translate(this.x + wh, this.y + hh);
       context.scale(this.scaleX, this.scaleY);
       context.rotate(this.arc * degToRad);
-      context.drawImage(this.temp_canvas, 0, 0, w, h, -wh, -hh, w, h);
+      context.drawImage(this.temp_canvas, 0, 0, this.temp_canvas.width, this.temp_canvas.height, -wh, -hh, w, h);
       context.restore();
     }
   }

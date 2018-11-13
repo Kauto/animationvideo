@@ -42,6 +42,10 @@ export default class SceneAudio extends Scene {
     }
   }
 
+  clampTime(timePassed) {
+    return timePassed;
+  }
+
   init(...arg) {
     // init audio
     if (this.audioElement) {

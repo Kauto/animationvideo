@@ -15,7 +15,7 @@ export default class FastBlur extends Circle {
     this.clear = ifNull(calc(params.clear), false);
   }
 
-  generateTempCanvas(context) {
+  generateTempCanvas(context, additionalModifier) {
     let w = context.canvas.width,
       h = context.canvas.height;
     this.temp_canvas = document.createElement('canvas');
@@ -24,11 +24,17 @@ export default class FastBlur extends Circle {
     this.tctx = this.temp_canvas.getContext('2d');
     this.tctx.globalCompositeOperation = "source-over";
     this.tctx.globalAlpha = 1;
+    if (!this.x) {
+      this.x = additionalModifier.x;
+    }
+    if (!this.y) {
+      this.y = additionalModifier.y;
+    }
     if (!this.width) {
-      this.width = w;
+      this.width = additionalModifier.w;
     }
     if (!this.height) {
-      this.height = h;
+      this.height = additionalModifier.h;
     }
   }
 
@@ -36,22 +42,14 @@ export default class FastBlur extends Circle {
   draw(context, additionalModifier) {
     if (this.enabled) {
       if (!this.temp_canvas) {
-        this.generateTempCanvas(context);
+        this.generateTempCanvas(context, additionalModifier);
       }
 
-      let a = this.a,
+      let a = this.a * additionalModifier.a,
         w = this.width,
         h = this.height,
-        targetW = Math.round(w / this.scaleX),
-        targetH = Math.round(h / this.scaleY);
-
-      if (additionalModifier) {
-        a *= additionalModifier.a;
-        if (additionalModifier.w) {
-          targetW = Math.round(w * additionalModifier.w / this.scaleX);
-          targetH = Math.round(h * additionalModifier.h / this.scaleY);
-        }
-      }
+        targetW = Math.round(w * additionalModifier.orgW / additionalModifier.w / this.scaleX),
+        targetH = Math.round(h * additionalModifier.orgH / additionalModifier.h / this.scaleY);
 
       if (a > 0 && targetW && targetH) {
         this.tctx.globalCompositeOperation = "copy";
@@ -77,11 +75,17 @@ export default class FastBlur extends Circle {
     } else {
       // optional: clear screen
       if (this.clear) {
+        if (!this.x) {
+          this.x = additionalModifier.x;
+        }
+        if (!this.y) {
+          this.y = additionalModifier.y;
+        }
         if (!this.width) {
-          this.width = context.canvas.width;
+          this.width = additionalModifier.w;
         }
         if (!this.height) {
-          this.height = context.canvas.height;
+          this.height = additionalModifier.h;
         }
         context.clearRect(this.x, this.y, this.width, this.height);
       }

@@ -51,12 +51,8 @@ export default class Circle {
   // Draw-Funktion
   draw(context, additionalModifier) {
     if (this.enabled) {
-      let a = this.a;
-      if (additionalModifier) {
-        a *= additionalModifier.a;
-      }
       context.globalCompositeOperation = this.alphaMode;
-      context.globalAlpha = a;
+      context.globalAlpha = this.a * additionalModifier.a;
       context.save();
       context.translate(this.x, this.y);
       context.scale(this.scaleX, this.scaleY);

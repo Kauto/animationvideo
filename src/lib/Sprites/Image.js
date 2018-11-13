@@ -23,16 +23,12 @@ class Image extends Circle {
   // Draw-Funktion
   draw(context, additionalModifier) {
     if (this.enabled) {
-      let a = this.a,
-        frameWidth = this.frameWidth || this.image.width,
+      let frameWidth = this.frameWidth || this.image.width,
         frameHeight = this.frameHeight || this.image.height,
         sX = frameWidth * this.scaleX,
         sY = frameHeight * this.scaleY;
-      if (additionalModifier) {
-        a *= additionalModifier.a;
-      }
       context.globalCompositeOperation = this.alphaMode;
-      context.globalAlpha = a;
+      context.globalAlpha = this.a * additionalModifier.a;
       if (this.arc == 0) {
         if (this.position === Image.LEFT_TOP) {
           context.drawImage(

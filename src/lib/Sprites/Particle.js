@@ -58,13 +58,9 @@ class Particle extends Circle {
       if (!this.color || !this.color.color) {
         this.color = Color(this.color).rgb();
       }
-      let a = this.a,
-        color = this.color.color;
-      if (additionalModifier) {
-        a *= additionalModifier.a;
-      }
+      const color = this.color.color;
       context.globalCompositeOperation = this.alphaMode;
-      context.globalAlpha = a;
+      context.globalAlpha = this.a * additionalModifier.a;
       context.imageSmoothingEnabled = this.scaleX > gradientSize;
       context.drawImage(Particle.getGradientImage(color[0], color[1], color[2]), 0, 0, gradientSize, gradientSize, this.x - (this.scaleX >> 1), this.y - (this.scaleY >> 1), this.scaleX, this.scaleY);
       context.imageSmoothingEnabled = true;
