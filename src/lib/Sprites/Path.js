@@ -66,11 +66,7 @@ export default class Path extends Group {
         context.fill(this.path2D);
       }
 
-      if (this.borderColor) {
-        context.strokeStyle = this.borderColor;
-        context.lineWidth = this.lineWidth;
-        context.stroke(this.path2D);
-      }
+      context.save();
 
       if (this.clip) {
         context.clip(this.path2D);
@@ -86,6 +82,14 @@ export default class Path extends Group {
         this.sprite[i].draw(context, additionalModifier);
       }
 
+      context.restore();
+
+      if (this.borderColor) {
+        context.strokeStyle = this.borderColor;
+        context.lineWidth = this.lineWidth;
+        context.stroke(this.path2D);
+      }
+      
       context.restore();
     }
   };

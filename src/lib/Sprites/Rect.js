@@ -18,6 +18,7 @@ export default class Rect extends Circle {
 
     this.borderColor = calc(params.borderColor);
     this.lineWidth = ifNull(calc(params.lineWidth), 1);
+    this.clear = ifNull(calc(params.clear), false);
   }
 
   // Draw-Funktion
@@ -39,8 +40,12 @@ export default class Rect extends Circle {
       context.globalCompositeOperation = this.alphaMode;
       context.globalAlpha = this.a * additionalModifier.a;
       if (this.arc === 0) {
-        context.fillStyle = this.color;
-        context.fillRect(this.x, this.y, this.width, this.height);
+        if (this.clear) {
+          context.clearRect(this.x, this.y, this.width, this.height);
+        } else {
+          context.fillStyle = this.color;
+          context.fillRect(this.x, this.y, this.width, this.height);
+        }
         if (this.borderColor) {
             context.beginPath();
             context.lineWidth = this.lineWidth;
@@ -49,16 +54,22 @@ export default class Rect extends Circle {
             context.stroke();
         }
       } else {
+        let hw = this.width / 2;
+        let hh = this.height / 2;
         context.save();
-        context.translate(this.x + this.width/2, this.y + this.height / 2);
+        context.translate(this.x + hw, this.y + hh);
         context.rotate(this.arc * degToRad);
-        context.fillStyle = this.color;
-        context.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+        if (this.clear) {
+          context.clearRect(-hw, -hh, this.width, this.height);
+        } else {
+          context.fillStyle = this.color;
+          context.fillRect(-hw, -hh, this.width, this.height);
+        }
         if (this.borderColor) {
             context.beginPath();
             context.lineWidth = this.lineWidth;
             context.strokeStyle = this.borderColor;
-            context.rect(-this.width / 2, -this.height / 2, this.width, this.height);
+            context.rect(-hw, -hh, this.width, this.height);
             context.stroke();
         }
         context.restore();
