@@ -12,132 +12,28 @@
     >
     <script src="dist/animationvideo.umd.js"></script>
     <script>
-      var scene = new AnimationVideo.Scenes.Default(),
-        engine = new AnimationVideo.Engine(
-          document.getElementById("canvas"),
-          scene
-        ),
-        sceneNorm = new AnimationVideo.Scenes.Norm(),
-        engineNorm = new AnimationVideo.Engine(
-          document.getElementById("canvasNorm"),
-          sceneNorm
-        ),
-        sceneStarNorm = new AnimationVideo.Scenes.Norm(),
-        engineStarNorm = new AnimationVideo.Engine(
-          document.getElementById("canvasStarNorm"),
-          sceneStarNorm
-        ),
-        SP = AnimationVideo.Sprites,
+      var SP = AnimationVideo.Sprites,
         ANI = AnimationVideo.Animations,
         Sequence = AnimationVideo.Sequence,
         Easing = AnimationVideo.Easing;
 
-      sceneStarNorm.init().scene((scene, layer) => {
-        return [
-          [
-            new SP.Rect({
-              color: "#000"
-            })
-          ],
-          [
-            new SP.StarField({
-              moveX: -0.01,
-              //moveZ: -0.02,
-            })
-          ]
-        ];
-      });
-      engineStarNorm.run();
-
-      let mx = 1,
-        my = 0.5,
-        click = false;
-      document
-        .getElementById("canvasNorm")
-        .addEventListener("mousemove", function(e) {
-          [mx, my] = sceneNorm.transformPoint(e.offsetX, e.offsetY);
-        });
-      document
-        .getElementById("canvasNorm")
-        .addEventListener("mousedown", function(e) {
-          click = true;
-        });
-      document
-        .getElementById("canvasNorm")
-        .addEventListener("mouseup", function(e) {
-          click = false;
-        });
-      sceneNorm.init().scene((scene, layer) => {
-        var l;
-        l = [
-          new SP.FastBlur({
-            a: 0.9,
-            x: -1,
-            y: -0.375,
-            width: 2,
-            height: 0.75,
-            scaleX: 10,
-            scaleY: 10,
-            darker: 0.3,
-            clear: true,
-            pixel: true
-          })
-        ];
-        layer.push(l);
-        l = [
-          new SP.Circle({
-            x: mx,
-            y: my,
-            scaleX: 0.1,
-            scaleY: 0.1,
-            color: "#F00",
-            animation: Sequence(true, 0, [
-              [
-                ANI.ChangeTo(
-                  {
-                    x: () => mx,
-                    y: () => my
-                  },
-                  500,
-                  Easing.cubicInOut
-                )
-              ],
-              [
-                ANI.ChangeTo(
-                  {
-                    color: () => (click ? "#00F" : "#F00")
-                  },
-                  100,
-                  Easing.cubicInOut
-                )
-              ]
-            ])
-          })
-        ];
-        layer.push(l);
-        return layer;
-      });
-
-      engineNorm.run();
-
-      scene
-        .init({
+      var scene = new AnimationVideo.Scenes.Default({
+        images: {
           arrow:
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAp1JREFUeNqEU21IU1EYfu7unW5Ty6aBszYs6MeUjGVYokHYyH5E1B9rZWFEFPQnAwmy6Hc/oqhfJsRKSSZGH1JIIX3MNCsqLTD9o1Oj6ebnnDfvvefezrnbdCHhCw/n433P8z7nPe/hBEEAtX0U7hc164uwuvVSXKwZLoOmaRDim+7m9vZa0WiEKSUFFpNpCWlmMyypqTDRuYn6t3k8vmQ2gRDCxs0t9fW45F52aBTROJLtZl7nEZad2m+KtoQCQ0FBARyOCGRZ/q92I1WgqqXlfdd95VsrK8/pChIEqqpCkiQsiCII0aBQZZoWl8lzFDwsFjMl0DBLY8Lj41hBwK4jSQrWOIphL6xYyhwJDWGo6wFSaH1Y3PTCAsITE1oyAa8flhWkbSiCLX8vun11eiGIpiJ/z2nYdx5HqLdVV7elrOzsuqysL3rmBIGiKPizKCHHWY4PLVeQbnXAdegqdhy+hu8dDTBnbqQJZJ1A7u+vz7RaiymWCZgCRSF6Edk8b9cx+B/W6WuVxPaZnyiqXoPpyUmVYvkKTIFClHigEieKjYuSvETUllaF4GAUM1NT6ooaJDKx+aDfC9fByxj90REb+9ppmIoAscH/6leg8MS9DJXPAM9xHCM443K57C6biMjcHDaVVCHw9RmCA2/RGC5C00AqXk/m4p20HZK4CM/J3Zk9n0ecMBhDQnJHcrTisyMfdQXOilrdMfxcwoHq/fg5R59TiQV3hYGKo6X2J/c7LyQIjOx9GXhOw/zoJ8wEevRGyp53o/lGMNYsBgPtEwLecwov7/jGDKa1twT6o3KpL4MdZgGsWZLtfPr7f1q58k1JNHy7YYaM+J+K3Y2PmAIbRavX66229hrGVvvL5uzsHDEUvUu+NT1my78CDAAMK1a8/QaZCgAAAABJRU5ErkJggg=="
-        })
-        .loading(false)
-        .scene((scene, layer) => {
+        },
+        reset({ output: scene, layer }) {
           var l;
           l = [
             // new SP.FastBlur({
             //   a: 0.6,
             //   clear: true
             // })
-            ctx => {
-              ctx.globalCompositeOperation = "source-over";
-              ctx.globalAlpha = 1;
-              ctx.fillStyle = "#334";
-              ctx.fillRect(0, 0, scene.w, scene.h);
+            ({ output }) => {
+              output.context.globalCompositeOperation = "source-over";
+              output.context.globalAlpha = 1;
+              output.context.fillStyle = "#334";
+              output.context.fillRect(0, 0, scene.w, scene.h);
             }
           ];
           layer.push(l);
@@ -523,9 +419,206 @@
             });
           }
 
-          return layer;
-        });
+          return layer.reverse();
+        }
+      });
+      var engine = new AnimationVideo.Engine({
+        canvas: document.getElementById("canvas"),
+        scene: scene
+      });
       engine.run();
+
+      // -------
+      var sceneNorm = new AnimationVideo.Scenes.Norm(
+        class test {
+          eventMouseMove(e) {
+            [this.mx, this.my] = this.scene.transformPoint(
+              e.offsetX,
+              e.offsetY
+            );
+            this.newThings.push(
+              SP.Rect({
+                x: this.mx - 0.1,
+                y: this.my - 0.1,
+                width: 0.2,
+                height: 0.2,
+                a: 1,
+                color: function() {
+                  return (
+                    "rgb(" +
+                    ~~(Math.random() * 255) +
+                    "," +
+                    ~~(Math.random() * 255) +
+                    "," +
+                    ~~(Math.random() * 255) +
+                    ")"
+                  );
+                },
+                animation: Sequence(1, 0, [
+                  [
+                    ANI.ChangeTo(
+                      {
+                        a: 0
+                      },
+                      2000,
+                      Easing.quadOut
+                    ),
+                    ANI.End()
+                  ]
+                ])
+              })
+            );
+          }
+          eventMouseDown(e) {
+            this.click = true;
+          }
+          eventMouseUp(e) {
+            this.click = false;
+          }
+
+          init({ engine, output, scene }) {
+            this.mx = 1;
+            this.my = 0.5;
+            this.click = false;
+            this.scene = scene;
+            this.newThings = [];
+
+            output.canvas.addEventListener(
+              "mousemove",
+              this.eventMouseMove.bind(this)
+            );
+            output.canvas.addEventListener(
+              "mousedown",
+              this.eventMouseDown.bind(this)
+            );
+            output.canvas.addEventListener(
+              "mouseup",
+              this.eventMouseUp.bind(this)
+            );
+          }
+
+          beforeMove({ layer }) {
+            layer[0] = layer[0].concat(this.newThings);
+            layer[1][0].text = layer[0].length;
+            layer[1][1].text = layer[0].length;
+            layer[1][2].text = layer[0].length;
+            this.newThings = [];
+            return layer;
+          }
+
+          destroy({ output }) {
+            output.canvas.removeEventListener("mousemove", this.eventMouseMove);
+            output.canvas.removeEventListener("mousedown", this.eventMouseDown);
+            output.canvas.removeEventListener("mouseup", this.eventMouseUp);
+          }
+
+          reset({ layer }) {
+            var l;
+            l = [
+              new SP.FastBlur({
+                a: 0.9,
+                x: -1,
+                y: -0.375,
+                width: 2,
+                height: 0.75,
+                scaleX: 10,
+                scaleY: 10,
+                darker: 0.3,
+                clear: true,
+                pixel: true
+              })
+            ];
+            layer.push(l);
+            l = [
+              new SP.Circle({
+                x: this.mx,
+                y: this.my,
+                scaleX: 0.1,
+                scaleY: 0.1,
+                color: "#F00",
+                animation: new Sequence(true, 0, [
+                  [
+                    new ANI.ChangeTo(
+                      {
+                        x: () => this.mx,
+                        y: () => this.my
+                      },
+                      500,
+                      Easing.cubicInOut
+                    )
+                  ],
+                  [
+                    new ANI.ChangeTo(
+                      {
+                        color: () => (this.click ? "#00F" : "#F00")
+                      },
+                      100,
+                      Easing.cubicInOut
+                    )
+                  ]
+                ])
+              })
+            ];
+            layer.push(l);
+            l = [
+              new SP.Text({
+                x: -0.9,
+                y: -0.3,
+                scaleX: 0.005,
+                scaleY: 0.005,
+                color: "#000",
+                text: "0"
+              }),
+              new SP.Text({
+                x: -0.905,
+                y: -0.305,
+                scaleX: 0.005,
+                scaleY: 0.005,
+                color: "#fff",
+                text: "0"
+              }),
+              new SP.Text({
+                x: -0.895,
+                y: -0.295,
+                scaleX: 0.005,
+                scaleY: 0.005,
+                color: "#fff",
+                text: "0"
+              }),
+            ];
+            layer.push(l);
+            layer.push([]);
+            return layer.reverse();
+          }
+        }
+      );
+      var engineNorm = new AnimationVideo.Engine(
+        document.getElementById("canvasNorm")
+      )
+        .switchScene(sceneNorm)
+        .run();
+
+      // -------
+      AnimationVideo.Engine({
+        canvas: document.getElementById("canvasStarNorm"),
+        scene: AnimationVideo.Scenes.Norm({
+          reset() {
+            return [
+              [
+                SP.Rect({
+                  color: "#000"
+                })
+              ],
+              [
+                SP.StarField({
+                  moveX: -0.01
+                  //moveZ: -0.02,
+                })
+              ]
+            ].reverse();
+          }
+        })
+      }).run();
     </script>
   </body>
 </html>
