@@ -22,7 +22,8 @@
           arrow:
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAp1JREFUeNqEU21IU1EYfu7unW5Ty6aBszYs6MeUjGVYokHYyH5E1B9rZWFEFPQnAwmy6Hc/oqhfJsRKSSZGH1JIIX3MNCsqLTD9o1Oj6ebnnDfvvefezrnbdCHhCw/n433P8z7nPe/hBEEAtX0U7hc164uwuvVSXKwZLoOmaRDim+7m9vZa0WiEKSUFFpNpCWlmMyypqTDRuYn6t3k8vmQ2gRDCxs0t9fW45F52aBTROJLtZl7nEZad2m+KtoQCQ0FBARyOCGRZ/q92I1WgqqXlfdd95VsrK8/pChIEqqpCkiQsiCII0aBQZZoWl8lzFDwsFjMl0DBLY8Lj41hBwK4jSQrWOIphL6xYyhwJDWGo6wFSaH1Y3PTCAsITE1oyAa8flhWkbSiCLX8vun11eiGIpiJ/z2nYdx5HqLdVV7elrOzsuqysL3rmBIGiKPizKCHHWY4PLVeQbnXAdegqdhy+hu8dDTBnbqQJZJ1A7u+vz7RaiymWCZgCRSF6Edk8b9cx+B/W6WuVxPaZnyiqXoPpyUmVYvkKTIFClHigEieKjYuSvETUllaF4GAUM1NT6ooaJDKx+aDfC9fByxj90REb+9ppmIoAscH/6leg8MS9DJXPAM9xHCM443K57C6biMjcHDaVVCHw9RmCA2/RGC5C00AqXk/m4p20HZK4CM/J3Zk9n0ecMBhDQnJHcrTisyMfdQXOilrdMfxcwoHq/fg5R59TiQV3hYGKo6X2J/c7LyQIjOx9GXhOw/zoJ8wEevRGyp53o/lGMNYsBgPtEwLecwov7/jGDKa1twT6o3KpL4MdZgGsWZLtfPr7f1q58k1JNHy7YYaM+J+K3Y2PmAIbRavX66229hrGVvvL5uzsHDEUvUu+NT1my78CDAAMK1a8/QaZCgAAAABJRU5ErkJggg=="
         },
-        reset({ output: scene, layer }) {
+        reset({ output: scene }) {
+          layer = [];
           var l;
           l = [
             // new SP.FastBlur({
@@ -419,7 +420,7 @@
             });
           }
 
-          return layer.reverse();
+          return layer;
         }
       });
       var engine = new AnimationVideo.Engine({
@@ -498,10 +499,10 @@
           }
 
           beforeMove({ layer }) {
-            layer[0] = layer[0].concat(this.newThings);
-            layer[1][0].text = layer[0].length;
-            layer[1][1].text = layer[0].length;
-            layer[1][2].text = layer[0].length;
+            this.layerMove.addElements(this.newThings);
+            this.layerCount.forEach(({element}) => element.text = this.layerMove.count())
+            this.layerStart.forEach(({element}) => element.text = this.layerMove.start)
+            this.layerNext.forEach(({element}) => element.text = this.layerMove.nextFree)
             this.newThings = [];
             return layer;
           }
@@ -512,9 +513,8 @@
             output.canvas.removeEventListener("mouseup", this.eventMouseUp);
           }
 
-          reset({ layer }) {
-            var l;
-            l = [
+          reset({ layerManager }) {
+            layerManager.addLayer().addElement(
               new SP.FastBlur({
                 a: 0.9,
                 x: -1,
@@ -527,9 +527,8 @@
                 clear: true,
                 pixel: true
               })
-            ];
-            layer.push(l);
-            l = [
+            );
+            layerManager.addLayer().addElements([
               new SP.Circle({
                 x: this.mx,
                 y: this.my,
@@ -558,17 +557,9 @@
                   ]
                 ])
               })
-            ];
-            layer.push(l);
-            l = [
-              new SP.Text({
-                x: -0.9,
-                y: -0.3,
-                scaleX: 0.005,
-                scaleY: 0.005,
-                color: "#000",
-                text: "0"
-              }),
+            ]);
+            this.layerCount = layerManager.addLayer();
+            this.layerCount.addElements([
               new SP.Text({
                 x: -0.905,
                 y: -0.305,
@@ -585,10 +576,71 @@
                 color: "#fff",
                 text: "0"
               }),
-            ];
-            layer.push(l);
-            layer.push([]);
-            return layer.reverse();
+              new SP.Text({
+                x: -0.9,
+                y: -0.3,
+                scaleX: 0.005,
+                scaleY: 0.005,
+                color: "#000",
+                text: "0"
+              }),
+            ]);
+            this.layerStart = layerManager.addLayer();
+            this.layerStart.addElements([
+              new SP.Text({
+                x: -0.905,
+                y: -0.155,
+                scaleX: 0.005,
+                scaleY: 0.005,
+                color: "#fff",
+                text: "0"
+              }),
+              new SP.Text({
+                x: -0.895,
+                y: -0.145,
+                scaleX: 0.005,
+                scaleY: 0.005,
+                color: "#fff",
+                text: "0"
+              }),
+              new SP.Text({
+                x: -0.9,
+                y: -0.15,
+                scaleX: 0.005,
+                scaleY: 0.005,
+                color: "#000",
+                text: "0"
+              }),
+            ]);
+            this.layerNext = layerManager.addLayer();
+            this.layerNext.addElements([
+              new SP.Text({
+                x: -0.905,
+                y: -0.005,
+                scaleX: 0.005,
+                scaleY: 0.005,
+                color: "#fff",
+                text: "0"
+              }),
+              new SP.Text({
+                x: -0.895,
+                y: 0.005,
+                scaleX: 0.005,
+                scaleY: 0.005,
+                color: "#fff",
+                text: "0"
+              }),
+              new SP.Text({
+                x: -0.9,
+                y: 0,
+                scaleX: 0.005,
+                scaleY: 0.005,
+                color: "#000",
+                text: "0"
+              }),
+            ]);
+            this.layerMove = layerManager.addLayer();
+            return layerManager;
           }
         }
       );
@@ -615,7 +667,7 @@
                   //moveZ: -0.02,
                 })
               ]
-            ].reverse();
+            ];
           }
         })
       }).run();

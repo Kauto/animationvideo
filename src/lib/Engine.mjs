@@ -4,7 +4,7 @@ class Engine {
     if (typeof canvasOrOptions !== "object") {
       throw new Error("No canvas given for Engine constructor");
     }
-    if (canvasOrOptions.tagName) {
+    if (canvasOrOptions.getContext) {
       givenOptions = {
         canvas: canvasOrOptions
       };

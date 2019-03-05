@@ -1,4 +1,5 @@
 import ImageManager from "../ImageManager.mjs";
+import LayerManager from "../LayerManager.mjs";
 import calc from "../../func/calc.mjs";
 
 class Scene {
@@ -10,10 +11,7 @@ class Scene {
     }
 
     // Layer consists of Sprites
-    this.layer = [];
-
-    // For precalculation if a layer is a function
-    this._cacheLayerIsFunction = [];
+    this.layerManager = new LayerManager();
 
     this.totalTimePassed = 0;
 
@@ -132,37 +130,29 @@ class Scene {
         this.configuration.end({ engine: this.engine, scene: this, output });
     }
 
-    let l, i, lay, layif;
-
     if (this.configuration.beforeMove) {
-      this.layer = this.configuration.beforeMove({
+      this.configuration.beforeMove({
         engine: this.engine,
         scene: this,
-        layer: this.layer,
+        layerManager: this.layerManager,
         output,
         timepassed
       });
     }
 
-    l = this.layer.length;
-    while (l--) {
-      lay = this.layer[l];
-      layif = this._cacheLayerIsFunction[l];
-      i = lay.length;
-      while (i--) {
-        if (!layif[i]) {
-          if (lay[i].animate(timepassed)) {
-            this.layer[l].splice(i, 1);
-          }
+    this.layerManager.forEach(({element, isFunction, layer, index}) => {
+      if (!isFunction) {
+        if (element.animate(timepassed)) {
+          layer.deleteById(index);
         }
       }
-    }
+    });
 
     if (this.configuration.afterMove) {
-      this.layer = this.configuration.afterMove({
+      this.configuration.afterMove({
         engine: this.engine,
         scene: this,
-        layer: this.layer,
+        layerManager: this.layerManager,
         output,
         timepassed
       });
@@ -170,54 +160,45 @@ class Scene {
   }
 
   draw(output) {
-    let l, i, lay, layif;
-
-    l = this.layer.length;
-    while (l--) {
-      lay = this.layer[l];
-      layif = this._cacheLayerIsFunction[l];
-      i = lay.length;
-      while (i--) {
-        if (layif[i]) {
-          if (
-            lay[i]({
-              engine: this.engine,
-              scene: this,
-              layer: this.layer,
-              output,
-              timepassed: this.totalTimePassed
-            })
-          ) {
-            this.layer[l].splice(i, 1);
-          }
-        } else {
-          this.layer[l][i].draw(output.context, this.additionalModifier);
+    this.layerManager.forEach(({layer, element, isFunction, index}) => {
+      if (isFunction) {
+        if (
+          element({
+            engine: this.engine,
+            scene: this,
+            layerManager: this.layerManager,
+            layer,
+            output,
+            timepassed: this.totalTimePassed
+          })
+        ) {
+          layer.deleteById(index);
         }
+      } else {
+        element.draw(output.context, this.additionalModifier);
       }
-    }
-  }
-
-  calcLayerIsFunction() {
-    this._cacheLayerIsFunction = new Array(this.layer.length);
-    for (let l in this.layer) {
-      this._cacheLayerIsFunction[l] = new Array(this.layer[l].length);
-      for (let i in this.layer[l]) {
-        this._cacheLayerIsFunction[l][i] =
-          typeof this.layer[l][i] === "function";
-      }
-    }
+    });
   }
 
   reset(output) {
-    this.layer = this.configuration.reset
+    let result = this.configuration.reset
       ? this.configuration.reset({
           engine: this.engine,
           scene: this,
-          layer: [],
+          layerManager: this.layerManager,
           output
         })
-      : [];
-    this.calcLayerIsFunction();
+      : new LayerManager();
+
+    if (Array.isArray(result)) {
+      const layers = result;
+      result = new LayerManager();
+      layers.forEach(v => {
+        result.addLayer().addElements(v);
+      });
+    }
+
+    this.layerManager = result;
   }
 }
 
