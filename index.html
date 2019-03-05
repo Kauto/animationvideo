@@ -528,6 +528,7 @@
                 pixel: true
               })
             );
+            this.layerMove = layerManager.addLayer();
             layerManager.addLayer().addElements([
               new SP.Circle({
                 x: this.mx,
@@ -639,7 +640,6 @@
                 text: "0"
               }),
             ]);
-            this.layerMove = layerManager.addLayer();
             return layerManager;
           }
         }

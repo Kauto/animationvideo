@@ -13,19 +13,14 @@ class Layer {
     this.isFunction[id] = typeof element === "function";
     if (len === id) {
       len++;
-      this.nextFree = len;
-    } else {
-      let nextFree = id - 1;
-      while (nextFree >= 0 && layer[nextFree]) {
-        nextFree--;
-      }
-      if (nextFree === -1) {
-        nextFree = len;
-      }
-      this.nextFree = nextFree;
-      if (this.start > id) {
-        this.start = id;
-      }
+    }
+    let nextFree = this.nextFree + 1;
+    while (nextFree !== len && layer[nextFree]) {
+      nextFree++;
+    }
+    this.nextFree = nextFree;
+    if (this.start > id) {
+      this.start = id;
     }
     return id;
   }
@@ -63,7 +58,7 @@ class Layer {
   deleteById(elementId) {
     let len = this.layer.length - 1;
     if (len > 0 && elementId === len) {
-      this.layer[elementId] = undefined;
+      this.layer[elementId] = null;
       while (len && !this.layer[len - 1]) {
         len--;
       }
@@ -72,11 +67,8 @@ class Layer {
       this.nextFree = Math.min(this.nextFree, len);
       this.start = Math.min(this.start, len);
     } else {
-      this.layer[elementId] = undefined;
-      this.nextFree =
-        this.nextFree === len + 1
-          ? elementId
-          : Math.max(this.nextFree, elementId);
+      this.layer[elementId] = null;
+      this.nextFree = Math.min(this.nextFree, elementId);
       if (this.start === elementId) {
         this.start = elementId + 1;
       }
