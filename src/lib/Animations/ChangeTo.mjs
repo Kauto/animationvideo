@@ -22,7 +22,7 @@ function moveBezier(progress, data) {
 }
 
 function moveColor(progress, data, sprite) {
-  return data.colorTo.mix(data.colorFrom, progress).string();
+  return data.colorFrom.mix(data.colorTo, progress).string();
 }
 
 function movePath(progress, data, sprite) {

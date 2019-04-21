@@ -167,9 +167,14 @@ class Engine {
 
       if (this._scene) {
         let now = this._scene.currentTime();
+        
+        // modify time by scene
+        // first set a min/max
         this._timePassed = this._scene.clampTime(now - this._lastTimestamp);
-
-        this._lastTimestamp = now;
+        // then maybe shift to fit a framerate
+        const shiftTime = this._scene.shiftTime(this._timePassed);
+        this._timePassed = this._timePassed + shiftTime;
+        this._lastTimestamp = now + shiftTime;
 
         if (this._isSceneInitialized) {
           if (this._timePassed !== 0) {

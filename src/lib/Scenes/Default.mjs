@@ -1,6 +1,7 @@
 import ImageManager from "../ImageManager.mjs";
 import LayerManager from "../LayerManager.mjs";
 import calc from "../../func/calc.mjs";
+import ifNull from "../../func/ifnull.mjs";
 
 class Scene {
   constructor(configurationClassOrObject) {
@@ -20,17 +21,36 @@ class Scene {
     this.additionalModifier = undefined;
 
     this.tickChunk = calc(this.configuration.tickChunk);
+    this.maxSkippedTickChunk = ifNull(
+      calc(this.configuration.maxSkippedTickChunk),
+      3
+    );
+    this.tickChunkTolerance = ifNull(
+      calc(this.configuration.tickChunkTolerance),
+      0.1
+    );
   }
 
   currentTime() {
-    return Date.now();
+    return performance ? performance.now() : Date.now();
   }
 
   clampTime(timePassed) {
-    if (timePassed > 2000) {
-      return 2000;
+    let maxTime = 2000;
+    if (this.tickChunk) {
+      maxTime = this.tickChunk * this.maxSkippedTickChunk;
+    }
+    if (timePassed > maxTime) {
+      return maxTime;
     }
     return timePassed;
+  }
+
+  shiftTime(timePassed) {
+    if (!this.tickChunk) {
+      return 0;
+    }
+    return -(timePassed % this.tickChunk);
   }
 
   callInit(output, parameter, engine) {
@@ -134,13 +154,26 @@ class Scene {
 
     if (this.configuration.beforeMove) {
       if (this.tickChunk) {
-        this.configuration.beforeMove({
-          engine: this.engine,
-          scene: this,
-          layerManager: this.layerManager,
-          output,
-          timepassed
-        });
+        if (timepassed >= this.tickChunk - this.tickChunkTolerance) {
+          // how many frames should be skipped. Maximum is a skip of 2 frames
+          for (
+            let calcFrame = 0,
+              frames = Math.min(
+                this.maxSkippedTickChunk,
+                Math.floor(timepassed / this.tickChunk)
+              );
+            calcFrame < frames;
+            calcFrame++
+          ) {
+            this.configuration.beforeMove({
+              engine: this.engine,
+              scene: this,
+              layerManager: this.layerManager,
+              output,
+              timepassed
+            });
+          }
+        }
       } else {
         this.configuration.beforeMove({
           engine: this.engine,
@@ -152,7 +185,7 @@ class Scene {
       }
     }
 
-    this.layerManager.forEach(({element, isFunction, layer, index}) => {
+    this.layerManager.forEach(({ element, isFunction, layer, index }) => {
       if (!isFunction) {
         if (element.animate(timepassed)) {
           layer.deleteById(index);
@@ -172,7 +205,7 @@ class Scene {
   }
 
   draw(output) {
-    this.layerManager.forEach(({layer, element, isFunction, index}) => {
+    this.layerManager.forEach(({ layer, element, isFunction, index }) => {
       if (isFunction) {
         if (
           element({

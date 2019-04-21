@@ -678,7 +678,7 @@
             }
 
             tickChunk() {
-              return 16;
+              return 1000/60;
             }
             eventKeyDown(e) {
               if (this.keyValues.includes(e.keyCode)) {
@@ -759,6 +759,12 @@
                             text: "UP"
                           },
                           0
+                        ),
+                        ANI.ChangeTo(
+                          {
+                            color: "#F88"
+                          },
+                          1000
                         )
                       ]),
                       down: Sequence(1, 0, [
@@ -767,6 +773,12 @@
                             text: "DOWN"
                           },
                           0
+                        ),
+                        ANI.ChangeTo(
+                          {
+                            color: "#F8F"
+                          },
+                          1000
                         )
                       ]),
                       left: Sequence(1, 0, [
@@ -775,6 +787,12 @@
                             text: "LEFT"
                           },
                           0
+                        ),
+                        ANI.ChangeTo(
+                          {
+                            color: "#8F8"
+                          },
+                          1000
                         )
                       ]),
                       right: Sequence(1, 0, [
@@ -783,6 +801,12 @@
                             text: "RIGHT"
                           },
                           0
+                        ),
+                        ANI.ChangeTo(
+                          {
+                            color: "#88F"
+                          },
+                          1000
                         )
                       ]),
                       neutral: Sequence(1, 0, [
@@ -791,6 +815,12 @@
                             text: "Neutral"
                           },
                           0
+                        ),
+                        ANI.ChangeTo(
+                          {
+                            color: "#FF8"
+                          },
+                          1000
                         )
                       ])
                     }
