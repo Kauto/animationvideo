@@ -7,6 +7,16 @@ class Layer {
   }
 
   addElement(element) {
+    this.addElementForId(element);
+    return element;
+  }
+
+  addElements(arrayOfElements) {
+    this.addElementsForIds(arrayOfElements);
+    return arrayOfElements;
+  }
+
+  addElementForId(element) {
     let len = this.layer.length;
     let id = this.nextFree;
     this.layer[id] = element;
@@ -25,7 +35,7 @@ class Layer {
     return id;
   }
 
-  addElements(arrayOfElements) {
+  addElementsForIds(arrayOfElements) {
     let len = this.layer.length;
     let id = this.nextFree;
     if (len === id) {

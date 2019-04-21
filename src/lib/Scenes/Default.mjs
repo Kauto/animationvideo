@@ -18,6 +18,8 @@ class Scene {
     this.engine = null;
     this.initDone = false;
     this.additionalModifier = undefined;
+
+    this.tickChunk = calc(this.configuration.tickChunk);
   }
 
   currentTime() {
@@ -131,13 +133,23 @@ class Scene {
     }
 
     if (this.configuration.beforeMove) {
-      this.configuration.beforeMove({
-        engine: this.engine,
-        scene: this,
-        layerManager: this.layerManager,
-        output,
-        timepassed
-      });
+      if (this.tickChunk) {
+        this.configuration.beforeMove({
+          engine: this.engine,
+          scene: this,
+          layerManager: this.layerManager,
+          output,
+          timepassed
+        });
+      } else {
+        this.configuration.beforeMove({
+          engine: this.engine,
+          scene: this,
+          layerManager: this.layerManager,
+          output,
+          timepassed
+        });
+      }
     }
 
     this.layerManager.forEach(({element, isFunction, layer, index}) => {
@@ -198,7 +210,9 @@ class Scene {
       });
     }
 
-    this.layerManager = result;
+    if (result) {
+      this.layerManager = result;
+    }
   }
 }
 

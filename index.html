@@ -15,6 +15,7 @@
       var SP = AnimationVideo.Sprites,
         ANI = AnimationVideo.Animations,
         Sequence = AnimationVideo.Sequence,
+        State = AnimationVideo.State,
         Easing = AnimationVideo.Easing;
 
       var scene = new AnimationVideo.Scenes.Default({
@@ -498,13 +499,18 @@
             );
           }
 
-          beforeMove({ layer }) {
+          beforeMove() {
             this.layerMove.addElements(this.newThings);
-            this.layerCount.forEach(({element}) => element.text = this.layerMove.count())
-            this.layerStart.forEach(({element}) => element.text = this.layerMove.start)
-            this.layerNext.forEach(({element}) => element.text = this.layerMove.nextFree)
+            this.layerCount.forEach(
+              ({ element }) => (element.text = this.layerMove.count())
+            );
+            this.layerStart.forEach(
+              ({ element }) => (element.text = this.layerMove.start)
+            );
+            this.layerNext.forEach(
+              ({ element }) => (element.text = this.layerMove.nextFree)
+            );
             this.newThings = [];
-            return layer;
           }
 
           destroy({ output }) {
@@ -584,7 +590,7 @@
                 scaleY: 0.005,
                 color: "#000",
                 text: "0"
-              }),
+              })
             ]);
             this.layerStart = layerManager.addLayer();
             this.layerStart.addElements([
@@ -611,7 +617,7 @@
                 scaleY: 0.005,
                 color: "#000",
                 text: "0"
-              }),
+              })
             ]);
             this.layerNext = layerManager.addLayer();
             this.layerNext.addElements([
@@ -638,7 +644,7 @@
                 scaleY: 0.005,
                 color: "#000",
                 text: "0"
-              }),
+              })
             ]);
             return layerManager;
           }
@@ -653,23 +659,147 @@
       // -------
       AnimationVideo.Engine({
         canvas: document.getElementById("canvasStarNorm"),
-        scene: AnimationVideo.Scenes.Norm({
-          reset() {
-            return [
-              [
+        scene: AnimationVideo.Scenes.Norm(
+          class StateTest {
+            constructor() {
+              this.keyMap = [];
+
+              this.key = {
+                left: 37,
+                up: 38,
+                right: 39,
+                down: 40
+              };
+
+              this.keyValues = Object.values(this.key);
+
+              this.x = -0.6;
+              this.y = -0.2;
+            }
+
+            tickChunk() {
+              return 16;
+            }
+            eventKeyDown(e) {
+              if (this.keyValues.includes(e.keyCode)) {
+                this.keyMap[e.keyCode] = true;
+                e.preventDefault();
+              }
+            }
+            eventKeyUp(e) {
+              if (this.keyValues.includes(e.keyCode)) {
+                this.keyMap[e.keyCode] = false;
+                e.preventDefault();
+              }
+            }
+            init({ engine, output, scene }) {
+              document.addEventListener(
+                "keydown",
+                this.eventKeyDown.bind(this)
+              );
+              document.addEventListener(
+                "keyup",
+                this.eventKeyUp.bind(this)
+              );
+            }
+            destroy({ output }) {
+              document.removeEventListener("keydown", this.eventKeyDown);
+              document.removeEventListener("keyup", this.eventKeyUp);
+            }
+            beforeMove({}) {
+              let state = "neutral";
+              if (this.keyMap[this.key.down]) {
+                this.sprite.ship.y += 0.01;
+                state = "down";
+              }
+              if (this.keyMap[this.key.up]) {
+                this.sprite.ship.y -= 0.01;
+                state = "up";
+              }
+              if (this.keyMap[this.key.right]) {
+                this.sprite.ship.x += 0.01;
+                state = "right";
+              }
+              if (this.keyMap[this.key.left]) {
+                this.sprite.ship.x -= 0.01;
+                state = "left";
+              }
+              this.sprite.ship.animation.setState(state);
+            }
+            reset({ layerManager }) {
+              layerManager.clear();
+              this.sprite = {};
+              this.layers = {};
+              this.layers.background = layerManager.addLayer();
+              this.layers.background.addElements([
                 SP.Rect({
                   color: "#000"
-                })
-              ],
-              [
+                }),
                 SP.StarField({
                   moveX: -0.01
                   //moveZ: -0.02,
                 })
-              ]
-            ];
+              ]);
+
+              this.layers.player = layerManager.addLayer();
+              this.sprite.ship = this.layers.player.addElement(
+                SP.Text({
+                  text: "Neutral",
+                  color: "#FF8",
+                  x: this.x,
+                  y: this.y,
+                  scaleX: 0.002,
+                  scaleY: 0.002,
+                  animation: State({
+                    default: "neutral",
+                    states: {
+                      up: Sequence(1, 0, [
+                        ANI.ChangeTo(
+                          {
+                            text: "UP"
+                          },
+                          0
+                        )
+                      ]),
+                      down: Sequence(1, 0, [
+                        ANI.ChangeTo(
+                          {
+                            text: "DOWN"
+                          },
+                          0
+                        )
+                      ]),
+                      left: Sequence(1, 0, [
+                        ANI.ChangeTo(
+                          {
+                            text: "LEFT"
+                          },
+                          0
+                        )
+                      ]),
+                      right: Sequence(1, 0, [
+                        ANI.ChangeTo(
+                          {
+                            text: "RIGHT"
+                          },
+                          0
+                        )
+                      ]),
+                      neutral: Sequence(1, 0, [
+                        ANI.ChangeTo(
+                          {
+                            text: "Neutral"
+                          },
+                          0
+                        )
+                      ])
+                    }
+                  })
+                })
+              );
+            }
           }
-        })
+        )
       }).run();
     </script>
   </body>

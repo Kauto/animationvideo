@@ -10,6 +10,11 @@ class LayerManager {
     return this.layers[this.layers.length - 1];
   }
 
+  addLayerForId() {
+    this.layers[this.layers.length] = new Layer();
+    return this.layers.length - 1;
+  }
+
   addLayersForIds(numberOfLayer = 1) {
     const result = Array.from(
       { length: numberOfLayer },

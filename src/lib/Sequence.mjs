@@ -7,7 +7,7 @@ class Sequence {
     // Timewait - how long to wait for the start
     this.timeWait = ifNull(timeWait, 0);
     // Animations
-    this.animation = obj || {};
+    this.animation = Array.isArray(obj) && !Array.isArray(obj[0]) ? [obj] : (obj || {});
     // init position-array
     this.animationPosition = {};
     for (let i in this.animation) {
@@ -17,12 +17,25 @@ class Sequence {
         object: null,
         loop: (typeof loop === 'object') ? calc(loop[i]) : calc(loop),
         enabled: !((typeof loop === 'object' && calc(loop[i]) === false) || calc(loop) === false),
+        orgLoop: (typeof loop === 'object') ? calc(loop[i]) : calc(loop),
+        orgEnabled: !((typeof loop === 'object' && calc(loop[i]) === false) || calc(loop) === false),
       };
       this.setObject(i);
     }
     // init time
     this.last_timestamp = 0;
     this.hide_vote = false;
+  }
+
+  reset(timelapsed = 0) {
+    for (let i in this.animation) {
+      const animationPosition = this.animationPosition[i];
+      animationPosition.position = 0;
+      animationPosition.timelapsed = timelapsed;
+      animationPosition.loop = animationPosition.orgLoop;
+      animationPosition.enabled = animationPosition.orgEnabled;
+      this.setObject(i);
+    }
   }
 
   setObject(i) {
