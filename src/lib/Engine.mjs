@@ -114,6 +114,7 @@ class Engine {
       .css({
         width: newWidth
       });
+    return this;
   }
 
   switchScene(scene) {
@@ -197,12 +198,15 @@ class Engine {
     this._referenceRequestAnimationFrame = window.requestAnimationFrame(
       mainLoop.bind(this)
     );
+
+    return this;
   }
 
   destroy() {
     this._referenceRequestAnimationFrame &&
       window.cancelAnimationFrame(this._referenceRequestAnimationFrame);
     this._referenceRequestAnimationFrame = null;
+    return this;
   }
 }
 
