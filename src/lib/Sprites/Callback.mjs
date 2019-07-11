@@ -2,6 +2,9 @@ import Circle from "./Circle.mjs";
 
 export default class Callback extends Circle {
   constructor(params) {
+    if (typeof params === "function") {
+      params = { callback: params };
+    }
     super(params);
     // Callback
     this.callback = params.callback;
@@ -10,7 +13,7 @@ export default class Callback extends Circle {
 
   animate(timepassed) {
     this.timepassed += timepassed;
-    super.animate(timepassed);
+    return super.animate(timepassed);
   }
 
   draw(context, additionalParameter) {
