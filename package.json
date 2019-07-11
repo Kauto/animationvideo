@@ -24,7 +24,7 @@
   "repository": "Kauto/animationvideo",
   "license": "MIT",
   "dependencies": {
-    "color": "^3.1.0",
+    "color": "^3.1.2",
     "eases": "^1.0.8",
     "pasition": "^1.0.1"
   },

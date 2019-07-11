@@ -9,10 +9,14 @@ export default class Callback extends Circle {
     // Callback
     this.callback = params.callback;
     this.timepassed = 0;
+    this.deltaTime = 0;
   }
 
   animate(timepassed) {
-    this.timepassed += timepassed;
+    if (this.enabled) {
+      this.timepassed += timepassed;
+      this.deltaTime += timepassed;
+    }
     return super.animate(timepassed);
   }
 
@@ -20,6 +24,6 @@ export default class Callback extends Circle {
     if (this.enabled) {
       this.callback(context, this.timepassed, additionalParameter, this);
     }
-    this.timepassed = 0;
+    this.deltaTime = 0;
   }
 }
