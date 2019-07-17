@@ -21,18 +21,6 @@ class Image extends Circle {
     this.norm = ifNull(calc(params.norm), false);
   }
 
-  calcNormScale(context, additionalModifier) {
-    if (!this.normScale) {
-      this.normScale = this.norm
-        ? Math.max(
-            (additionalModifier.w * this.image.width) / context.canvas.width,
-            (additionalModifier.h * this.image.height) / context.canvas.height
-          )
-        : 1;
-    }
-    return this.normScale;
-  }
-
   resize() {
     this.normScale = undefined;
   }
@@ -40,11 +28,18 @@ class Image extends Circle {
   // Draw-Funktion
   draw(context, additionalModifier) {
     if (this.enabled && this.image) {
-      const normScale = calcNormScale(context, additionalModifier);
+      if (!this.normScale) {
+        this.normScale = this.norm
+          ? Math.max(
+              (additionalModifier.w * this.image.width) / context.canvas.width,
+              (additionalModifier.h * this.image.height) / context.canvas.height
+            )
+          : 1;
+      }
       const frameWidth = this.frameWidth || this.image.width,
         frameHeight = this.frameHeight || this.image.height,
-        sX = frameWidth * normScale * this.scaleX,
-        sY = frameHeight * normScale * this.scaleY;
+        sX = frameWidth * this.normScale * this.scaleX,
+        sY = frameHeight * this.normScale * this.scaleY;
       context.globalCompositeOperation = this.alphaMode;
       context.globalAlpha = this.a * additionalModifier.a;
       if (this.arc == 0) {

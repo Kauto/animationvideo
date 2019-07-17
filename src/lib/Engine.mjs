@@ -267,12 +267,6 @@ class Engine {
                 (window.performance ? performance.now() : Date.now()) -
                 now -
                 this._autoSize.offsetTimeTarget;
-              console.log(
-                delta,
-                this._autoSize.currentWaitedTime,
-                this._autoSize.currentOffsetTime,
-                this._autoSize.currentScale
-              );
               if (this._autoSize.currentWaitedTime < this._autoSize.waitTime) {
                 this._autoSize.currentWaitedTime +=
                   timestamp - this._realLastTimestamp;
