@@ -88,12 +88,12 @@ class Engine {
         this._autoSize = defaultAutoSizeSettings;
       }
       if (this._autoSize.registerResizeEvents) {
-        document.addEventListener(
+        window.addEventListener(
           "resize",
           this.recalculateCanvas.bind(this),
           false
         );
-        document.addEventListener(
+        window.addEventListener(
           "orientationchange",
           this.recalculateCanvas.bind(this),
           false
@@ -342,12 +342,12 @@ class Engine {
     this._referenceRequestAnimationFrame &&
       window.cancelAnimationFrame(this._referenceRequestAnimationFrame);
     this._referenceRequestAnimationFrame = null;
-    document.removeEventListener(
+    window.removeEventListener(
       "resize",
       this.recalculateCanvas.bind(this),
       false
     );
-    document.removeEventListener(
+    window.removeEventListener(
       "orientationchange",
       this.recalculateCanvas.bind(this),
       false
