@@ -38,15 +38,21 @@ export default class SceneNorm extends Scene {
       w: 2,
       h: 2,
       orgW: output.w,
-      orgH: output.h
+      orgH: output.h,
+      scaleCanvas: output.w / output.canvas.clientWidth
     };
+    this.layerManager.forEach(({ layer, element, isFunction, index }) => {
+      if (!isFunction) {
+        element.resize(output, this.additionalModifier);
+      }
+    });
   }
 
   transformPoint(x, y) {
     if (!this.transformInvert) {
       this.transformInvert = this._getViewport().clone().invert()
     }
-    return this.transformInvert.transformPoint(x, y);
+    return this.transformInvert.transformPoint(x * this.additionalModifier.scaleCanvas, y * this.additionalModifier.scaleCanvas);
   }
 
   draw(output) {

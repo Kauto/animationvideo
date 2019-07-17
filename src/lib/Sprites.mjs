@@ -27,6 +27,11 @@ const
   Scroller = (...args) => new _Scroller(...args),
   StarField = (...args) => new _StarField(...args);
 
+Image.LEFT_TOP = _Image.LEFT_TOP
+Image.CENTER = _Image.CENTER
+Text.LEFT_TOP = _Text.LEFT_TOP
+Text.CENTER = _Text.CENTER
+
 export default {
   Callback,
   Canvas,

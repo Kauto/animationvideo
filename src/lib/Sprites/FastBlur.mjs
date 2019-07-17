@@ -38,6 +38,16 @@ export default class FastBlur extends Circle {
     }
   }
 
+  resize(context, additionalModifier) {
+    if (this.temp_canvas) {
+      const oldTempCanvas = this.temp_canvas;
+      this.generateTempCanvas(context, additionalModifier);
+      this.tctx.globalCompositeOperation = "copy";
+      this.tctx.drawImage(oldTempCanvas,0,0,oldTempCanvas.width, oldTempCanvas.height, 0,0,this.temp_canvas.width, this.temp_canvas.height)
+      this.tctx.globalCompositeOperation = "source-over";
+    }
+  }
+
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {

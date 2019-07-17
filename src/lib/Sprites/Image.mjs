@@ -1,7 +1,7 @@
-import ifNull from '../../func/ifnull.mjs';
-import calc from '../../func/calc.mjs';
-import ImageManager from '../ImageManager.mjs';
-import Circle from './Circle.mjs';
+import ifNull from "../../func/ifnull.mjs";
+import calc from "../../func/calc.mjs";
+import ImageManager from "../ImageManager.mjs";
+import Circle from "./Circle.mjs";
 
 const degToRad = 0.017453292519943295; //Math.PI / 180;
 
@@ -18,15 +18,33 @@ class Image extends Circle {
     this.frameY = ifNull(calc(params.frameY), 0);
     this.frameWidth = ifNull(calc(params.frameWidth), 0);
     this.frameHeight = ifNull(calc(params.frameHeight), 0);
+    this.norm = ifNull(calc(params.norm), false);
+  }
+
+  calcNormScale(context, additionalModifier) {
+    if (!this.normScale) {
+      this.normScale = this.norm
+        ? Math.max(
+            (additionalModifier.w * this.image.width) / context.canvas.width,
+            (additionalModifier.h * this.image.height) / context.canvas.height
+          )
+        : 1;
+    }
+    return this.normScale;
+  }
+
+  resize() {
+    this.normScale = undefined;
   }
 
   // Draw-Funktion
   draw(context, additionalModifier) {
-    if (this.enabled) {
-      let frameWidth = this.frameWidth || this.image.width,
+    if (this.enabled && this.image) {
+      const normScale = calcNormScale(context, additionalModifier);
+      const frameWidth = this.frameWidth || this.image.width,
         frameHeight = this.frameHeight || this.image.height,
-        sX = frameWidth * this.scaleX,
-        sY = frameHeight * this.scaleY;
+        sX = frameWidth * normScale * this.scaleX,
+        sY = frameHeight * normScale * this.scaleY;
       context.globalCompositeOperation = this.alphaMode;
       context.globalAlpha = this.a * additionalModifier.a;
       if (this.arc == 0) {
@@ -42,8 +60,7 @@ class Image extends Circle {
             sX,
             sY
           );
-        }
-        else {
+        } else {
           context.drawImage(
             this.image,
             this.frameX,
@@ -56,8 +73,7 @@ class Image extends Circle {
             sY
           );
         }
-      }
-      else {
+      } else {
         context.save();
         context.translate(this.x, this.y);
         context.rotate(this.arc * degToRad);
@@ -67,16 +83,15 @@ class Image extends Circle {
           this.frameY,
           frameWidth,
           frameHeight,
-          -(sX >> 1),
-          -(sY >> 1),
+          -sX / 2,
+          -sY / 2,
           sX,
           sY
         );
         context.restore();
-
       }
     }
-  };
+  }
 }
 Image.LEFT_TOP = 0;
 Image.CENTER = 1;

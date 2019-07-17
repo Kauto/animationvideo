@@ -650,9 +650,10 @@
           }
         }
       );
-      var engineNorm = new AnimationVideo.Engine(
-        document.getElementById("canvasNorm")
-      )
+      var engineNorm = new AnimationVideo.Engine({
+        canvas: document.getElementById("canvasNorm"),
+        autoSize: {setCanvasStyle: true}
+      })
         .switchScene(sceneNorm)
         .run();
 

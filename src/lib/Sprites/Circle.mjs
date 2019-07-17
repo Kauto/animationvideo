@@ -48,6 +48,8 @@ export default class Circle {
     return false;
   };
 
+  resize(output, additionalModifier) {}
+
   // Draw-Funktion
   draw(context, additionalModifier) {
     if (this.enabled) {

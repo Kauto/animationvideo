@@ -32,7 +32,7 @@ class Scene {
   }
 
   currentTime() {
-    return performance ? performance.now() : Date.now();
+    return window.performance ? performance.now() : Date.now();
   }
 
   clampTime(timePassed) {
@@ -76,6 +76,11 @@ class Scene {
       orgW: output.w,
       orgH: output.h
     };
+    this.layerManager.forEach(({ layer, element, isFunction, index }) => {
+      if (!isFunction) {
+        element.resize(output, this.additionalModifier);
+      }
+    });
   }
 
   callDestroy(output) {

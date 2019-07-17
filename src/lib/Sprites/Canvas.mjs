@@ -21,11 +21,27 @@ export default class Canvas extends Group {
     this.tctx = this.temp_canvas.getContext('2d');
     this.tctx.globalCompositeOperation = "source-over";
     this.tctx.globalAlpha = 1;
+    if (!this.x) {
+      this.x = additionalModifier.x;
+    }
+    if (!this.y) {
+      this.y = additionalModifier.y;
+    }
     if (!this.width) {
       this.width = additionalModifier.w;
     }
     if (!this.height) {
       this.height = additionalModifier.h;
+    }
+  }
+
+  resize(context, additionalModifier) {
+    if (this.temp_canvas) {
+      const oldTempCanvas = this.temp_canvas;
+      this.generateTempCanvas(context, additionalModifier);
+      this.tctx.globalCompositeOperation = "copy";
+      this.tctx.drawImage(oldTempCanvas,0,0,oldTempCanvas.width, oldTempCanvas.height, 0,0,this.temp_canvas.width, this.temp_canvas.height)
+      this.tctx.globalCompositeOperation = "source-over";
     }
   }
 
