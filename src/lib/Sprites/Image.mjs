@@ -30,9 +30,9 @@ class Image extends Circle {
     if (this.enabled && this.image) {
       if (!this.normScale) {
         this.normScale = this.norm
-          ? Math.max(
-              (additionalModifier.w * this.image.width) / context.canvas.width,
-              (additionalModifier.h * this.image.height) / context.canvas.height
+          ? Math.min(
+              additionalModifier.w / this.image.width,
+              additionalModifier.h / this.image.height
             )
           : 1;
       }

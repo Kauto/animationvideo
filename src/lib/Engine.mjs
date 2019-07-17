@@ -154,6 +154,9 @@ class Engine {
     if (this._autoSize) {
       const width = calc(this._autoSize.referenceWidth);
       const height = calc(this._autoSize.referenceHeight);
+      if (width <= 0 || height <= 0) {
+        return;
+      }
       this._output.canvas.width = width / this._autoSize.currentScale;
       this._output.canvas.height = height / this._autoSize.currentScale;
       if (this._autoSize.setCanvasStyle) {
