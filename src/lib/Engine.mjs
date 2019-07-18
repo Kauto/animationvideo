@@ -63,15 +63,16 @@ class Engine {
       const defaultAutoSizeSettings = {
         enabled: true,
         scaleLimitMin: 1,
-        scaleLimitMax: 16,
+        scaleLimitMax: 8,
+        scaleFactor: 1.1,
         referenceWidth: () => this._output.canvas.clientWidth,
         referenceHeight: () => this._output.canvas.clientHeight,
         currentScale: 1,
-        waitTime: 3000,
+        waitTime: 800,
         currentWaitedTime: 0,
         currentOffsetTime: 0,
-        offsetTimeLimitUp: 1000,
-        offsetTimeLimitDown: -1000,
+        offsetTimeLimitUp: 300,
+        offsetTimeLimitDown: 300,
         offsetTimeTarget: 1000 / 60,
         offsetTimeDelta: 3,
         registerResizeEvents: true,
@@ -157,8 +158,8 @@ class Engine {
       if (width <= 0 || height <= 0) {
         return;
       }
-      this._output.canvas.width = width / this._autoSize.currentScale;
-      this._output.canvas.height = height / this._autoSize.currentScale;
+      this._output.canvas.width = Math.round(width / this._autoSize.currentScale);
+      this._output.canvas.height = Math.round(height / this._autoSize.currentScale);
       if (this._autoSize.setCanvasStyle) {
         this._output.canvas.style.width = `${width}px`;
         this._output.canvas.style.height = `${height}px`;
@@ -299,7 +300,7 @@ class Engine {
                     ) {
                       this._autoSize.currentScale = Math.max(
                         this._autoSize.scaleLimitMin,
-                        this._autoSize.currentScale / 2
+                        this._autoSize.currentScale / this._autoSize.scaleFactor
                       );
                       this._recalculateCanvas = true;
                     }
@@ -314,7 +315,7 @@ class Engine {
                     ) {
                       this._autoSize.currentScale = Math.min(
                         this._autoSize.scaleLimitMax,
-                        this._autoSize.currentScale * 2
+                        this._autoSize.currentScale * this._autoSize.scaleFactor
                       );
                       this._recalculateCanvas = true;
                     }

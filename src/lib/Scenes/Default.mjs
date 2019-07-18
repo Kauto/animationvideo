@@ -74,7 +74,13 @@ class Scene {
       w: output.w,
       h: output.h,
       orgW: output.w,
-      orgH: output.h
+      orgH: output.h,
+      visibleScreen: {
+        x: 0,
+        y: 0,
+        w: output.w,
+        h: output.h
+      }
     };
     this.layerManager.forEach(({ layer, element, isFunction, index }) => {
       if (!isFunction) {

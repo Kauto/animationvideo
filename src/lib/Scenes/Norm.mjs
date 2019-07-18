@@ -30,7 +30,8 @@ export default class SceneNorm extends Scene {
   }
 
   resize(output) {
-    this.transform = undefined;
+    this.transform = null;
+    this.transformInvert = null;
     this.additionalModifier = {
       a: 1,
       x: -1,
@@ -41,6 +42,14 @@ export default class SceneNorm extends Scene {
       orgH: output.h,
       scaleCanvas: output.w / output.canvas.clientWidth
     };
+    const [x1,y1] = this.transformPoint(0,0,1);
+    const [x2,y2] = this.transformPoint(output.w,output.h,1);
+    this.additionalModifier.visibleScreen = {
+      x: x1,
+      y: y1,
+      w: x2-x1,
+      h: y2-y1
+    }
     this.layerManager.forEach(({ layer, element, isFunction, index }) => {
       if (!isFunction) {
         element.resize(output, this.additionalModifier);
@@ -48,11 +57,11 @@ export default class SceneNorm extends Scene {
     });
   }
 
-  transformPoint(x, y) {
+  transformPoint(x, y, scale = this.additionalModifier.scaleCanvas) {
     if (!this.transformInvert) {
       this.transformInvert = this._getViewport().clone().invert()
     }
-    return this.transformInvert.transformPoint(x * this.additionalModifier.scaleCanvas, y * this.additionalModifier.scaleCanvas);
+    return this.transformInvert.transformPoint(x * scale, y * scale);
   }
 
   draw(output) {
