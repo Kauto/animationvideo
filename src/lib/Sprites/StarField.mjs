@@ -27,7 +27,7 @@ export default class StarField extends Rect {
   init() {
     this.centerX = this.width / 2 + this.x;
     this.centerY = this.height / 2 + this.y;
-    this.scaleZ = Math.max(this.width, this.height) / 2;
+    this.scaleZ = Math.min(this.width, this.height);
     this.starsX = [];
     this.starsY = [];
     this.starsZ = [];
@@ -105,7 +105,7 @@ export default class StarField extends Rect {
     } else {
       this.starsOldX[i] = projectX;
       this.starsOldY[i] = projectY;
-			this.starsLineWidth[i] = Math.floor((1 - this.starsZ[i] / this.scaleZ) * 4) + 1;
+			this.starsLineWidth[i] = (1 - this.starsZ[i] / this.scaleZ) * 3 + 1;
     }
   }
 

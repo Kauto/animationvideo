@@ -31,6 +31,6 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "microbundle": "^0.11.0",
-    "mocha": "^6.1.3"
+    "mocha": "^6.2.0"
   }
 }

@@ -1,8 +1,10 @@
 # AnimationVideo
 
-AnimationVideo is a javascript library to animate objects inside a canvas. The animation can be perfectly synced to music which can be even skipped.
+AnimationVideo is a javascript library to animate objects inside a canvas. The animation can be perfectly synced to music which can even be seeked. Everything works without WebGl.
 
 For now see the *index.html* for an example.
+
+
 
 ### TODO
 * write demo with audio
