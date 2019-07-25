@@ -105,7 +105,7 @@ export default class StarField extends Rect {
     } else {
       this.starsOldX[i] = projectX;
       this.starsOldY[i] = projectY;
-			this.starsLineWidth[i] = (1 - this.starsZ[i] / this.scaleZ) * 3 + 1;
+			this.starsLineWidth[i] = Math.floor((1 - this.starsZ[i] / this.scaleZ) * 4) + 1;
     }
   }
 
