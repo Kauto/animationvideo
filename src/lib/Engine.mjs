@@ -240,7 +240,7 @@ class Engine {
         }
       }
 
-      if (this._scene) {
+      if (this._scene && this._output.canvas.width) {
         let now = this._scene.currentTime();
 
         // modify time by scene
