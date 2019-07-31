@@ -28,17 +28,17 @@ class Image extends Circle {
   // Draw-Funktion
   draw(context, additionalModifier) {
     if (this.enabled && this.image) {
+      const frameWidth = this.frameWidth || this.image.width,
+        frameHeight = this.frameHeight || this.image.height;
       if (!this.normScale) {
         this.normScale = this.norm
           ? Math.min(
-              additionalModifier.w / this.image.width,
-              additionalModifier.h / this.image.height
+              additionalModifier.w / frameWidth,
+              additionalModifier.h / frameHeight
             )
           : 1;
       }
-      const frameWidth = this.frameWidth || this.image.width,
-        frameHeight = this.frameHeight || this.image.height,
-        sX = frameWidth * this.normScale * this.scaleX,
+      const sX = frameWidth * this.normScale * this.scaleX,
         sY = frameHeight * this.normScale * this.scaleY;
       context.globalCompositeOperation = this.alphaMode;
       context.globalAlpha = this.a * additionalModifier.a;

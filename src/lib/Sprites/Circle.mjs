@@ -40,7 +40,7 @@ export default class Circle {
       // run animation
       if (this.animation.run(this, timepassed, true) >= 0) {
         // disable
-        this.enabled = false;
+        // this.enabled = false;
         return true;
       }
     }

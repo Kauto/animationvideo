@@ -8,13 +8,10 @@ export default class ImageFrame {
         this.frameNumber = calc(frameNumber);
         this.framesToRight = ifNull(calc(framesToRight), true);
         this.durationBetweenFrames = ifNull(calc(durationBetweenFrames), 0);
-        if (Array.isArray(this.frameNumber)) {
-            this.count = this.frameNumber.length;
-        } else {
+        if (!Array.isArray(this.frameNumber)) {
             this.frameNumber = [this.frameNumber];
-            this.count = 1;
         }
-        this.duration = this.count * this.durationBetweenFrames;
+        this.duration = this.frameNumber.length * this.durationBetweenFrames;
     }
 
     run(sprite, time) {
@@ -22,7 +19,7 @@ export default class ImageFrame {
         if (time >= this.duration) {
             currentFrame = this.frameNumber[this.frameNumber.length - 1];
         } else {
-            currentFrame = Math.floor(time / this.durationBetweenFrames);
+            currentFrame = this.frameNumber[Math.floor(time / this.durationBetweenFrames)];
         }
         if (this.framesToRight) {
             sprite.frameX = sprite.frameWidth * currentFrame;

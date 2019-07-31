@@ -11,15 +11,17 @@ class Sequence {
     // init position-array
     this.animationPosition = {};
     for (let i in this.animation) {
-      this.animationPosition[i] = {
+      const animationPosition = {
         position: 0,
         timelapsed: -calc(this.timeWait),
         object: null,
         loop: (typeof loop === 'object') ? calc(loop[i]) : calc(loop),
         enabled: !((typeof loop === 'object' && calc(loop[i]) === false) || calc(loop) === false),
-        orgLoop: (typeof loop === 'object') ? calc(loop[i]) : calc(loop),
-        orgEnabled: !((typeof loop === 'object' && calc(loop[i]) === false) || calc(loop) === false),
       };
+      animationPosition.orgTimelapsed = animationPosition.timelapsed
+      animationPosition.orgLoop = animationPosition.loop
+      animationPosition.orgEnabled = animationPosition.enabled
+      this.animationPosition[i] = animationPosition
       this.setObject(i);
     }
     // init time
@@ -27,11 +29,11 @@ class Sequence {
     this.hide_vote = false;
   }
 
-  reset(timelapsed = 0) {
+  reset(timelapsed = undefined) {
     for (let i in this.animation) {
       const animationPosition = this.animationPosition[i];
       animationPosition.position = 0;
-      animationPosition.timelapsed = timelapsed;
+      animationPosition.timelapsed = timelapsed === undefined ? animationPosition.orgTimelapsed : timelapsed;
       animationPosition.loop = animationPosition.orgLoop;
       animationPosition.enabled = animationPosition.orgEnabled;
       this.setObject(i);
@@ -171,9 +173,9 @@ class Sequence {
               }
             }
           }
-          else {
-            hide_vote++;
-          }
+          //else {
+          //  hide_vote++;
+          //}
         }
       }
     }
