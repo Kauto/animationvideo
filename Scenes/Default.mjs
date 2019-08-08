@@ -62,7 +62,7 @@ class Scene {
     }
     Promise.resolve(
       this.configuration.init &&
-        this.configuration.init({ engine, output, scene: this, parameter })
+        this.configuration.init({ engine, output, scene: this, parameter, imageManager: ImageManager })
     ).then(res => (this.initDone = true));
   }
 

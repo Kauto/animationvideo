@@ -1,7 +1,6 @@
 import calc from '../func/calc.mjs';
 import ifNull from '../func/ifnull.mjs';
 import Color from 'color';
-import pasition from 'pasition';
 
 function moveDefault(progress, data) {
   return data.from + progress * data.delta;
@@ -26,7 +25,7 @@ function moveColor(progress, data, sprite) {
 }
 
 function movePath(progress, data, sprite) {
-  return pasition._lerp(data.pathFrom, data.pathTo, progress);
+  return sprite.changeToPath(progress, data, sprite)
 }
 
 // to values of a object
@@ -72,7 +71,7 @@ export default class ChangeTo {
           data.colorTo = Color(data.to);
           data.moveAlgorithm = moveColor;
         } else if (data.isPath) {
-          [data.pathFrom, data.pathTo] = pasition._preprocessing(pasition.path2shapes(data.from), pasition.path2shapes(data.to));
+          [data.pathFrom, data.pathTo] = sprite.changeToPathInit(data.from, data.to);
           data.moveAlgorithm = movePath;
         }
         else if (Array.isArray(data.to)) {
@@ -86,7 +85,7 @@ export default class ChangeTo {
         data.colorFrom = Color(sprite[data.name]);
         data.colorTo = Color(data.to);
       } else if (data.isPath) {
-        [data.pathFrom, data.pathTo] = pasition._preprocessing(pasition.path2shapes(sprite[data.name]), pasition.path2shapes(data.to));
+        [data.pathFrom, data.pathTo] = sprite.changeToPathInit(sprite[data.name], data.to);
       } else if (data.bezier) {
         data.values = [sprite[data.name], ...data.bezier];
       } else {

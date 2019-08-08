@@ -100,7 +100,7 @@ class Sequence {
     }
     const length = this.sequences.length;
     let disableVote = 0;
-    let restTime = timePassed;
+    let restTime = Infinity;
     for (let i = 0; i < length; i++) {
       if (this.sequences[i].enabled) {
         const timeLeft = this.runSequence(
@@ -118,6 +118,7 @@ class Sequence {
     }
     if (disableVote === length) {
       this.enabled = false;
+      return timePassed;
     }
     return restTime;
   }

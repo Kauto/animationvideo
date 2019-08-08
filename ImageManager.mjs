@@ -14,6 +14,10 @@ class ImageManager {
           } else if (Callbacks && typeof(Callbacks[i]) === "function") {
             Callbacks[i](i, self.Images[i]);
           }
+          if (self.resolve && self.isLoaded()) {
+            self.resolve();
+            self.resolve = null;
+          }
         };
         if (Images[i].substr(0,4) === '<svg') {
           const  DOMURL = window.URL || window.webkitURL || window;
@@ -32,7 +36,11 @@ class ImageManager {
     if (Callbacks && typeof(Callbacks) === "function" && self.isLoaded()) {
       Callbacks();
     }
-    return self;
+    if (self.resolve && self.isLoaded()) {
+      self.resolve();
+      self.resolve = null;
+    }
+return self;
   }
 
   static reset() {
@@ -58,6 +66,13 @@ class ImageManager {
 
   static getImage(nameOrImage) {
     return typeof nameOrImage === 'object' ? nameOrImage : (this || ImageManager).Images[nameOrImage];
+  }
+
+  static isLoadedPromise() {
+    const self = this || ImageManager;
+    return self.isLoaded() ? true : new Promise((resolve, reject) => {
+      self.resolve = resolve
+    });
   }
 }
 

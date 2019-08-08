@@ -7,7 +7,7 @@
   "browser": "dist/animationvideo.umd.js",
   "unpkg": "dist/animationvideo.umd.js",
   "module": "dist/animationvideo.mjs",
-  "source": "src/animationvideo.mjs",
+  "source": "animationvideo.mjs",
   "scripts": {
     "production": "microbundle && microbundle -f umd --external none",
     "watch": "microbundle watch -f umd --no-compress --external none",
