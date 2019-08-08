@@ -495,7 +495,7 @@
           );
         }
 
-        beforeMove() {
+        update() {
           this.layerMove.addElements(this.newThings);
           this.layerCount.forEach(
             ({ element }) => (element.text = this.layerMove.count())
@@ -703,7 +703,7 @@
             document.removeEventListener("keydown", this.eventKeyDown);
             document.removeEventListener("keyup", this.eventKeyUp);
           }
-          beforeMove({ }) {
+          fixedUpdate({ }) {
             let state = "neutral";
             if (this.keyMap[this.key.down]) {
               this.sprite.ship.y += 0.01;

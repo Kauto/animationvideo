@@ -346,6 +346,7 @@ class Engine {
     this._referenceRequestAnimationFrame &&
       window.cancelAnimationFrame(this._referenceRequestAnimationFrame);
     this._referenceRequestAnimationFrame = null;
+    this._scene && this._scene.destroy(this._output)
     window.removeEventListener(
       "resize",
       this.recalculateCanvas.bind(this),

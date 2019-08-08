@@ -102,7 +102,12 @@ class Layer {
   }
 
   count() {
-    return this.layer.length;
+    let count = 0;
+    const l = this.layer.length;
+    for (let index = this.start; index < l; index++) {
+      if (this.layer[index]) count++;
+    }
+    return count;
   }
 
   clear() {

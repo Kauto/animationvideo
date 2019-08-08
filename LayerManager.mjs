@@ -10,6 +10,12 @@ class LayerManager {
     return this.layers[this.layers.length - 1];
   }
 
+  addLayers(numberOfLayer = 1) {
+    let newLayers = Array.from({ length: numberOfLayer }, v => new Layer());
+    this.layers = this.layers.concat(newLayers);
+    return newLayers;
+  }
+
   addLayerForId() {
     this.layers[this.layers.length] = new Layer();
     return this.layers.length - 1;

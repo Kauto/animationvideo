@@ -20,7 +20,7 @@ class Scene {
     this.initDone = false;
     this.additionalModifier = undefined;
 
-    this.tickChunk = calc(this.configuration.tickChunk);
+    this.tickChunk = ifNull(calc(this.configuration.tickChunk), 100/6);
     this.maxSkippedTickChunk = ifNull(
       calc(this.configuration.maxSkippedTickChunk),
       3
@@ -89,10 +89,11 @@ class Scene {
     });
   }
 
-  callDestroy(output) {
-    this.configuration.destroy &&
+  destroy(output) {
+    const parameter = this.configuration.destroy &&
       this.configuration.destroy({ engine: this.engine, scene: this, output });
     this.initDone = false;
+    return parameter;
   }
 
   loadingscreen(output, progress) {
@@ -163,7 +164,7 @@ class Scene {
         this.configuration.end({ engine: this.engine, scene: this, output });
     }
 
-    if (this.configuration.beforeMove) {
+    if (this.configuration.fixedUpdate) {
       if (this.tickChunk) {
         if (timepassed >= this.tickChunk - this.tickChunkTolerance) {
           // how many frames should be skipped. Maximum is a skip of 2 frames
@@ -176,7 +177,7 @@ class Scene {
             calcFrame < frames;
             calcFrame++
           ) {
-            this.configuration.beforeMove({
+            this.configuration.fixedUpdate({
               engine: this.engine,
               scene: this,
               layerManager: this.layerManager,
@@ -186,7 +187,7 @@ class Scene {
           }
         }
       } else {
-        this.configuration.beforeMove({
+        this.configuration.fixedUpdate({
           engine: this.engine,
           scene: this,
           layerManager: this.layerManager,
@@ -194,6 +195,16 @@ class Scene {
           timepassed
         });
       }
+    }
+
+    if (this.configuration.update) {
+      this.configuration.update({
+        engine: this.engine,
+        scene: this,
+        layerManager: this.layerManager,
+        output,
+        timepassed
+      });
     }
 
     this.layerManager.forEach(({ element, isFunction, layer, index }) => {
@@ -204,15 +215,6 @@ class Scene {
       }
     });
 
-    if (this.configuration.afterMove) {
-      this.configuration.afterMove({
-        engine: this.engine,
-        scene: this,
-        layerManager: this.layerManager,
-        output,
-        timepassed
-      });
-    }
   }
 
   draw(output) {
