@@ -70,10 +70,10 @@ npm i animationvideo eases
 ```
 
 # General overview
-The [Engine](#engine) of Animationvideo will run [Scenes](#scenes) that consists of [Sprites](#sprites) that can be manipulated with [Animations](#animations).
+The [Engine](#engine) of AnimationVideo will run [Scenes](#scenes) that consists of [Sprites](#sprites) that can be manipulated with [Animations](#animations).
 
 ## How to import
-The best way to import components of Animationvideo is the direct import of the modules.
+The best way to import components of AnimationVideo is the direct import of the modules.
 ```js
 import Engine from 'animationvideo/Engine.mjs'
 import Norm from 'animationvideo/Scenes/Norm.mjs'
@@ -85,20 +85,46 @@ import QuadInOut from 'eases/quad-in-out'
 ```
 This is possible with [Webpack >= 4](https://webpack.js.org/). For older packer you can use the main package and extract the needed components.
 ```js
-import Animationvideo from "animationvideo";
+import AnimationVideo from "animationvideo";
 const {
   Engine,
   Scenes: { Norm },
   Animations: { Forever, ChangeTo },
   Sprites: { Image, FastBlur },
   Easing: { QuadInOut }
-} = Animationvideo;
+} = AnimationVideo;
 ```
-For simple web projects you can include the js-file directly
+For simple web projects you can include the js-file directly and use the global `AnimationVideo` object.
 ```html
 <script src="dist/animationvideo.umd.js"></script>
+<script>
+  AnimationVideo.Engine(document.querySelector('canvas'))
+    .switchScene(AnimationVideo.Scenes.Norm({
+      reset: () => [
+        [
+          AnimationVideo.Sprites.Rect({ clear: true })
+        ],
+        [
+          AnimationVideo.Sprites.Circle({ 
+            scaleX: 0.5, 
+            scaleY: 0.5,
+            color: '#F00',
+            animation: AnimationVideo.Animations.Forever([
+              AnimationVideo.Animations.ChangeTo({
+                color: '#00F'
+              }, 1000),
+              AnimationVideo.Animations.ChangeTo({
+                color: '#F00'
+              }, 1000)
+            ])
+          })
+        ],
+      ]
+    }))
+    .run()
+</script>
 ```
-This is done in the *index.html*.
+Other examples are done in the *index.html*.
 
 
 ## Example
@@ -179,7 +205,7 @@ new Engine({
 
 ## Engine
 
-The Engine is the foundation of Animationvideo that runs the system. It's a class that needs to be instantiated with `new`. The parameter is an object or a canvas.
+The Engine is the foundation of AnimationVideo that runs the system. It's a class that needs to be instantiated with `new`. The parameter is an object or a canvas.
 
 ```js
 import Engine from 'animationvideo/Engine.mjs'
@@ -194,7 +220,7 @@ const engine = new Engine(document.querySelector('canvas'));
 const engine = new Engine({
   // automatic scaling of the canvas - default false
   autoSize: false,
-  // the canvas that is used by Animationvideo
+  // the canvas that is used by AnimationVideo
   canvas: null,
   // click event will be added to the canvas and send to an audio-scene
   clickToPlayAudio: false
@@ -342,10 +368,13 @@ const objectScene = new SceneDefault({
 
   // "loading" is an optional function that replaces the loading animation
   // can be empty to disable any loading animation. F.e. loading() {}
-  loading({ engine, scene, output, value }) {
+  loading({ engine, scene, output, progress }) {
     // replace the loading screen
-    const ctx = output.context,
-          loadedHeight = Math.max(1, progress * output.h);
+    const ctx = output.context;
+    const loadedHeight =
+      typeof progress === "number"
+        ? Math.max(1, progress * output.h)
+        : output.h;
 
     // clean the screen
     ctx.globalCompositeOperation = "source-over";
@@ -382,7 +411,7 @@ const objectScene = new SceneDefault({
 
   // The function "end" will be triggered if the animation is running
   // for "endTime" ms.
-  end({ engine, scene, output }) {
+  end({ engine, scene, output, timePassed, totalTimePassed }) {
     // f.e. switch scene at the end of a cutscene
   }
 
@@ -414,8 +443,10 @@ const objectScene = new SceneDefault({
   //     h: 0,          // the height of the canvas
   //     ratio: 1       // the ratio between width and height
   //   }
-  // - timepassed is the time in ms that has passed since the last frame
-  fixedUpdate({ engine, scene, layerManager, output, timepassed }) {
+  // - timePassed is the time in ms that has passed since the last frame
+  // - totalTimePassed is the time in ms that has passed since the start of the
+  //   animation
+  fixedUpdate({ engine, scene, layerManager, output, timePassed, totalTimePassed }) {
     // do collision
     // logic or handle events f.e.
     // if (keydown) layerManager.getById(0).addElements(this.createExplosion());
@@ -434,8 +465,10 @@ const objectScene = new SceneDefault({
   //     h: 0,          // the height of the canvas
   //     ratio: 1       // the ratio between width and height
   //   }
-  // - timepassed is the time in ms that has passed since the last frame
-  update({ engine, scene, layerManager, output, timepassed }) {
+  // - timePassed is the time in ms that has passed since the last frame
+  // - totalTimePassed is the time in ms that has passed since the start of the
+  //   animation
+  update({ engine, scene, layerManager, output, timePassed, totalTimePassed }) {
     // set text of a object - f.e. the score
     // layerManager.getById(0).getById(0).text = this.score;
 
@@ -451,7 +484,7 @@ const objectScene = new SceneDefault({
     // layerManager.addLayer().addElements([ SPRITES ]);
     // return layerManager;
 
-    // - or you can return a 2d-array that will converted to layers
+    // - or you can return a 2d-array that will be converted to layers
     // return [
     //  [ SPRITES IN LAYER 0 ],
     //  [ SPRITES IN LAYER 1 ]
@@ -463,7 +496,7 @@ engine.switchScene(objectScene).run();
 ```
 
 #### Layers
-A scenes main task is to use the given *layerManager* to first move the objects of the *layers* and then to draw them.
+A scenes main task is to use the given *layerManager* to first move the objects of the [Layers](#layers) and to draw them.
 
 ```js
 import Engine from 'animationvideo/Engine.mjs';
@@ -513,10 +546,10 @@ new Engine({
       this.spriteMainRect = this.layerMain.addElement(new Rect());
       // it can be a function
       this.spriteMainFunction = this.layerMain.addElement(
-        function ({ engine, scene, layerManager, layer, output, timepassed }) {
+        function ({ engine, scene, layerManager, layer, output, totalTimePassed }) {
           output.context.drawImage(...)
           // return true will remove this function from the layer
-          return timepassed > 1000 
+          return totalTimePassed > 1000 
         }
       );
 
@@ -570,12 +603,406 @@ new Engine({
 }).run()
 ```
 
-
 ### Norm
+This scene is similar to the [Default](#default)-scene. But the coordinates are different: the middle of the canvas will be at 0, 0, left and bottom of the canvas at -1, -1 and the top right is at 1, 1. In addition the Norm has a function named `transformPoint(x,y)` that will transform normal x, y coordinates of the canvas (f.e. mouse position) into Norm-coordinates.
+
+```js
+import Animationvideo from "animationvideo";
+const {
+  Engine,
+  Scenes: { Norm },
+  Animations: { Forever, ChangeTo },
+  Sprites: { Circle, FastBlur },
+  Easing: { CubicInOut }
+} = Animationvideo;
+
+// The Engine runs the scene "Norm"
+new Engine({
+  // enable autoSize
+  autoSize: true,
+  // set canvas
+  canvas: document.querySelector("canvas"),
+  // The Engine uses the scene "Norm"
+  scene: new Norm(
+    class myExample {
+      // mouse event that we will bind
+      eventMouseMove(e) {
+        // use transforPoint to transform mouse coordinates to internal Norm-ccordinates
+        [this.mx, this.my] = this.scene.transformPoint(e.offsetX, e.offsetY);
+      }
+
+      init({ engine, output, scene }) {
+        // set values we need for position tracking
+        this.mx = 1;
+        this.my = 0.5;
+        this.scene = scene;
+
+        // add mouse move event
+        output.canvas.addEventListener(
+          "mousemove",
+          this.eventMouseMove.bind(this)
+        );
+      }
+
+      destroy({ output }) {
+        // don't forget to clean up
+        output.canvas.removeEventListener("mousemove", this.eventMouseMove);
+      }
+
+      reset({ layerManager }) {
+        // background will be a feedback effect
+        layerManager.addLayer().addElement(
+          new FastBlur({
+            a: 0.9,
+            scaleX: 10,
+            scaleY: 10,
+            darker: 0.3,
+            clear: true,
+            pixel: true
+          })
+        );
+
+        // above is a circle that will move to the mouse every 500ms
+        this.layerMove = layerManager.addLayer();
+        layerManager.addLayer().addElements([
+          new Circle({
+            x: this.mx,
+            y: this.my,
+            scaleX: 0.1,
+            scaleY: 0.1,
+            color: "#F00",
+            animation: new Forever(
+              [
+                new ChangeTo(
+                  {
+                    x: () => this.mx,
+                    y: () => this.my
+                  },
+                  500,
+                  CubicInOut
+                )
+              ]
+            )
+          })
+        ]);
+        return layerManager;
+      }
+    }
+  )
+}).run(); // start the engine
+```
+[Test code at codesandbox.io](https://codesandbox.io/s/infallible-wildflower-w3uo7?fontsize=14)
+
 ### Audio
+This scene is similar to the [Default](#default)-scene. In addition to the Default-scene-functions you have to set an "**audioElement**". "**end**" is automatically called without giving "**endTime**".
+
+```js
+import Animationvideo from "animationvideo";
+const {
+  Engine,
+  Scenes: { Audio },
+  Animations: { Forever, ChangeTo },
+  Sprites: { Rect, Path, StarField, FastBlur },
+  Easing: { QuadInOut, ElasticOut, BounceOut, QuadOut }
+} = Animationvideo;
+
+new Engine({
+  // clicking on the canvas will start the audio
+  clickToPlayAudio: true,
+  // the canvas for the animation
+  canvas: document.querySelector("canvas"),
+  // The Engine uses the scene "Audio"
+  scene: new Audio({
+    // audio element that plays the music
+    audioElement: document.querySelector("audio"),
+    // function that runs when the audio ends
+    end() {
+      window.alert('audio done');
+    },
+    // show totalTimePassed
+    update({ totalTimePassed }) {
+      const tickElement = document.getElementById('tick');
+      if (tickElement) {
+        tickElement.innerText = Math.round(totalTimePassed);
+      }
+    },
+    // initialisation of the scene with sprites
+    reset() {
+      return [
+        // first layer is the background
+        [
+          new Rect({
+            color: "#117",
+            animation: [
+              500,
+              new ChangeTo({
+                color: "#88C"
+              }, 1000),
+              new Wait(14500),
+              new ChangeTo({
+                color: "#C88"
+              }, 300),
+              new ChangeTo({
+                color: "#FCC"
+              }, 3000),
+            ]
+          })
+        ],
+        // effect rects
+        [
+          new Rect({
+            color: "#66b",
+            width: 100,
+            x: -100,
+            animation: [
+              500,
+              new ChangeTo({
+                x: 100
+              }, 1000, ElasticOut),
+              new Wait(14500),
+              new ChangeTo({
+                a: 0
+              }, 300),
+              // Delete this item
+              new EndDisabled()
+            ]
+          }),
+          new Rect({
+            color: "#66b",
+            width: 100,
+            x: 800,
+            animation: [
+              500,
+              new ChangeTo({
+                x: 600
+              }, 1000, ElasticOut),
+              new Wait(14500),
+              new ChangeTo({
+                a: 0
+              }, 300),
+              new EndDisabled()
+            ]
+          }),
+          new Rect({
+            color: "#449",
+            width: 100,
+            x: -100,
+            animation: [
+              500,
+              new ChangeTo({
+                x: 200
+              }, 1000, ElasticOut),
+              new Wait(14500),
+              new ChangeTo({
+                a: 0
+              }, 300),
+              new EndDisabled()
+            ]
+          }),
+          new Rect({
+            color: "#449",
+            width: 100,
+            x: 800,
+            animation: [
+              500,
+              new ChangeTo({
+                x: 500
+              }, 1000, ElasticOut),
+              new Wait(14500),
+              new ChangeTo({
+                a: 0
+              }, 300),
+              new EndDisabled()
+            ]
+          }),
+          new Rect({
+            color: "#227",
+            width: 100,
+            x: -100,
+            animation: [
+              500,
+              new ChangeTo({
+                x: 300
+              }, 1000, ElasticOut),
+              new Wait(14500),
+              new ChangeTo({
+                a: 0
+              }, 300),
+              new EndDisabled()
+            ]
+          }),
+          new Rect({
+            color: "#227",
+            width: 100,
+            x: 800,
+            animation: [
+              500,
+              new ChangeTo({
+                x: 400
+              }, 1000, ElasticOut),
+              new Wait(14500),
+              new ChangeTo({
+                a: 0
+              }, 300),
+              new EndDisabled()
+            ]
+          }),
+        ],
+        // logo that morphs
+        [
+          new Path({
+            path: "M123.3 5.5c-5.7 1.3-10.9 4.8-14.6 9.8-9 12.1-4.8 31 8.6 37.8L121 55v47.7l-4 3.2c-3.7 3-5.3 3.4-19.9 5.7l-15.9 2.5-3.6-2.5c-8.3-5.6-24.3-6.2-31.6-1.1-2.8 1.9-4.3 3.9-5 6.5l-1 3.7-9.7 1.6c-12 2-16.5 4.8-20.5 12.7-3.5 6.9-4.8 13.8-4.8 25.4 0 10 2.3 16.9 7.2 21.3 2.2 2.1 68.6 37.5 80.3 42.9l5 2.3 36-2.9c19.8-1.6 39.2-3.1 43-3.4 40.2-3.1 37.7-2.8 42.2-6.2 5.5-4.2 7.5-12.4 6.3-25.1-1-9.5-2.5-12.8-20.3-43.8-20.4-35.6-22.3-38.4-29.1-41.9-3.3-1.7-6.9-3.9-8-5-5.8-5.1-13.9-7.1-23.7-5.8l-5.6.8-.6-14c-1.2-25.1-1.3-24.2 3.2-26.5 14.2-7.3 17.6-27.4 6.8-39.7-2.2-2.5-5.1-5.1-6.6-5.8-4.7-2.5-12.2-3.3-17.8-2.1z",
+            color: '#000',
+            borderColor: '#FFF',
+            lineWidth: 3,
+            x: 270,
+            y: 30,
+            a: 0,
+            scaleY: 0.7,
+            arc: -5,
+            animation: [
+              // wait 2000 ms
+              2000,
+              // intro
+              new ChangeTo({
+                arc: 0,
+                scaleY: 1,
+                a: 1
+              }, 1500, BounceOut),
+              new Wait(500),
+              new ChangeTo({
+                x: 260,
+                y: 20,
+                scaleX: 1.1,
+                scaleY: 1.1
+              }, 4000, QuadInOut),
+              new Wait(1000),
+              // morph
+              new ChangeTo({
+                path: 'M384,48.734c-70.692,0-128,57.308-128,128c0-70.692-57.308-128-128-128s-128,57.308-128,128c0,137.424,188.048,252.681,241.805,282.821c8.823,4.947,19.567,4.947,28.39,0C323.952,429.416,512,314.158,512,176.734C512,106.042,454.692,48.734,384,48.734z',
+                scaleX: 0.5,
+                scaleY: 0.5,
+              }, 1000, BounceOut),
+              new Wait(6000),
+              new ChangeTo({
+                x: 215,
+                y: -25,
+                scaleX: 0.7,
+                scaleY: 0.7,
+              }, 6500, QuadInOut)
+            ]
+          })
+        ],
+        // effect stars
+        [
+          new StarField({
+            moveX: 0,
+            animation: [
+              4000,
+              new ChangeTo({
+                moveY: -4
+              }, 1000, QuadInOut),
+              new Wait(2000),
+              new ChangeTo({
+                moveY: 0
+              }, 200, QuadOut),
+              new Wait(3300),
+              new ChangeTo({
+                moveX: 4,
+                moveY: -2
+              }, 1000, QuadInOut),
+              new Wait(3000),
+              new ChangeTo({
+                moveX: 0,
+                moveY: 0
+              }, 200, QuadOut),
+              new EndDisabled()
+            ]
+          })
+        ],
+        // last layer consits of a blur effect
+        [
+          new FastBlur({
+            alphaMode: "lighter", // make a glow
+            gridSize: 10, // the glow has the size of 10 times 10
+            // pixel: true,
+            darker: 0.5, // turn down the glow
+            a: 0, // not visible
+            animation: [
+              // wait 2000 ms
+              2000,
+              // blend in the half visible glow
+              new ChangeTo({ a: 0.4 }, 1500, QuadInOut)
+            ]
+          })
+        ]
+      ];
+    }
+  })
+}).run(); // start the engine
+```
+[Test code at codesandbox.io](https://codesandbox.io/s/infallible-wildflower-w3uo7?fontsize=14)
+
 ### NormAudio
+This scene is similar to the [Audio](#audio)-scene. But the coordinates are different: the middle of the canvas will be at 0, 0, left and bottom of the canvas at -1, -1 and the top right is at 1, 1. In addition the Norm has a function named `transformPoint(x,y)` that will transform normal x, y coordinates of the canvas (f.e. mouse position) into Norm-coordinates. See [Norm](#norm) for more information.
+
 ## Sprites
+**Sprites** are the objects that are drawn on the screen. They are the main ingredient of an animation.
+
 ### Image
+```js
+import Animationvideo from "animationvideo";
+const {
+  Engine,
+  Scenes: { Default },
+  Sprites: { Image },
+} = Animationvideo;
+
+new Engine({
+  canvas: document.querySelector("canvas"),
+  scene: new Default({
+    // load images beforehand
+    images() {
+      return { imageFile: "https://placekitten.com/400/400" };
+    },
+    // initialisation of the scene with sprites
+    reset() {
+      return [[
+        new Image({
+              // Image
+    this.image = ImageManager.getImage(calc(params.image));
+    // relativ position
+    this.position = ifNull(calc(params.position), Image.CENTER);
+    this.frameX = ifNull(calc(params.frameX), 0);
+    this.frameY = ifNull(calc(params.frameY), 0);
+    this.frameWidth = ifNull(calc(params.frameWidth), 0);
+    this.frameHeight = ifNull(calc(params.frameHeight), 0);
+    this.norm = ifNull(calc(params.norm), false);
+              // Position
+    this.x = ifNull(calc(params.x), 0);
+    this.y = ifNull(calc(params.y), 0);
+    // rotation
+    this.arc = ifNull(calc(params.arc), 0);
+    // Scale
+    this.scaleX = ifNull(calc(params.scaleX), 1);
+    this.scaleY = ifNull(calc(params.scaleY), 1);
+    // Alpha
+    this.a = ifNull(calc(params.a), 1);
+    // Alphamode
+    this.alphaMode = ifNull(calc(params.alphaMode), "source-over");
+    // Color
+    this.color = ifNull(calc(params.color), "#fff");
+    // Animation
+    this.animation = calc(params.animation);
+    if (Array.isArray(this.animation)) {
+      this.animation = new Sequence(this.animation)
+    }
+    // Sprite active
+    this.enabled = ifNull(calc(params.enabled), true);
+        })
+      ]]
+    }
+```
 ### Rect
 ### Circle
 ### Path

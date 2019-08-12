@@ -1,49 +1,90 @@
-import Circle from './Circle.mjs';
-import Color from 'color';
+import Circle from "./Circle.mjs";
+import Color from "color";
 
 const gradientSize = 64;
 const gradientResolution = 4;
 const gradientSizeHalf = gradientSize >> 1;
 
 class Particle extends Circle {
-
-
-  constructor(params) {
-    super(params)
+  constructor(givenParameter) {
+    super(givenParameter);
   }
 
   static getGradientImage(r, g, b) {
-    let rIndex, gIndex, cr = r >> gradientResolution, cg = g >> gradientResolution, cb = b >> gradientResolution;
+    let rIndex,
+      gIndex,
+      cr = r >> gradientResolution,
+      cg = g >> gradientResolution,
+      cb = b >> gradientResolution;
 
     if (!Particle.Gradient) {
       Particle.Gradient = new Array(256 >> gradientResolution);
       for (rIndex = 0; rIndex < Particle.Gradient.length; rIndex++) {
         Particle.Gradient[rIndex] = new Array(256 >> gradientResolution);
         for (gIndex = 0; gIndex < Particle.Gradient[rIndex].length; gIndex++) {
-          Particle.Gradient[rIndex][gIndex] = new Array(256 >> gradientResolution);
+          Particle.Gradient[rIndex][gIndex] = new Array(
+            256 >> gradientResolution
+          );
         }
-
       }
     }
     if (!Particle.Gradient[cr][cg][cb]) {
-      Particle.Gradient[cr][cg][cb] = Particle.generateGradientImage(cr, cg, cb);
+      Particle.Gradient[cr][cg][cb] = Particle.generateGradientImage(
+        cr,
+        cg,
+        cb
+      );
     }
     return Particle.Gradient[cr][cg][cb];
   }
 
   static generateGradientImage(cr, cg, cb) {
-    let canvas = document.createElement('canvas');
+    let canvas = document.createElement("canvas");
     canvas.width = canvas.height = gradientSize;
 
-    let txtc = canvas.getContext('2d');
+    let txtc = canvas.getContext("2d");
     txtc.globalAlpha = 1;
     txtc.globalCompositeOperation = "source-over";
     txtc.clearRect(0, 0, gradientSize, gradientSize);
 
-    let grad = txtc.createRadialGradient(gradientSizeHalf, gradientSizeHalf, 0, gradientSizeHalf, gradientSizeHalf, gradientSizeHalf);
-    grad.addColorStop(0, "rgba(" + ((cr << gradientResolution) + (1 << gradientResolution) - 1) + "," + ((cg << gradientResolution) + (1 << gradientResolution) - 1) + "," + ((cb << gradientResolution) + (1 << gradientResolution) - 1) + ",1)");
-    grad.addColorStop(0.3, "rgba(" + ((cr << gradientResolution) + (1 << gradientResolution) - 1) + "," + ((cg << gradientResolution) + (1 << gradientResolution) - 1) + "," + ((cb << gradientResolution) + (1 << gradientResolution) - 1) + ",0.4)");
-    grad.addColorStop(1, "rgba(" + ((cr << gradientResolution) + (1 << gradientResolution) - 1) + "," + ((cg << gradientResolution) + (1 << gradientResolution) - 1) + "," + ((cb << gradientResolution) + (1 << gradientResolution) - 1) + ",0)");
+    let grad = txtc.createRadialGradient(
+      gradientSizeHalf,
+      gradientSizeHalf,
+      0,
+      gradientSizeHalf,
+      gradientSizeHalf,
+      gradientSizeHalf
+    );
+    grad.addColorStop(
+      0,
+      "rgba(" +
+        ((cr << gradientResolution) + (1 << gradientResolution) - 1) +
+        "," +
+        ((cg << gradientResolution) + (1 << gradientResolution) - 1) +
+        "," +
+        ((cb << gradientResolution) + (1 << gradientResolution) - 1) +
+        ",1)"
+    );
+    grad.addColorStop(
+      0.3,
+      "rgba(" +
+        ((cr << gradientResolution) + (1 << gradientResolution) - 1) +
+        "," +
+        ((cg << gradientResolution) + (1 << gradientResolution) - 1) +
+        "," +
+        ((cb << gradientResolution) + (1 << gradientResolution) - 1) +
+        ",0.4)"
+    );
+    grad.addColorStop(
+      1,
+      "rgba(" +
+        ((cr << gradientResolution) + (1 << gradientResolution) - 1) +
+        "," +
+        ((cg << gradientResolution) + (1 << gradientResolution) - 1) +
+        "," +
+        ((cb << gradientResolution) + (1 << gradientResolution) - 1) +
+        ",0)"
+    );
 
     txtc.fillStyle = grad;
     txtc.fillRect(0, 0, gradientSize, gradientSize);
@@ -54,15 +95,28 @@ class Particle extends Circle {
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {
-      // faster as: if (!(this.color instanceof Color && this.color.model === 'rgb')) {
+      // faster than: if (!(this.color instanceof Color && this.color.model === 'rgb')) {
       if (!this.color || !this.color.color) {
         this.color = Color(this.color).rgb();
       }
       const color = this.color.color;
-      context.globalCompositeOperation = this.alphaMode;
-      context.globalAlpha = this.a * additionalModifier.a;
-      context.imageSmoothingEnabled = this.scaleX * additionalModifier.orgW / additionalModifier.w > gradientSize;
-      context.drawImage(Particle.getGradientImage(color[0], color[1], color[2]), 0, 0, gradientSize, gradientSize, this.x - (this.scaleX / 2), this.y - (this.scaleY / 2), this.scaleX, this.scaleY);
+      context.globalCompositeOperation = this.compositeOperation;
+      context.globalAlpha = this.alpha * additionalModifier.alpha;
+      context.imageSmoothingEnabled =
+        (this.scaleX * additionalModifier.widthInPixel) /
+          additionalModifier.width >
+        gradientSize;
+      context.drawImage(
+        Particle.getGradientImage(color[0], color[1], color[2]),
+        0,
+        0,
+        gradientSize,
+        gradientSize,
+        this.x - this.scaleX / 2,
+        this.y - this.scaleY / 2,
+        this.scaleX,
+        this.scaleY
+      );
       context.imageSmoothingEnabled = true;
     }
   }

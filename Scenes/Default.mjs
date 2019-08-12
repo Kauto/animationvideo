@@ -20,7 +20,7 @@ class Scene {
     this.initDone = false;
     this.additionalModifier = undefined;
 
-    this.tickChunk = ifNull(calc(this.configuration.tickChunk), 100/6);
+    this.tickChunk = ifNull(calc(this.configuration.tickChunk), 100 / 6);
     this.maxSkippedTickChunk = ifNull(
       calc(this.configuration.maxSkippedTickChunk),
       3
@@ -47,7 +47,7 @@ class Scene {
   }
 
   shiftTime(timePassed) {
-    if (!this.tickChunk) {
+    if (!this.configuration.fixedUpdate) {
       return 0;
     }
     return -(timePassed % this.tickChunk);
@@ -62,24 +62,30 @@ class Scene {
     }
     Promise.resolve(
       this.configuration.init &&
-        this.configuration.init({ engine, output, scene: this, parameter, imageManager: ImageManager })
+        this.configuration.init({
+          engine,
+          output,
+          scene: this,
+          parameter,
+          imageManager: ImageManager
+        })
     ).then(res => (this.initDone = true));
   }
 
   resize(output) {
     this.additionalModifier = {
-      a: 1,
+      alpha: 1,
       x: 0,
       y: 0,
-      w: output.w,
-      h: output.h,
-      orgW: output.w,
-      orgH: output.h,
+      width: output.width,
+      height: output.height,
+      widthInPixel: output.width,
+      heightInPixel: output.height,
       visibleScreen: {
         x: 0,
         y: 0,
-        w: output.w,
-        h: output.h
+        width: output.width,
+        height: output.height
       }
     };
     this.layerManager.forEach(({ layer, element, isFunction, index }) => {
@@ -90,20 +96,32 @@ class Scene {
   }
 
   destroy(output) {
-    const parameter = this.configuration.destroy &&
+    const parameter =
+      this.configuration.destroy &&
       this.configuration.destroy({ engine: this.engine, scene: this, output });
     this.initDone = false;
     return parameter;
   }
 
-  loadingscreen(output, progress) {
-    const ctx = output.context,
-      loadedHeight = Math.max(1, progress * output.h);
+  loadingScreen(output, progress) {
+    if (this.configuration.loading) {
+      return this.configuration.loading({
+        engine: this.engine,
+        scene: this,
+        output,
+        progress
+      });
+    }
+    const ctx = output.context;
+    const loadedHeight =
+      typeof progress === "number"
+        ? Math.max(1, progress * output.h)
+        : output.h;
     ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = 1;
     ctx.clearRect(0, 0, output.w, output.h);
     ctx.fillStyle = "#aaa";
-    ctx.fillRect(0, output.h / 2 - loadedHeight / 2, output.w, loadedHeight);
+    ctx.fillRect(0, output.height / 2 - loadedHeight / 2, output.width, loadedHeight);
     ctx.font = "20px Georgia";
     ctx.fillStyle = "#fff";
     ctx.textAlign = "left";
@@ -117,7 +135,7 @@ class Scene {
     ctx.fillText(
       text,
       10 + Math.random() * 3,
-      output.h - 10 + Math.random() * 3
+      output.height - 10 + Math.random() * 3
     );
 
     this.engine && this.engine.normalizeContext(ctx);
@@ -125,54 +143,52 @@ class Scene {
 
   callLoading(output) {
     if (ImageManager.isLoaded() && this.initDone) {
-      this.reset(output);
       return true;
     }
     const value = ImageManager.getCount()
       ? ImageManager.getLoaded() / ImageManager.getCount()
       : "Loading...";
 
-    this.configuration.loading
-      ? this.configuration.loading({
-          engine: this.engine,
-          scene: this,
-          output,
-          value
-        })
-      : this.loadingscreen(output, value);
+    this.loadingScreen(output, value);
     return false;
   }
 
-  move(output, timepassed) {
+  move(output, timePassed) {
     // calc total time
-    this.totalTimePassed += timepassed;
+    this.totalTimePassed += timePassed;
 
     // Jump back?
-    if (timepassed < 0) {
+    if (timePassed < 0) {
       // Back to the beginning
       this.reset(output);
-      timepassed = this.totalTimePassed;
+      timePassed = this.totalTimePassed;
     } else if (
       this.configuration.endTime &&
       this.configuration.endTime <= this.totalTimePassed
     ) {
       // set timepassed to match endtime
-      timepassed -= this.totalTimePassed - this.endTime;
-      this.totalTimePassed = this.endTime;
+      timePassed -= this.totalTimePassed - this.configuration.endTime;
+      this.totalTimePassed = this.configuration.endTime;
       // End Engine
       this.configuration.end &&
-        this.configuration.end({ engine: this.engine, scene: this, output });
+        this.configuration.end({
+          engine: this.engine,
+          scene: this,
+          output,
+          timePassed,
+          totalTimePassed: this.totalTimePassed
+        });
     }
 
     if (this.configuration.fixedUpdate) {
       if (this.tickChunk) {
-        if (timepassed >= this.tickChunk - this.tickChunkTolerance) {
+        if (timePassed >= this.tickChunk - this.tickChunkTolerance) {
           // how many frames should be skipped. Maximum is a skip of 2 frames
           for (
             let calcFrame = 0,
               frames = Math.min(
                 this.maxSkippedTickChunk,
-                Math.floor(timepassed / this.tickChunk)
+                Math.floor(timePassed / this.tickChunk)
               );
             calcFrame < frames;
             calcFrame++
@@ -182,7 +198,8 @@ class Scene {
               scene: this,
               layerManager: this.layerManager,
               output,
-              timepassed
+              timePassed,
+              totalTimePassed: this.totalTimePassed
             });
           }
         }
@@ -192,7 +209,8 @@ class Scene {
           scene: this,
           layerManager: this.layerManager,
           output,
-          timepassed
+          timePassed,
+          totalTimePassed: this.totalTimePassed
         });
       }
     }
@@ -203,18 +221,18 @@ class Scene {
         scene: this,
         layerManager: this.layerManager,
         output,
-        timepassed
+        timePassed,
+        totalTimePassed: this.totalTimePassed
       });
     }
 
     this.layerManager.forEach(({ element, isFunction, layer, index }) => {
       if (!isFunction) {
-        if (element.animate(timepassed)) {
+        if (element.animate(timePassed)) {
           layer.deleteById(index);
         }
       }
     });
-
   }
 
   draw(output) {
@@ -227,7 +245,7 @@ class Scene {
             layerManager: this.layerManager,
             layer,
             output,
-            timepassed: this.totalTimePassed
+            totalTimePassed: this.totalTimePassed
           })
         ) {
           layer.deleteById(index);

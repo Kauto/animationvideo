@@ -3,31 +3,38 @@ import calc from "../func/calc.mjs";
 import Circle from "./Circle.mjs";
 
 export default class FastBlur extends Circle {
-  constructor(params) {
-    super(params);
-    // Size
-    this.x = calc(params.x);
-    this.y = calc(params.y);
-    this.width = calc(params.width);
-    this.height = calc(params.height);
+  constructor(givenParameter) {
+    super(givenParameter);
 
-    this.gridSize = calc(params.gridSize);
-    this.darker = ifNull(calc(params.darker), 0);
-    this.pixel = ifNull(calc(params.pixel), false);
-    this.clear = ifNull(calc(params.clear), false);
-    this.norm = ifNull(
-      calc(params.norm),
-      this.x === undefined &&
-        this.y === undefined &&
-        this.width === undefined &&
-        this.height === undefined
-    );
     this.currentGridSize = false;
   }
 
+  getParameterList() {
+    return {
+      ...super.getParameterList(),
+      // x,y,width,height without default to enable norm
+      x: undefined,
+      y: undefined,
+      width: undefined,
+      height: undefined,
+      gridSize: undefined,
+      darker: 0,
+      pixel: false,
+      clear: false,
+      norm: (value, givenParameter, setParameter) =>
+        ifNull(
+          calc(value),
+          setParameter.x === undefined &&
+            setParameter.y === undefined &&
+            setParameter.width === undefined &&
+            setParameter.height === undefined
+        )
+    };
+  }
+
   generateTempCanvas(context, additionalModifier) {
-    const w = additionalModifier.orgW || context.canvas.width,
-      h = additionalModifier.orgH || context.canvas.height;
+    const w = additionalModifier.widthInPixel || context.canvas.width,
+      h = additionalModifier.heightInPixel || context.canvas.height;
     this.temp_canvas = document.createElement("canvas");
     if (this.gridSize) {
       this.currentGridSize = this.gridSize;
@@ -50,10 +57,10 @@ export default class FastBlur extends Circle {
       this.y = additionalModifier.visibleScreen.y;
     }
     if (this.width === undefined || this.norm) {
-      this.width = additionalModifier.visibleScreen.w;
+      this.width = additionalModifier.visibleScreen.width;
     }
     if (this.height === undefined || this.norm) {
-      this.height = additionalModifier.visibleScreen.h;
+      this.height = additionalModifier.visibleScreen.height;
     }
   }
 
@@ -89,7 +96,7 @@ export default class FastBlur extends Circle {
         this.resize(context, additionalModifier);
       }
 
-      let a = this.a * additionalModifier.a,
+      const a = this.alpha * additionalModifier.alpha,
         w = this.width,
         h = this.height,
         targetW = this.temp_canvas.width,
@@ -122,7 +129,7 @@ export default class FastBlur extends Circle {
         if (this.clear) {
           context.clearRect(this.x, this.y, w, h);
         }
-        context.globalCompositeOperation = this.alphaMode;
+        context.globalCompositeOperation = this.compositeOperation;
         context.globalAlpha = a;
         context.imageSmoothingEnabled = !this.pixel;
         context.drawImage(
@@ -148,10 +155,10 @@ export default class FastBlur extends Circle {
           this.y = additionalModifier.y;
         }
         if (!this.width) {
-          this.width = additionalModifier.w;
+          this.width = additionalModifier.width;
         }
         if (!this.height) {
-          this.height = additionalModifier.h;
+          this.height = additionalModifier.height;
         }
         context.clearRect(this.x, this.y, this.width, this.height);
       }

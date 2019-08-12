@@ -4,14 +4,9 @@ import Rect from "./Rect.mjs";
 // Sprite
 // Draw a Circle
 export default class StarField extends Rect {
-  constructor(params) {
-    super(params);
-    this.count = ifNull(calc(params.count), 40);
-    this.moveX = ifNull(calc(params.moveX), 0);
-    this.moveY = ifNull(calc(params.moveY), 0);
-    this.moveZ = ifNull(calc(params.moveZ), 0);
-    this.lineWidth = calc(params.lineWidth);
-    this.highScale = ifNull(calc(params.highScale), true);
+  constructor(givenParameters) {
+    super(givenParameters);
+
     if (
       this.x !== undefined &&
       this.y !== undefined &&
@@ -23,6 +18,20 @@ export default class StarField extends Rect {
     } else {
       this.centerX = undefined;
     }
+  }
+
+  getParameterList() {
+    return {
+      ...super.getParameterList(),
+      // set image
+      count: 40,
+      // relative position
+      moveX: 0.,
+      moveY: 0.,
+      moveZ: 0.,
+      lineWidth: undefined,
+      highScale: true
+    };
   }
 
   init() {
@@ -132,21 +141,21 @@ export default class StarField extends Rect {
   draw(context, additionalModifier) {
     if (this.enabled) {
       if (this.centerX === undefined) {
-        this.width = this.width || additionalModifier.w;
-        this.height = this.height || additionalModifier.h;
+        this.width = this.width || additionalModifier.width;
+        this.height = this.height || additionalModifier.height;
         this.x = this.x === undefined ? additionalModifier.x : this.x;
         this.y = this.y === undefined ? additionalModifier.y : this.y;
         this.lineWidth =
           this.lineWidth ||
           Math.min(
-            additionalModifier.h / additionalModifier.orgH,
-            additionalModifier.w / additionalModifier.orgW
+            additionalModifier.height / additionalModifier.heightInPixel,
+            additionalModifier.width / additionalModifier.widthInPixel
           ) / 2;
         this.init();
         return;
       }
-      context.globalCompositeOperation = this.alphaMode;
-      context.globalAlpha = this.a * additionalModifier.a;
+      context.globalCompositeOperation = this.compositeOperation;
+      context.globalAlpha = this.alpha * additionalModifier.alpha;
       if (this.moveY == 0 && this.moveZ == 0 && this.moveX < 0) {
         context.fillStyle = this.color;
         let i = this.count;

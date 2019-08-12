@@ -1,4 +1,4 @@
-import Sequenz from '../Sequence.mjs';
+import Sequenz from './Sequence.mjs';
 
 export default class EndDisabled {
 

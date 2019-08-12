@@ -1,24 +1,29 @@
-import ifNull from "../func/ifnull.mjs";
 import calc from "../func/calc.mjs";
 import ImageManager from "../ImageManager.mjs";
 import Circle from "./Circle.mjs";
 
-const degToRad = 0.017453292519943295; //Math.PI / 180;
-
 // Sprite
 // Draw a Image
 class Image extends Circle {
-  constructor(params) {
-    super(params);
-    // Image
-    this.image = ImageManager.getImage(calc(params.image));
-    // relativ position
-    this.position = ifNull(calc(params.position), Image.CENTER);
-    this.frameX = ifNull(calc(params.frameX), 0);
-    this.frameY = ifNull(calc(params.frameY), 0);
-    this.frameWidth = ifNull(calc(params.frameWidth), 0);
-    this.frameHeight = ifNull(calc(params.frameHeight), 0);
-    this.norm = ifNull(calc(params.norm), false);
+  constructor(givenParameter) {
+    super(givenParameter);
+  }
+
+  getParameterList() {
+    return {
+      ...super.getParameterList(),
+      // set image
+      image: v => ImageManager.getImage(calc(v)),
+      // relative position
+      position: Image.CENTER,
+      // cutting for sprite stripes
+      frameX: 0,
+      frameY: 0,
+      frameWidth: 0,
+      frameHeight: 0,
+      // autoscale to max
+      norm: false
+    };
   }
 
   resize() {
@@ -33,16 +38,16 @@ class Image extends Circle {
       if (!this.normScale) {
         this.normScale = this.norm
           ? Math.min(
-              additionalModifier.w / frameWidth,
-              additionalModifier.h / frameHeight
+              additionalModifier.width / frameWidth,
+              additionalModifier.height / frameHeight
             )
           : 1;
       }
       const sX = frameWidth * this.normScale * this.scaleX,
         sY = frameHeight * this.normScale * this.scaleY;
-      context.globalCompositeOperation = this.alphaMode;
-      context.globalAlpha = this.a * additionalModifier.a;
-      if (this.arc == 0) {
+      context.globalCompositeOperation = this.compositeOperation;
+      context.globalAlpha = this.alpha * additionalModifier.alpha;
+      if (this.rotation == 0) {
         if (this.position === Image.LEFT_TOP) {
           context.drawImage(
             this.image,
@@ -71,7 +76,7 @@ class Image extends Circle {
       } else {
         context.save();
         context.translate(this.x, this.y);
-        context.rotate(this.arc * degToRad);
+        context.rotate(this.rotation);
         context.drawImage(
           this.image,
           this.frameX,

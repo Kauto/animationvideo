@@ -1,34 +1,33 @@
-import ifNull from '../func/ifnull.mjs';
-import calc from '../func/calc.mjs';
-import Circle from './Circle.mjs';
-
-const degToRad = 0.017453292519943295; //Math.PI / 180;
+import Circle from "./Circle.mjs";
 
 // Sprite
 // Draw a Circle
 export default class Rect extends Circle {
+  constructor(givenParameters) {
+    super(givenParameters);
+  }
 
-  constructor(params) {
-    super(params);
-    // Size
-    this.width = calc(params.width);
-    this.height = calc(params.height);
-    this.x = calc(params.x);
-    this.y = calc(params.y);
-
-    this.borderColor = calc(params.borderColor);
-    this.lineWidth = ifNull(calc(params.lineWidth), 1);
-    this.clear = ifNull(calc(params.clear), false);
+  getParameterList() {
+    return {
+      ...super.getParameterList(),
+      x: undefined,
+      y: undefined,
+      width: undefined,
+      height: undefined,
+      borderColor: undefined,
+      lineWidth: 1,
+      clear: false
+    };
   }
 
   // Draw-Funktion
   draw(context, additionalModifier) {
     if (this.enabled) {
       if (!this.width) {
-        this.width = additionalModifier.w;
+        this.width = additionalModifier.width;
       }
       if (!this.height) {
-        this.height = additionalModifier.h;
+        this.height = additionalModifier.height;
       }
       if (this.x === undefined) {
         this.x = additionalModifier.x;
@@ -36,9 +35,9 @@ export default class Rect extends Circle {
       if (this.y === undefined) {
         this.y = additionalModifier.y;
       }
-      
-      context.globalCompositeOperation = this.alphaMode;
-      context.globalAlpha = this.a * additionalModifier.a;
+
+      context.globalCompositeOperation = this.compositeOperation;
+      context.globalAlpha = this.alpha * additionalModifier.alpha;
       if (this.arc === 0) {
         if (this.clear) {
           context.clearRect(this.x, this.y, this.width, this.height);
@@ -47,18 +46,18 @@ export default class Rect extends Circle {
           context.fillRect(this.x, this.y, this.width, this.height);
         }
         if (this.borderColor) {
-            context.beginPath();
-            context.lineWidth = this.lineWidth;
-            context.strokeStyle = this.borderColor;
-            context.rect(this.x, this.y, this.width, this.height);
-            context.stroke();
+          context.beginPath();
+          context.lineWidth = this.lineWidth;
+          context.strokeStyle = this.borderColor;
+          context.rect(this.x, this.y, this.width, this.height);
+          context.stroke();
         }
       } else {
         let hw = this.width / 2;
         let hh = this.height / 2;
         context.save();
         context.translate(this.x + hw, this.y + hh);
-        context.rotate(this.arc * degToRad);
+        context.rotate(this.rotation);
         if (this.clear) {
           context.clearRect(-hw, -hh, this.width, this.height);
         } else {
@@ -66,14 +65,14 @@ export default class Rect extends Circle {
           context.fillRect(-hw, -hh, this.width, this.height);
         }
         if (this.borderColor) {
-            context.beginPath();
-            context.lineWidth = this.lineWidth;
-            context.strokeStyle = this.borderColor;
-            context.rect(-hw, -hh, this.width, this.height);
-            context.stroke();
+          context.beginPath();
+          context.lineWidth = this.lineWidth;
+          context.strokeStyle = this.borderColor;
+          context.rect(-hw, -hh, this.width, this.height);
+          context.stroke();
         }
         context.restore();
       }
     }
-  };
+  }
 }

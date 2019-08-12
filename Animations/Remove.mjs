@@ -1,4 +1,4 @@
-import Sequence from '../Sequence.mjs';
+import Sequence from './Sequence.mjs';
 
 export default class Remove {
 
@@ -6,6 +6,6 @@ export default class Remove {
 	}
 
 	run(sprite, time){
-		return Sequence.TIMELAPSE_TO_FORCE_DISABLE;
+		return Sequence.TIMELAPSE_TO_REMOVE;
 	}
 }

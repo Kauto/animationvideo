@@ -1,25 +1,12 @@
-import ifNull from "../func/ifnull.mjs";
-import calc from "../func/calc.mjs";
 import Group from "./Group.mjs";
 import pasition from "pasition";
 
-const degToRad = 0.017453292519943295; //Math.PI / 180;
-
 export default class Path extends Group {
-  constructor(params) {
-    super(params);
+  constructor(givenParameters) {
+    super(givenParameters);
 
     this.oldPath = undefined;
-    this.path = calc(params.path);
     this.path2D = new Path2D();
-
-    this.color = calc(params.color);
-    this.borderColor = calc(params.borderColor);
-    this.lineWidth = ifNull(calc(params.lineWidth), 1);
-    this.clip = ifNull(calc(params.clip), false);
-    this.fixed = ifNull(calc(params.fixed), false);
-
-    this.polyfill = ifNull(calc(params.polyfill), true);
     if (this.polyfill) {
       if (typeof Path2D !== "function") {
         let head = document.getElementsByTagName("head")[0];
@@ -41,13 +28,27 @@ export default class Path extends Group {
     }
   }
 
+  getParameterList() {
+    return {
+      ...super.getParameterList(),
+      // set path
+      path: undefined,
+      color: undefined,
+      borderColor: undefined,
+      lineWidth: 1,
+      clip: false,
+      fixed: false,
+      polyfill: true
+    };
+  }
+
+  // helper function for changeTo
   changeToPathInit(from, to) {
     return pasition._preprocessing(
       pasition.path2shapes(from),
       pasition.path2shapes(to)
     );
   }
-
   changeToPath(progress, data, sprite) {
     return pasition._lerp(data.pathFrom, data.pathTo, progress);
   }
@@ -55,7 +56,7 @@ export default class Path extends Group {
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {
-      let a = this.a;
+      const a = this.alpha * additionalModifier.alpha;
       if (this.oldPath !== this.path) {
         if (this.polyfill && typeof this.path === "string") {
           this.path = pasition.path2shapes(this.path);
@@ -81,9 +82,6 @@ export default class Path extends Group {
         }
         this.oldPath = this.path;
       }
-      if (additionalModifier) {
-        a *= additionalModifier.a;
-      }
 
       let scaleX = this.scaleX,
         scaleY = this.scaleY;
@@ -97,12 +95,12 @@ export default class Path extends Group {
         }
       }
 
-      context.globalCompositeOperation = this.alphaMode;
+      context.globalCompositeOperation = this.compositeOperation;
       context.globalAlpha = a;
       context.save();
       context.translate(this.x, this.y);
       context.scale(scaleX, scaleY);
-      context.rotate(this.arc * degToRad);
+      context.rotate(this.rotation);
 
       if (this.color) {
         context.fillStyle = this.color;
@@ -114,7 +112,7 @@ export default class Path extends Group {
       if (this.clip) {
         context.clip(this.path2D);
         if (this.fixed) {
-          context.rotate(-this.arc * degToRad);
+          context.rotate(-this.rotation);
           context.scale(1 / scaleX, 1 / scaleY);
           context.translate(-this.x, -this.y);
         }

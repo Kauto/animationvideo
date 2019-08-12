@@ -2,6 +2,8 @@ import calc from '../func/calc.mjs';
 import ifNull from '../func/ifnull.mjs';
 import Color from 'color';
 
+const degToRad = 0.017453292519943295; //Math.PI / 180;
+
 function moveDefault(progress, data) {
   return data.from + progress * data.delta;
 }
@@ -35,17 +37,19 @@ export default class ChangeTo {
     this.initialized = false;
     this.changeValues = [];
     for (let k in changeValues) {
-      let value = changeValues[k],
-        isColor = k === 'color',
-        isPath = k === 'path',
-        isFunction = typeof value === 'function',
-        isBezier = !isColor && Array.isArray(value);
+      const orgValue = changeValues[k];
+      const value = k === "rotationInDegree" ?  orgValue * degToRad : orgValue;
+      const name = k === "rotationInRadian" || k === "rotationInDegree" ? "rotation" : k;
+      const isColor = k === 'color';
+      const isPath = k === 'path';
+      const isFunction = typeof value === 'function';
+      const isBezier = !isColor && Array.isArray(value);
       this.changeValues.push({
-        name: k,
+        name,
         to: isBezier ? value[value.length - 1] : calc(value, 1, {}),
         bezier: isBezier ? value : false,
-        isColor: isColor,
-        isPath: isPath,
+        isColor,
+        isPath,
         isFunction: isFunction ? value : false,
         moveAlgorithm: isColor ? moveColor : isPath ? movePath : isBezier ? moveBezier : moveDefault
       });

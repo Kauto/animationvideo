@@ -1,3 +1,5 @@
+import Wait from './Wait.mjs';
+
 class Sequence {
   constructor(...sequences) {
     let timeWait = 0;
@@ -9,12 +11,16 @@ class Sequence {
       if (!Array.isArray(sequence)) {
         sequence = [sequence];
       }
+      let thisTimeWait = timeWait;
+      if (typeof sequence[0] === "number") {
+        thisTimeWait = sequence.shift();
+      }
       return {
         position: 0,
-        timelapsed: -timeWait,
+        timelapsed: -thisTimeWait,
         sequence: sequence.map(command =>
-          typeof command.run !== "function" ? { run: command } : command
-        ),
+          typeof command.run !== "function" ? (command.run === "number" ? new Wait(command) : { run: command }) : command
+        ).filter(command => typeof command.run === 'function'),
         enabled: true
       };
     });
@@ -46,9 +52,6 @@ class Sequence {
         return -1;
       }
 
-      if (typeof sequencePosition.sequence[sequencePosition.position].run !== 'function') {
-        debugger;
-      }
       timeLeft = sequencePosition.sequence[sequencePosition.position].run(
         sprite,
         sequencePosition.timelapsed

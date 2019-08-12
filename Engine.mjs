@@ -27,8 +27,8 @@ class Engine {
     this._output = {
       canvas: null,
       context: null,
-      w: 0,
-      h: 0,
+      width: 0,
+      height: 0,
       ratio: 1
     };
 
@@ -109,9 +109,9 @@ class Engine {
       }
       this.recalculateCanvas();
     } else {
-      this._output.w = this._output.canvas.width;
-      this._output.h = this._output.canvas.height;
-      this._output.ratio = this._output.w / this._output.h;
+      this._output.width = this._output.canvas.width;
+      this._output.height = this._output.canvas.height;
+      this._output.ratio = this._output.width / this._output.height;
     }
     this._output.context = options.canvas.getContext("2d");
 
@@ -144,11 +144,11 @@ class Engine {
   }
 
   getWidth() {
-    return this._output.w;
+    return this._output.width;
   }
 
   getHeight() {
-    return this._output.h;
+    return this._output.height;
   }
 
   recalculateCanvas() {
@@ -168,9 +168,9 @@ class Engine {
       this._autoSize.currentOffsetTime = 0;
     }
 
-    this._output.w = this._output.canvas.width;
-    this._output.h = this._output.canvas.height;
-    this._output.ratio = this._output.w / this._output.h;
+    this._output.width = this._output.canvas.width;
+    this._output.height = this._output.canvas.height;
+    this._output.ratio = this._output.width / this._output.height;
 
     this.resize();
     return this;
@@ -188,28 +188,6 @@ class Engine {
       this._newScene = scene;
     }
     return this;
-  }
-
-  loadingscreen() {
-    let ctx = this._output.context;
-    ctx.globalCompositeOperation = "source-over";
-    ctx.globalAlpha = 1;
-
-    ctx.fillStyle = "rgba(0,0,0,0.5)";
-    ctx.fillRect(0, 0, this._output.w, this._output.h);
-
-    ctx.font = "20px Georgia";
-    ctx.fillStyle = "#FFF";
-    let percent = this._isSceneInitialized ? this._scene.getPercentLoaded() : 0;
-    ctx.textAlign = "left";
-    ctx.textBaseline = "bottom";
-    ctx.fillText(
-      "Loading " + percent + "%",
-      10 + Math.random() * 3,
-      this._output.h - 10 + Math.random() * 3
-    );
-
-    this.normalizeContext(ctx);
   }
 
   run(initParameter) {
@@ -326,8 +304,11 @@ class Engine {
           }
         } else {
           this._isSceneInitialized = this._scene.callLoading(this._output);
-          if (this._isSceneInitialized && this._autoSize) {
-            this._autoSize.currentWaitedTime = 0;
+          if (this._isSceneInitialized) {
+            this._scene.reset(this._output);
+            if (this._autoSize) {
+              this._autoSize.currentWaitedTime = 0;
+            }
           }
         }
       }

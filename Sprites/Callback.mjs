@@ -1,28 +1,35 @@
 import Circle from "./Circle.mjs";
 
 export default class Callback extends Circle {
-  constructor(params) {
-    if (typeof params === "function") {
-      params = { callback: params };
+  constructor(givenParameter) {
+    if (typeof givenParameter === "function") {
+      givenParameter = { callback: givenParameter };
     }
-    super(params);
-    // Callback
-    this.callback = params.callback;
-    this.timepassed = 0;
+    super(givenParameter);
+
+    // set start value to count
+    this.timePassed = 0;
     this.deltaTime = 0;
   }
 
-  animate(timepassed) {
+  getParameterList() {
+    return {
+      ...super.getParameterList(),
+      callback: v => (typeof v === undefined ? () => {} : v)
+    };
+  }
+
+  animate(timePassed) {
     if (this.enabled) {
-      this.timepassed += timepassed;
-      this.deltaTime += timepassed;
+      this.timePassed += timePassed;
+      this.deltaTime += timePassed;
     }
-    return super.animate(timepassed);
+    return super.animate(timePassed);
   }
 
   draw(context, additionalParameter) {
     if (this.enabled) {
-      this.callback(context, this.timepassed, additionalParameter, this);
+      this.callback(context, this.timePassed, additionalParameter, this);
     }
     this.deltaTime = 0;
   }

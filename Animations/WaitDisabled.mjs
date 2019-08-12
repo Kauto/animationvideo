@@ -9,6 +9,6 @@ export default class WaitDisabled {
   run(sprite, time) {
     // return time left
     sprite.enabled = (time >= this.duration);
-    return this.duration ? time - this.duration : -1;
+    return time - this.duration;
   }
 }

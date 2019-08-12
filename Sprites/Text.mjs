@@ -1,29 +1,27 @@
-import ifNull from '../func/ifnull.mjs';
-import calc from '../func/calc.mjs';
 import Circle from './Circle.mjs';
 
-const degToRad = 0.017453292519943295; //Math.PI / 180;
-
 class Text extends Circle {
-  constructor(params) {
-    super(params);
-    // Sprite
-    this.text = calc(params.text);
-    // font
-    this.font = ifNull(calc(params.font), '26px monospace');
-    // position
-    this.position = ifNull(calc(params.position), Text.CENTER);
+  constructor(givenParameters) {
+    super(givenParameters);
+  }
 
-    this.color = calc(params.color);
-    this.borderColor = calc(params.borderColor);
-    this.lineWidth = ifNull(calc(params.lineWidth), 1);
+  getParameterList() {
+    return {
+      ...super.getParameterList(),
+      text: undefined,
+      font: '26px monospace',
+      position: Text.CENTER,
+      color: undefined,
+      borderColor: undefined,
+      lineWidth: 1
+    };
   }
 
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {
-      context.globalCompositeOperation = this.alphaMode;
-      context.globalAlpha = this.a * additionalModifier.a;
+      context.globalCompositeOperation = this.compositeOperation;
+      context.globalAlpha = this.alpha * additionalModifier.alpha;
       context.save();
       if (Text.LEFT_TOP) {
         context.textAlign = 'left';
@@ -31,7 +29,7 @@ class Text extends Circle {
       }
       context.translate(this.x, this.y);
       context.scale(this.scaleX, this.scaleY);
-      context.rotate(this.arc * degToRad);
+      context.rotate(this.rotation);
       context.font = this.font;
 
       if (this.color) {

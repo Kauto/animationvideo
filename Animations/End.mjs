@@ -1,4 +1,4 @@
-import Sequence from '../Sequence.mjs';
+import Sequence from './Sequence.mjs';
 
 export default class End {
 

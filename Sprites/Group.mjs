@@ -1,13 +1,15 @@
-import ifNull from '../func/ifnull.mjs';
 import Circle from './Circle.mjs';
 
-const degToRad = 0.017453292519943295; //Math.PI / 180;
-
 export default class Group extends Circle {
-  constructor(params) {
-    super(params);
-    // Sprite
-    this.sprite = ifNull(params.sprite, []);
+  constructor(givenParameter) {
+    super(givenParameter);
+  }
+
+  getParameterList() {
+    return {
+      ...super.getParameterList(),
+      sprite: []
+    };
   }
 
   // overwrite change
@@ -35,15 +37,15 @@ export default class Group extends Circle {
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {
-      if (this.a < 1) {
+      if (this.alpha < 1) {
         additionalModifier = Object.assign({}, additionalModifier);
-        additionalModifier.a *= this.a;
+        additionalModifier.alpha *= this.alpha;
       }
 
       context.save();
       context.translate(this.x, this.y);
       context.scale(this.scaleX, this.scaleY);
-      context.rotate(this.arc * degToRad);
+      context.rotate(this.rotation);
       // draw all sprites
       for (let i in this.sprite) {
         this.sprite[i].draw(context, additionalModifier);
