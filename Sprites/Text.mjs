@@ -6,15 +6,14 @@ class Text extends Circle {
   }
 
   getParameterList() {
-    return {
-      ...super.getParameterList(),
+    return Object.assign({}, super.getParameterList(), {
       text: undefined,
       font: '26px monospace',
       position: Text.CENTER,
       color: undefined,
       borderColor: undefined,
       lineWidth: 1
-    };
+    });
   }
 
   // draw-methode

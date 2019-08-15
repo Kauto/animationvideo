@@ -8,8 +8,7 @@ export default class Rect extends Circle {
   }
 
   getParameterList() {
-    return {
-      ...super.getParameterList(),
+    return Object.assign({}, super.getParameterList(), {
       x: undefined,
       y: undefined,
       width: undefined,
@@ -17,7 +16,7 @@ export default class Rect extends Circle {
       borderColor: undefined,
       lineWidth: 1,
       clear: false
-    };
+    });
   }
 
   // Draw-Funktion
@@ -38,7 +37,7 @@ export default class Rect extends Circle {
 
       context.globalCompositeOperation = this.compositeOperation;
       context.globalAlpha = this.alpha * additionalModifier.alpha;
-      if (this.arc === 0) {
+      if (this.rotation === 0) {
         if (this.clear) {
           context.clearRect(this.x, this.y, this.width, this.height);
         } else {

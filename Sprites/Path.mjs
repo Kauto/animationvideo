@@ -29,8 +29,7 @@ export default class Path extends Group {
   }
 
   getParameterList() {
-    return {
-      ...super.getParameterList(),
+    return Object.assign({}, super.getParameterList(), {
       // set path
       path: undefined,
       color: undefined,
@@ -39,7 +38,7 @@ export default class Path extends Group {
       clip: false,
       fixed: false,
       polyfill: true
-    };
+    });
   }
 
   // helper function for changeTo

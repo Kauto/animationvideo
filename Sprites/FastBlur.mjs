@@ -10,8 +10,7 @@ export default class FastBlur extends Circle {
   }
 
   getParameterList() {
-    return {
-      ...super.getParameterList(),
+    return Object.assign({}, super.getParameterList(), {
       // x,y,width,height without default to enable norm
       x: undefined,
       y: undefined,
@@ -29,7 +28,7 @@ export default class FastBlur extends Circle {
             setParameter.width === undefined &&
             setParameter.height === undefined
         )
-    };
+    });
   }
 
   generateTempCanvas(context, additionalModifier) {

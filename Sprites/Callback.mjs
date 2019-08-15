@@ -13,10 +13,9 @@ export default class Callback extends Circle {
   }
 
   getParameterList() {
-    return {
-      ...super.getParameterList(),
+    return Object.assign({}, super.getParameterList(), {
       callback: v => (typeof v === undefined ? () => {} : v)
-    };
+    });
   }
 
   animate(timePassed) {

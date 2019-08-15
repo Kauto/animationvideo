@@ -21,8 +21,7 @@ export default class StarField extends Rect {
   }
 
   getParameterList() {
-    return {
-      ...super.getParameterList(),
+    return Object.assign({}, super.getParameterList(), {
       // set image
       count: 40,
       // relative position
@@ -31,7 +30,7 @@ export default class StarField extends Rect {
       moveZ: 0.,
       lineWidth: undefined,
       highScale: true
-    };
+    });
   }
 
   init() {

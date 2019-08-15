@@ -8,8 +8,7 @@ export default class Canvas extends Group {
   }
 
   getParameterList() {
-    return {
-      ...super.getParameterList(),
+    return Object.assign({}, super.getParameterList(), {
       // x,y,width,height without default to enable norm
       x: undefined,
       y: undefined,
@@ -24,7 +23,7 @@ export default class Canvas extends Group {
             setParameter.width === undefined &&
             setParameter.height === undefined
         )
-    };
+    });
   }
 
   generateTempCanvas(context, additionalModifier) {

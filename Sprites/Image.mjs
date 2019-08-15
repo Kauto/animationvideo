@@ -10,8 +10,7 @@ class Image extends Circle {
   }
 
   getParameterList() {
-    return {
-      ...super.getParameterList(),
+    return Object.assign({}, super.getParameterList(), {
       // set image
       image: v => ImageManager.getImage(calc(v)),
       // relative position
@@ -23,7 +22,7 @@ class Image extends Circle {
       frameHeight: 0,
       // autoscale to max
       norm: false
-    };
+    });
   }
 
   resize() {

@@ -6,6 +6,10 @@ For now see the *index.html* for examples.
 
 # Table of Contents
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+- [General overview](#general-overview)
+
 - [Installation](#installation)
 - [General overview](#general-overview)
   - [How to import](#how-to-import)
@@ -54,6 +58,8 @@ For now see the *index.html* for examples.
     - [Remove](#remove)
 - [TODO](#todo)
 - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Installation
 
@@ -185,14 +191,14 @@ new Engine({
         // second layer consits of a blur effect
         [
           new FastBlur({
-            alphaMode: "lighter", // make a glow
+            compositeOperation: "lighter", // make a glow
             gridSize: 10, // the glow has the size of 10 times 10
             // pixel: true,
             darker: 0.5, // turn down the glow
-            a: 0, // not visible
+            alpha: 0, // not visible
             animation: [
               // blend in the glow for half a second with easing
-              new ChangeTo({ a: 1 }, 500, QuadInOut)
+              new ChangeTo({ alpha: 1 }, 500, QuadInOut)
             ]
           })
         ]
@@ -340,8 +346,8 @@ const objectScene = new SceneDefault({
   //   output = {
   //     canvas: null,  // the canvas object
   //     context: null, // the context2d of the canvas
-  //     w: 0,          // the width of the canvas
-  //     h: 0,          // the height of the canvas
+  //     width: 0,      // the width of the canvas
+  //     height: 0,     // the height of the canvas
   //     ratio: 1       // the ratio between width and height
   //   }
   // - scene is the scene object this object is running in
@@ -439,8 +445,8 @@ const objectScene = new SceneDefault({
   //   output = {
   //     canvas: null,  // the canvas object
   //     context: null, // the context2d of the canvas
-  //     w: 0,          // the width of the canvas
-  //     h: 0,          // the height of the canvas
+  //     width: 0,      // the width of the canvas
+  //     height: 0,     // the height of the canvas
   //     ratio: 1       // the ratio between width and height
   //   }
   // - timePassed is the time in ms that has passed since the last frame
@@ -461,8 +467,8 @@ const objectScene = new SceneDefault({
   //   output = {
   //     canvas: null,  // the canvas object
   //     context: null, // the context2d of the canvas
-  //     w: 0,          // the width of the canvas
-  //     h: 0,          // the height of the canvas
+  //     width: 0,      // the width of the canvas
+  //     height: 0,     // the height of the canvas
   //     ratio: 1       // the ratio between width and height
   //   }
   // - timePassed is the time in ms that has passed since the last frame
@@ -653,7 +659,7 @@ new Engine({
         // background will be a feedback effect
         layerManager.addLayer().addElement(
           new FastBlur({
-            a: 0.9,
+            alpha: 0.9,
             scaleX: 10,
             scaleY: 10,
             darker: 0.3,
@@ -701,7 +707,7 @@ import Animationvideo from "animationvideo";
 const {
   Engine,
   Scenes: { Audio },
-  Animations: { Forever, ChangeTo },
+  Animations: { ChangeTo, Wait, Remove },
   Sprites: { Rect, Path, StarField, FastBlur },
   Easing: { QuadInOut, ElasticOut, BounceOut, QuadOut }
 } = Animationvideo;
@@ -717,11 +723,11 @@ new Engine({
     audioElement: document.querySelector("audio"),
     // function that runs when the audio ends
     end() {
-      window.alert('audio done');
+      window.alert("audio done");
     },
     // show totalTimePassed
     update({ totalTimePassed }) {
-      const tickElement = document.getElementById('tick');
+      const tickElement = document.getElementById("tick");
       if (tickElement) {
         tickElement.innerText = Math.round(totalTimePassed);
       }
@@ -735,16 +741,10 @@ new Engine({
             color: "#117",
             animation: [
               500,
-              new ChangeTo({
-                color: "#88C"
-              }, 1000),
+              new ChangeTo({ color: "#88C" }, 1000),
               new Wait(14500),
-              new ChangeTo({
-                color: "#C88"
-              }, 300),
-              new ChangeTo({
-                color: "#FCC"
-              }, 3000),
+              new ChangeTo({ color: "#C88" }, 300),
+              new ChangeTo({ color: "#FCC" }, 3000)
             ]
           })
         ],
@@ -756,15 +756,10 @@ new Engine({
             x: -100,
             animation: [
               500,
-              new ChangeTo({
-                x: 100
-              }, 1000, ElasticOut),
+              new ChangeTo({ x: 100 }, 1000, ElasticOut),
               new Wait(14500),
-              new ChangeTo({
-                a: 0
-              }, 300),
-              // Delete this item
-              new EndDisabled()
+              new ChangeTo({ alpha: 0 }, 300),
+              new Remove()
             ]
           }),
           new Rect({
@@ -773,14 +768,10 @@ new Engine({
             x: 800,
             animation: [
               500,
-              new ChangeTo({
-                x: 600
-              }, 1000, ElasticOut),
+              new ChangeTo({ x: 600 }, 1000, ElasticOut),
               new Wait(14500),
-              new ChangeTo({
-                a: 0
-              }, 300),
-              new EndDisabled()
+              new ChangeTo({ alpha: 0 }, 300),
+              new Remove()
             ]
           }),
           new Rect({
@@ -789,14 +780,10 @@ new Engine({
             x: -100,
             animation: [
               500,
-              new ChangeTo({
-                x: 200
-              }, 1000, ElasticOut),
+              new ChangeTo({ x: 200 }, 1000, ElasticOut),
               new Wait(14500),
-              new ChangeTo({
-                a: 0
-              }, 300),
-              new EndDisabled()
+              new ChangeTo({ alpha: 0 }, 300),
+              new Remove()
             ]
           }),
           new Rect({
@@ -805,14 +792,10 @@ new Engine({
             x: 800,
             animation: [
               500,
-              new ChangeTo({
-                x: 500
-              }, 1000, ElasticOut),
+              new ChangeTo({ x: 500 }, 1000, ElasticOut),
               new Wait(14500),
-              new ChangeTo({
-                a: 0
-              }, 300),
-              new EndDisabled()
+              new ChangeTo({ alpha: 0 }, 300),
+              new Remove()
             ]
           }),
           new Rect({
@@ -821,14 +804,10 @@ new Engine({
             x: -100,
             animation: [
               500,
-              new ChangeTo({
-                x: 300
-              }, 1000, ElasticOut),
+              new ChangeTo({ x: 300 }, 1000, ElasticOut),
               new Wait(14500),
-              new ChangeTo({
-                a: 0
-              }, 300),
-              new EndDisabled()
+              new ChangeTo({ alpha: 0 }, 300),
+              new Remove()
             ]
           }),
           new Rect({
@@ -837,59 +816,73 @@ new Engine({
             x: 800,
             animation: [
               500,
-              new ChangeTo({
-                x: 400
-              }, 1000, ElasticOut),
+              new ChangeTo({ x: 400 }, 1000, ElasticOut),
               new Wait(14500),
-              new ChangeTo({
-                a: 0
-              }, 300),
-              new EndDisabled()
+              new ChangeTo({ alpha: 0 }, 300),
+              new Remove()
             ]
-          }),
+          })
         ],
         // logo that morphs
         [
           new Path({
-            path: "M123.3 5.5c-5.7 1.3-10.9 4.8-14.6 9.8-9 12.1-4.8 31 8.6 37.8L121 55v47.7l-4 3.2c-3.7 3-5.3 3.4-19.9 5.7l-15.9 2.5-3.6-2.5c-8.3-5.6-24.3-6.2-31.6-1.1-2.8 1.9-4.3 3.9-5 6.5l-1 3.7-9.7 1.6c-12 2-16.5 4.8-20.5 12.7-3.5 6.9-4.8 13.8-4.8 25.4 0 10 2.3 16.9 7.2 21.3 2.2 2.1 68.6 37.5 80.3 42.9l5 2.3 36-2.9c19.8-1.6 39.2-3.1 43-3.4 40.2-3.1 37.7-2.8 42.2-6.2 5.5-4.2 7.5-12.4 6.3-25.1-1-9.5-2.5-12.8-20.3-43.8-20.4-35.6-22.3-38.4-29.1-41.9-3.3-1.7-6.9-3.9-8-5-5.8-5.1-13.9-7.1-23.7-5.8l-5.6.8-.6-14c-1.2-25.1-1.3-24.2 3.2-26.5 14.2-7.3 17.6-27.4 6.8-39.7-2.2-2.5-5.1-5.1-6.6-5.8-4.7-2.5-12.2-3.3-17.8-2.1z",
-            color: '#000',
-            borderColor: '#FFF',
+            path:
+              "M123.3 5.5c-5.7 1.3-10.9 4.8-14.6 9.8-9 12.1-4.8 31 8.6 37.8L121 55v47.7l-4 3.2c-3.7 3-5.3 3.4-19.9 5.7l-15.9 2.5-3.6-2.5c-8.3-5.6-24.3-6.2-31.6-1.1-2.8 1.9-4.3 3.9-5 6.5l-1 3.7-9.7 1.6c-12 2-16.5 4.8-20.5 12.7-3.5 6.9-4.8 13.8-4.8 25.4 0 10 2.3 16.9 7.2 21.3 2.2 2.1 68.6 37.5 80.3 42.9l5 2.3 36-2.9c19.8-1.6 39.2-3.1 43-3.4 40.2-3.1 37.7-2.8 42.2-6.2 5.5-4.2 7.5-12.4 6.3-25.1-1-9.5-2.5-12.8-20.3-43.8-20.4-35.6-22.3-38.4-29.1-41.9-3.3-1.7-6.9-3.9-8-5-5.8-5.1-13.9-7.1-23.7-5.8l-5.6.8-.6-14c-1.2-25.1-1.3-24.2 3.2-26.5 14.2-7.3 17.6-27.4 6.8-39.7-2.2-2.5-5.1-5.1-6.6-5.8-4.7-2.5-12.2-3.3-17.8-2.1z",
+            color: "#000",
+            borderColor: "#FFF",
             lineWidth: 3,
             x: 270,
             y: 30,
-            a: 0,
+            alpha: 0,
             scaleY: 0.7,
-            arc: -5,
+            rotationInDegree: -5,
             animation: [
               // wait 2000 ms
               2000,
               // intro
-              new ChangeTo({
-                arc: 0,
-                scaleY: 1,
-                a: 1
-              }, 1500, BounceOut),
+              new ChangeTo(
+                {
+                  rotationInDegree: 0,
+                  scaleY: 1,
+                  alpha: 1
+                },
+                1500,
+                BounceOut
+              ),
               new Wait(500),
-              new ChangeTo({
-                x: 260,
-                y: 20,
-                scaleX: 1.1,
-                scaleY: 1.1
-              }, 4000, QuadInOut),
+              new ChangeTo(
+                {
+                  x: 260,
+                  y: 20,
+                  scaleX: 1.1,
+                  scaleY: 1.1
+                },
+                4000,
+                QuadInOut
+              ),
               new Wait(1000),
               // morph
-              new ChangeTo({
-                path: 'M384,48.734c-70.692,0-128,57.308-128,128c0-70.692-57.308-128-128-128s-128,57.308-128,128c0,137.424,188.048,252.681,241.805,282.821c8.823,4.947,19.567,4.947,28.39,0C323.952,429.416,512,314.158,512,176.734C512,106.042,454.692,48.734,384,48.734z',
-                scaleX: 0.5,
-                scaleY: 0.5,
-              }, 1000, BounceOut),
+              new ChangeTo(
+                {
+                  path:
+                    "M384,48.734c-70.692,0-128,57.308-128,128c0-70.692-57.308-128-128-128s-128,57.308-128,128c0,137.424,188.048,252.681,241.805,282.821c8.823,4.947,19.567,4.947,28.39,0C323.952,429.416,512,314.158,512,176.734C512,106.042,454.692,48.734,384,48.734z",
+                  scaleX: 0.5,
+                  scaleY: 0.5
+                },
+                1000,
+                BounceOut
+              ),
               new Wait(6000),
-              new ChangeTo({
-                x: 215,
-                y: -25,
-                scaleX: 0.7,
-                scaleY: 0.7,
-              }, 6500, QuadInOut)
+              new ChangeTo(
+                {
+                  x: 215,
+                  y: -25,
+                  scaleX: 0.7,
+                  scaleY: 0.7
+                },
+                6500,
+                QuadInOut
+              )
             ]
           })
         ],
@@ -899,40 +892,44 @@ new Engine({
             moveX: 0,
             animation: [
               4000,
-              new ChangeTo({
-                moveY: -4
-              }, 1000, QuadInOut),
+              new ChangeTo({ moveY: -4 }, 1000, QuadInOut),
               new Wait(2000),
-              new ChangeTo({
-                moveY: 0
-              }, 200, QuadOut),
+              new ChangeTo({ moveY: 0 }, 200, QuadOut),
               new Wait(3300),
-              new ChangeTo({
-                moveX: 4,
-                moveY: -2
-              }, 1000, QuadInOut),
+              new ChangeTo(
+                {
+                  moveX: 4,
+                  moveY: -2
+                },
+                1000,
+                QuadInOut
+              ),
               new Wait(3000),
-              new ChangeTo({
-                moveX: 0,
-                moveY: 0
-              }, 200, QuadOut),
-              new EndDisabled()
+              new ChangeTo(
+                {
+                  moveX: 0,
+                  moveY: 0
+                },
+                200,
+                QuadOut
+              ),
+              new Remove()
             ]
           })
         ],
         // last layer consits of a blur effect
         [
           new FastBlur({
-            alphaMode: "lighter", // make a glow
+            compositeOperation: "lighter", // make a glow
             gridSize: 10, // the glow has the size of 10 times 10
             // pixel: true,
             darker: 0.5, // turn down the glow
-            a: 0, // not visible
+            alpha: 0, // not visible
             animation: [
               // wait 2000 ms
               2000,
               // blend in the half visible glow
-              new ChangeTo({ a: 0.4 }, 1500, QuadInOut)
+              new ChangeTo({ alpha: 0.4 }, 1500, QuadInOut)
             ]
           })
         ]
@@ -941,7 +938,7 @@ new Engine({
   })
 }).run(); // start the engine
 ```
-[Test code at codesandbox.io](https://codesandbox.io/s/infallible-wildflower-w3uo7?fontsize=14)
+[Test code at codesandbox.io](https://codesandbox.io/s/eloquent-field-55tk6?fontsize=14)
 
 ### NormAudio
 This scene is similar to the [Audio](#audio)-scene. But the coordinates are different: the middle of the canvas will be at 0, 0, left and bottom of the canvas at -1, -1 and the top right is at 1, 1. In addition the Norm has a function named `transformPoint(x,y)` that will transform normal x, y coordinates of the canvas (f.e. mouse position) into Norm-coordinates. See [Norm](#norm) for more information.
@@ -969,41 +966,67 @@ new Engine({
     reset() {
       return [[
         new Image({
-              // Image
-    this.image = ImageManager.getImage(calc(params.image));
-    // relativ position
-    this.position = ifNull(calc(params.position), Image.CENTER);
-    this.frameX = ifNull(calc(params.frameX), 0);
-    this.frameY = ifNull(calc(params.frameY), 0);
-    this.frameWidth = ifNull(calc(params.frameWidth), 0);
-    this.frameHeight = ifNull(calc(params.frameHeight), 0);
-    this.norm = ifNull(calc(params.norm), false);
-              // Position
-    this.x = ifNull(calc(params.x), 0);
-    this.y = ifNull(calc(params.y), 0);
-    // rotation
-    this.arc = ifNull(calc(params.arc), 0);
-    // Scale
-    this.scaleX = ifNull(calc(params.scaleX), 1);
-    this.scaleY = ifNull(calc(params.scaleY), 1);
-    // Alpha
-    this.a = ifNull(calc(params.a), 1);
-    // Alphamode
-    this.alphaMode = ifNull(calc(params.alphaMode), "source-over");
-    // Color
-    this.color = ifNull(calc(params.color), "#fff");
-    // Animation
-    this.animation = calc(params.animation);
-    if (Array.isArray(this.animation)) {
-      this.animation = new Sequence(this.animation)
-    }
-    // Sprite active
-    this.enabled = ifNull(calc(params.enabled), true);
+          enabled: true,
+          image: 'imageFile',
+          x: 0,
+          y: 0,
+          width: 100,
+          height: 100,
+          rotation: 0, // use rotationInDegree to give values in degree
+          scaleX: 1,
+          scaleY: 1,
+          alpha: 1,
+          compositeOperation: 'source-over',
+          position: Image.CENTER, // or Image.LEFT_TOP
+          frameX: 0,
+          frameY: 0,
+          frameWidth: 0,
+          frameHeight: 0,
+          norm: false,
+          animation: undefined
         })
       ]]
     }
+  })
+}).run();
 ```
 ### Rect
+```js
+import Animationvideo from "animationvideo";
+const {
+  Engine,
+  Scenes: { Default },
+  Sprites: { Rect },
+} = Animationvideo;
+
+new Engine({
+  canvas: document.querySelector("canvas"),
+  scene: new Default({
+    reset() {
+      return [[
+        new Rect({
+          enabled: true,
+          x: 0, // Position - default upper left corner
+          y: 0,
+          width: 100, // Size - default full screen
+          height: 100,
+          rotation: 0, // rotation in radian. Use rotationInDegree to give values in degree
+          alpha: 1, // transparency
+          compositeOperation: 'source-over',
+          color: "#fff", // color of the rect
+          borderColor: undefined, // optional border color
+          lineWidth: 1,
+          clear: false, // clear the rect instead of filling with color
+          animation: undefined
+        })
+      ],
+      [
+        new Rect({ clear:true }) // <- short form to clear the full canvas
+      ]]
+    }
+  })
+}).run();
+```
 ### Circle
 ### Path
 ### Text

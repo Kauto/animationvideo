@@ -6,10 +6,9 @@ export default class Group extends Circle {
   }
 
   getParameterList() {
-    return {
-      ...super.getParameterList(),
+    return Object.assign({}, super.getParameterList(), {
       sprite: []
-    };
+    });
   }
 
   // overwrite change
