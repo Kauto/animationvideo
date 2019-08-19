@@ -2,14 +2,19 @@
 
 AnimationVideo is a javascript library to animate objects inside a canvas. The animation can be perfectly synced to music which can even be sought. Everything works without WebGl.
 
-For now see the *index.html* for examples.
+## Examples
+- [Perfect audio sync](https://codesandbox.io/s/eloquent-field-55tk6?fontsize=14)
+- [Zoom with gloom](https://codesandbox.io/s/quirky-ives-hwqqb?fontsize=14)
+- [Follow mouse move and feedback effect](https://codesandbox.io/s/infallible-wildflower-w3uo7?fontsize=14)
+
+or in the **index.html**.
+
 
 # Table of Contents
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 - [General overview](#general-overview)
-
 - [Installation](#installation)
 - [General overview](#general-overview)
   - [How to import](#how-to-import)
@@ -134,7 +139,7 @@ Other examples are done in the *index.html*.
 
 
 ## Example
-Here is how it looks like in an example:
+Here is how the code looks like in an example:
 ```js
 import Engine from 'animationvideo/Engine.mjs'
 import Norm from 'animationvideo/Scenes/Norm.mjs'
@@ -947,6 +952,7 @@ This scene is similar to the [Audio](#audio)-scene. But the coordinates are diff
 **Sprites** are the objects that are drawn on the screen. They are the main ingredient of an animation.
 
 ### Image
+Renders an image to the canvas. Can be a real image or the reference to an image loaded with the *images* routine of the scene.
 ```js
 import Animationvideo from "animationvideo";
 const {
@@ -967,22 +973,22 @@ new Engine({
       return [[
         new Image({
           enabled: true,
-          image: 'imageFile',
-          x: 0,
-          y: 0,
-          width: 100,
-          height: 100,
+          image: 'imageFile', // name of the key of the image defined in "images"
+          x: 0, // position of the image
+          y: 0, 
+          width: undefined, // width and height of the image. Undefined to take
+          height: undefined, // it from the original image.
           rotation: 0, // use rotationInDegree to give values in degree
-          scaleX: 1,
+          scaleX: 1, // scalling of the image
           scaleY: 1,
-          alpha: 1,
+          alpha: 1, // transparency
           compositeOperation: 'source-over',
-          position: Image.CENTER, // or Image.LEFT_TOP
-          frameX: 0,
-          frameY: 0,
-          frameWidth: 0,
-          frameHeight: 0,
-          norm: false,
+          position: Image.CENTER, // or Image.LEFT_TOP - pivot of the image
+          frameX: 0, // left corner of the sprite that will be cut out from an image
+          frameY: 0, // top corner of the sprite that will be cut out from an image
+          frameWidth: 0, // width of the sprite that will be cut out from an image
+          frameHeight: 0, // height of the sprite that will be cut out from an image
+          norm: false, // resize the image, so it hits the corner of the canvas
           animation: undefined
         })
       ]]
@@ -990,7 +996,9 @@ new Engine({
   })
 }).run();
 ```
+You can also use Sprite Sheets. You can cut out a single Sprite with *frameX*, *frameY*, *frameWidth*, *frameHeight*. See the [ImageFrame](#imageframe)-Animation for an example.
 ### Rect
+Renders a rectangle in a color. Can be used in a short form to clear the screen.
 ```js
 import Animationvideo from "animationvideo";
 const {
@@ -1008,14 +1016,14 @@ new Engine({
           enabled: true,
           x: 0, // Position - default upper left corner
           y: 0,
-          width: 100, // Size - default full screen
-          height: 100,
+          width: undefined, // Size - default full screen
+          height: undefined,
           rotation: 0, // rotation in radian. Use rotationInDegree to give values in degree
           alpha: 1, // transparency
           compositeOperation: 'source-over',
           color: "#fff", // color of the rect
-          borderColor: undefined, // optional border color
-          lineWidth: 1,
+          borderColor: undefined, // optional border color - undefined to disable the border
+          lineWidth: 1, // size of the border
           clear: false, // clear the rect instead of filling with color
           animation: undefined
         })
@@ -1028,6 +1036,50 @@ new Engine({
 }).run();
 ```
 ### Circle
+Renders a circle in a color.
+```js
+import Animationvideo from "animationvideo";
+const {
+  Engine,
+  Scenes: { Default },
+  Sprites: { Circle },
+} = Animationvideo;
+
+new Engine({
+  canvas: document.querySelector("canvas"),
+  scene: new Default({
+    reset() {
+      return [[
+        new Cirlce({
+          enabled: true,
+          x: 0, // Position - default upper left corner
+          y: 0,
+          scaleX: 1., // scalling of the cirlce
+          scaleY: 1.,
+          rotation: 0, // rotation in radian. Use rotationInDegree to give values in degree
+          alpha: 1, // transparency
+          compositeOperation: 'source-over',
+          color: "#fff", // color of the rect
+          animation: undefined
+        })
+      ]]
+       // position
+      x: 0,
+      y: 0,
+      // rotation
+      rotation: (value, givenParameter) => {
+        return ifNull(
+          value,
+          ifNull(
+            givenParameter.rotationInRadian,
+            ifNull(givenParameter.rotationInDegree, 0) * degToRad
+          )
+        );
+      }
+    }
+  })
+}).run();
+```
 ### Path
 ### Text
 ### Callback
