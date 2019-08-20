@@ -18,8 +18,24 @@ export default class Circle {
     });
   }
 
-  getParameterList() {
+  getBaseParameterList () {
     return {
+      // animation
+      animation: (value, givenParameter) => {
+        let result = calc(value);
+        return Array.isArray(result)
+          ? new Sequence(result)
+          : typeof result === "object"
+          ? result
+          : undefined;
+      },
+      // if it's rendering or not
+      enabled: true
+    }
+  }
+
+  getParameterList() {
+    return Object.assign({}, this.getBaseParameterList(), {
       // position
       x: 0,
       y: 0,
@@ -41,19 +57,8 @@ export default class Circle {
       // blending
       compositeOperation: "source-over",
       // color
-      color: "#fff",
-      // animation
-      animation: (value, givenParameter) => {
-        let result = calc(value);
-        return Array.isArray(result)
-          ? new Sequence(result)
-          : typeof result === "object"
-          ? result
-          : undefined;
-      },
-      // if it's rendering or not
-      enabled: true
-    };
+      color: "#fff"
+    });
   }
 
   // Animation-Funktion
@@ -68,6 +73,12 @@ export default class Circle {
     }
 
     return false;
+  }
+
+  play(label = "", timelapsed = 0) {
+    if (this.animation) {
+      this.animation.play && this.animation.play(label, timelapsed);
+    }
   }
 
   resize(output, additionalModifier) {}

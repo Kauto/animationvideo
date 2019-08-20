@@ -33,6 +33,15 @@ export default class Group extends Circle {
     }
   }
 
+  play(label = "", timelapsed = 0) {
+    if (this.animation) {
+      this.animation.play && this.animation.play(label, timelapsed);
+    }
+    for (let i in this.sprite) {
+      this.sprite[i].play && this.sprite[i].play(label, timelapsed);
+    }
+  }
+
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {

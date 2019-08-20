@@ -10,6 +10,8 @@ import _Particle from './Sprites/Particle.mjs';
 import _Path from './Sprites/Path.mjs';
 import _Rect from './Sprites/Rect.mjs';
 import _Scroller from './Sprites/Scroller.mjs';
+import _StackBlur from './Sprites/StackBlur.mjs';
+import _StackBlurCanvas from './Sprites/StackBlurCanvas.mjs';
 import _StarField from './Sprites/StarField.mjs';
 
 const
@@ -25,6 +27,8 @@ const
   Path = (...args) => new _Path(...args),
   Rect = (...args) => new _Rect(...args),
   Scroller = (...args) => new _Scroller(...args),
+  StackBlur = (...args) => new _StackBlur(...args);
+  StackBlurCanvas = (...args) => new _StackBlurCanvas(...args);
   StarField = (...args) => new _StarField(...args);
 
 Image.LEFT_TOP = _Image.LEFT_TOP
@@ -45,5 +49,7 @@ export default {
   Path,
   Rect,
   Scroller,
+  StackBlur,
+  StackBlurCanvas,
   StarField
 };

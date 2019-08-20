@@ -12,6 +12,10 @@ export default class Forever {
     this.Aniobject.reset && this.Aniobject.reset(timelapsed);
   }
 
+  play(label = "", timelapsed = 0) {
+    this.Aniobject.play && this.Aniobject.play(label, timelapsed);
+  }
+
   run(sprite, time, isDifference) {
     let t = time;
     while (t >= 0) {

@@ -1014,38 +1014,40 @@
               })
             ],
             [
-              SP.StarField({
-                moveX: 0,
-                animation: [
-                  4000,
-                  ANI.ChangeTo({
-                    moveY: -4
-                  }, 1000, Easing.quadInOut),
-                  ANI.Wait(2000),
-                  ANI.ChangeTo({
-                    moveY: 0
-                  }, 200, Easing.quadOut),
-                  ANI.Wait(3300),
-                  ANI.ChangeTo({
-                    moveX: 4,
-                    moveY: -2
-                  }, 1000, Easing.quadInOut),
-                  ANI.Wait(3000),
-                  ANI.ChangeTo({
+              SP.StackBlurCanvas({
+                radius: 1,
+                sprite: [
+                  SP.StarField({
                     moveX: 0,
-                    moveY: 0
-                  }, 200, Easing.quadOut),
-                  ANI.Remove()
+                    animation: [
+                      4000,
+                      ANI.ChangeTo({
+                        moveY: -4
+                      }, 1000, Easing.quadInOut),
+                      ANI.Wait(2000),
+                      ANI.ChangeTo({
+                        moveY: 0
+                      }, 200, Easing.quadOut),
+                      ANI.Wait(3300),
+                      ANI.ChangeTo({
+                        moveX: 4,
+                        moveY: -2
+                      }, 1000, Easing.quadInOut),
+                      ANI.Wait(3000),
+                      ANI.ChangeTo({
+                        moveX: 0,
+                        moveY: 0
+                      }, 200, Easing.quadOut),
+                      ANI.End()
+                    ]
+                  })
                 ]
               })
             ],
             // third layer consits of a blur effect
             [
-              SP.FastBlur({
-                compositeOperation: "lighter", // make a glow
-                gridSize: 10, // the glow has the size of 10 times 10
-                // pixel: true,
-                darker: 0.5, // turn down the glow
+              SP.StackBlur({
+                radiusPart: 10, // the glow will be 1/10 of the canvas
                 alpha: 0, // not visible
                 animation: [2000,
                   // blend in the half visible glow for half a second with easing

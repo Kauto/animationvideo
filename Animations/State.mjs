@@ -51,6 +51,10 @@ class State {
     // delegateTo - search through list
   }
 
+  play(label = "", timelapsed = 0) {
+    this.currentState.play && this.currentState.play(label, timelapsed);
+  }
+
   run(sprite, time, is_difference) {
     let timeLeft = time;
     let isDifference = is_difference;

@@ -14,6 +14,8 @@ import _Once from './Animations/Once.mjs';
 import _Shake from './Animations/Shake.mjs';
 import _ShowOnce from './Animations/ShowOnce.mjs';
 import _State from './Animations/State.mjs';
+import _Stop from './Animations/Stop.mjs';
+import _StopDisabled from './Animations/StopDisabled.mjs';
 import _Wait from './Animations/Wait.mjs';
 import _WaitDisabled from './Animations/WaitDisabled.mjs';
 
@@ -34,6 +36,8 @@ const
   Shake = (...args) => new _Shake(...args),
   ShowOnce = (...args) => new _ShowOnce(...args),
   State = (...args) => new _State(...args),
+  Stop = (...args) => new _Stop(...args),
+  StopDisabled = (...args) => new _StopDisabled(...args),
   Wait = (...args) => new _Wait(...args),
   WaitDisabled = (...args) => new _WaitDisabled(...args);
 
@@ -54,6 +58,8 @@ export default {
   Shake,
   ShowOnce,
   State,
+  Stop,
+  StopDisabled,
   Wait,
   WaitDisabled
 };

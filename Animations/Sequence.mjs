@@ -1,4 +1,4 @@
-import Wait from './Wait.mjs';
+import Wait from "./Wait.mjs";
 
 class Sequence {
   constructor(...sequences) {
@@ -15,12 +15,25 @@ class Sequence {
       if (typeof sequence[0] === "number") {
         thisTimeWait = sequence.shift();
       }
+
       return {
         position: 0,
         timelapsed: -thisTimeWait,
-        sequence: sequence.map(command =>
-          typeof command.run !== "function" ? (command.run === "number" ? new Wait(command) : { run: command }) : command
-        ).filter(command => typeof command.run === 'function'),
+        sequence: sequence
+          .map(command =>
+            typeof command.run !== "function"
+              ? typeof command === "number"
+                ? new Wait(command)
+                : { run: command }
+              : command
+          )
+          .filter(command => typeof command.run === "function"),
+        label: sequence.reduce((arr, command, index) => {
+          if (typeof command === "string") {
+            arr[command] = index - Object.keys(arr).length;
+          }
+          return arr;
+        }, {}),
         enabled: true
       };
     });
@@ -39,6 +52,38 @@ class Sequence {
         sequencePosition.sequence[0].reset(timelapsed);
     });
     this.enabled = true;
+  }
+
+  play(label = "", timelapsed = 0) {
+    if (label) {
+      const b = this.sequences.reduce((b, sequencePosition) => {
+        if (sequencePosition.label.hasOwnProperty(label)) {
+          b = true;
+          sequencePosition.position = sequencePosition.label[label];
+          sequencePosition.enabled = true;
+          sequencePosition.timelapsed = timelapsed;
+          sequencePosition.sequence[sequencePosition.position] &&
+            sequencePosition.sequence[sequencePosition.position].reset &&
+            sequencePosition.sequence[sequencePosition.position].reset();
+        } else {
+          b |=
+            sequencePosition.sequence.find(seq => {
+              return seq.play && seq.play(label, timelapsed);
+            }) >= 0;
+        }
+        return b;
+      }, false);
+      if (b) {
+        this.enabled = true;
+      }
+      return b;
+    } else {
+      this.sequences.forEach(
+        sequencePosition => (sequencePosition.enabled = true)
+      );
+      this.enabled = true;
+      return true;
+    }
   }
 
   runSequence(sprite, sequencePosition, timePassed) {
@@ -62,6 +107,7 @@ class Sequence {
       } else if (timeLeft === false) {
         return -1;
       } else if (timeLeft === Sequence.TIMELAPSE_TO_FORCE_DISABLE) {
+        sequencePosition.enabled = false;
         this.enabled = false;
         return timePassed;
       } else if (timeLeft === Sequence.TIMELAPSE_TO_STOP) {
@@ -112,7 +158,7 @@ class Sequence {
           timePassed
         );
         if (timeLeft === true) {
-          return true
+          return true;
         }
         restTime = Math.min(restTime, timeLeft);
       } else {

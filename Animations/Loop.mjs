@@ -16,6 +16,11 @@ export default class Loop {
     this.Aniobject.reset && this.Aniobject.reset(timelapsed);
   }
 
+  play(label = "", timelapsed = 0) {
+    this.times = this.timesOrg;
+    this.Aniobject.play && this.Aniobject.play(label, timelapsed);
+  }
+
   run(sprite, time, isDifference) {
     let t = time;
     while (t >= 0 && this.times > 0) {

@@ -124,6 +124,8 @@ export default class FastBlur extends Circle {
           this.tctx.fillRect(0, 0, targetW, targetH);
         }
 
+        this.additionalBlur && this.additionalBlur(targetW, targetH, additionalModifier);
+
         // optional: clear screen
         if (this.clear) {
           context.clearRect(this.x, this.y, w, h);

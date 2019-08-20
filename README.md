@@ -3,18 +3,18 @@
 AnimationVideo is a javascript library to animate objects inside a canvas. The animation can be perfectly synced to music which can even be sought. Everything works without WebGl.
 
 ## Examples
+
 - [Perfect audio sync](https://codesandbox.io/s/eloquent-field-55tk6?fontsize=14)
 - [Zoom with gloom](https://codesandbox.io/s/quirky-ives-hwqqb?fontsize=14)
 - [Follow mouse move and feedback effect](https://codesandbox.io/s/infallible-wildflower-w3uo7?fontsize=14)
 
 or in the **index.html**.
 
-
 # Table of Contents
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-- [General overview](#general-overview)
+
 - [Installation](#installation)
 - [General overview](#general-overview)
   - [How to import](#how-to-import)
@@ -42,6 +42,8 @@ or in the **index.html**.
     - [Particle](#particle)
     - [Emitter](#emitter)
     - [Scroller](#scroller)
+    - [StackBlur](#stackblur)
+    - [StackBlurCanvas](#stackblurcanvas)
   - [Animations](#animations)
     - [Sequence](#sequence)
     - [Loop](#loop)
@@ -81,20 +83,25 @@ npm i animationvideo eases
 ```
 
 # General overview
+
 The [Engine](#engine) of AnimationVideo will run [Scenes](#scenes) that consists of [Sprites](#sprites) that can be manipulated with [Animations](#animations).
 
 ## How to import
+
 The best way to import components of AnimationVideo is the direct import of the modules.
+
 ```js
-import Engine from 'animationvideo/Engine.mjs'
-import Norm from 'animationvideo/Scenes/Norm.mjs'
-import FastBlur from 'animationvideo/Sprites/FastBlur.mjs'
-import Image from 'animationvideo/Sprites/Image.mjs'
-import Forever from 'animationvideo/Animations/Forever.mjs'
-import ChangeTo from 'animationvideo/Animations/ChangeTo.mjs'
-import QuadInOut from 'eases/quad-in-out'
+import Engine from "animationvideo/Engine.mjs";
+import Norm from "animationvideo/Scenes/Norm.mjs";
+import FastBlur from "animationvideo/Sprites/FastBlur.mjs";
+import Image from "animationvideo/Sprites/Image.mjs";
+import Forever from "animationvideo/Animations/Forever.mjs";
+import ChangeTo from "animationvideo/Animations/ChangeTo.mjs";
+import QuadInOut from "eases/quad-in-out";
 ```
+
 This is possible with [Webpack >= 4](https://webpack.js.org/). For older packer you can use the main package and extract the needed components.
+
 ```js
 import AnimationVideo from "animationvideo";
 const {
@@ -105,49 +112,59 @@ const {
   Easing: { QuadInOut }
 } = AnimationVideo;
 ```
+
 For simple web projects you can include the js-file directly and use the global `AnimationVideo` object.
+
 ```html
 <script src="dist/animationvideo.umd.js"></script>
 <script>
-  AnimationVideo.Engine(document.querySelector('canvas'))
-    .switchScene(AnimationVideo.Scenes.Norm({
-      reset: () => [
-        [
-          AnimationVideo.Sprites.Rect({ clear: true })
-        ],
-        [
-          AnimationVideo.Sprites.Circle({ 
-            scaleX: 0.5, 
-            scaleY: 0.5,
-            color: '#F00',
-            animation: AnimationVideo.Animations.Forever([
-              AnimationVideo.Animations.ChangeTo({
-                color: '#00F'
-              }, 1000),
-              AnimationVideo.Animations.ChangeTo({
-                color: '#F00'
-              }, 1000)
-            ])
-          })
-        ],
-      ]
-    }))
-    .run()
+  AnimationVideo.Engine(document.querySelector("canvas"))
+    .switchScene(
+      AnimationVideo.Scenes.Norm({
+        reset: () => [
+          [AnimationVideo.Sprites.Rect({ clear: true })],
+          [
+            AnimationVideo.Sprites.Circle({
+              scaleX: 0.5,
+              scaleY: 0.5,
+              color: "#F00",
+              animation: AnimationVideo.Animations.Forever([
+                AnimationVideo.Animations.ChangeTo(
+                  {
+                    color: "#00F"
+                  },
+                  1000
+                ),
+                AnimationVideo.Animations.ChangeTo(
+                  {
+                    color: "#F00"
+                  },
+                  1000
+                )
+              ])
+            })
+          ]
+        ]
+      })
+    )
+    .run();
 </script>
 ```
-Other examples are done in the *index.html*.
 
+Other examples are done in the _index.html_.
 
 ## Example
+
 Here is how the code looks like in an example:
+
 ```js
-import Engine from 'animationvideo/Engine.mjs'
-import Norm from 'animationvideo/Scenes/Norm.mjs'
-import FastBlur from 'animationvideo/Sprites/FastBlur.mjs'
-import Image from 'animationvideo/Sprites/Image.mjs'
-import Forever from 'animationvideo/Animations/Forever.mjs'
-import ChangeTo from 'animationvideo/Animations/ChangeTo.mjs'
-import QuadInOut from 'eases/quad-in-out'
+import Engine from "animationvideo/Engine.mjs";
+import Norm from "animationvideo/Scenes/Norm.mjs";
+import FastBlur from "animationvideo/Sprites/FastBlur.mjs";
+import Image from "animationvideo/Sprites/Image.mjs";
+import Forever from "animationvideo/Animations/Forever.mjs";
+import ChangeTo from "animationvideo/Animations/ChangeTo.mjs";
+import QuadInOut from "eases/quad-in-out";
 
 // The Engine runs the scene "Norm"
 new Engine({
@@ -212,6 +229,7 @@ new Engine({
   })
 }).run(); // start the engine
 ```
+
 [Test code at codesandbox.io](https://codesandbox.io/s/quirky-ives-hwqqb?fontsize=14)
 
 ## Engine
@@ -224,7 +242,7 @@ import Engine from 'animationvideo/Engine.mjs'
 // general setup
 const engine = new Engine(canvasOrOptions);
 
-// init with canvas 
+// init with canvas
 const engine = new Engine(document.querySelector('canvas'));
 
 // init with object
@@ -241,9 +259,11 @@ const engine = new Engine({
 ```
 
 ### Constructor option autoSize
+
 This feature will auto scale the canvas. This dynamically creates a balance between quality and performance. You can fine tune the parameter. Setting this to false disable the auto-sizing (this is the default setting). Setting this to true enable the auto-sizing with the default values.
+
 ```js
-import Engine from 'animationvideo/Engine.mjs'
+import Engine from "animationvideo/Engine.mjs";
 
 const engine = new Engine({
   // automatic scaling of the canvas - default false
@@ -255,12 +275,12 @@ const engine = new Engine({
     scaleLimitMin: 1,
     // Worst possible scaling factor
     scaleLimitMax: 8,
-    // a value > 1. Larger values change the scale faster. 
-    scaleFactor: 1.1,  
+    // a value > 1. Larger values change the scale faster.
+    scaleFactor: 1.1,
     // function that gets the visible width of the canvas in pixel
-    referenceWidth: () => canvas.clientWidth, 
+    referenceWidth: () => canvas.clientWidth,
     // function that gets the visible height of the canvas in pixel
-    referenceHeight: () => canvas.clientHeight, 
+    referenceHeight: () => canvas.clientHeight,
     // the current scale / the start scale
     currentScale: 1,
     // the time that the system stays at least in the current scale in ms
@@ -289,13 +309,16 @@ const engine = new Engine({
   canvas: null //...
 });
 ```
-### Commands
-The instance of Engine has some functions to change the scenes.
-```js
-import Engine from 'animationvideo/Engine.mjs'
 
-// init with canvas 
-const engine = new Engine(document.querySelector('canvas'));
+### Commands
+
+The instance of Engine has some functions to change the scenes.
+
+```js
+import Engine from "animationvideo/Engine.mjs";
+
+// init with canvas
+const engine = new Engine(document.querySelector("canvas"));
 
 // "recalculateCanvas" will trigger the scaling system of the auto-size-system
 // (this will resize the canvas itself)
@@ -309,23 +332,25 @@ engine.resize();
 engine.switchScene(scene);
 
 // "run" starts the engine
-engine.run( /* optional: object with parameter that are given to the init-function */ );
+engine.run(/* optional: object with parameter that are given to the init-function */);
 
 // "destroy" clean up the events, stops the main loop
 // that was started with "run"
 engine.destroy();
-
 ```
 
 ## Scenes
-A scene controls what happens on the screen and in the engine. It uses [Sprites](#sprites) and [Animations](#animations). 
+
+A scene controls what happens on the screen and in the engine. It uses [Sprites](#sprites) and [Animations](#animations).
 
 ### Default
+
 Default descries a Animation without sound on a canvas with a fixed size. In this canvas the coordinates of the top left corner is 0, 0 and the coordinate in the bottom right is the width, height of the canvas in pixels. This is the basic scene. All other scenes are based on this and add something special (f.e. add audio or the coordinates are special).
 
-A scenes main task is to use the given *layerManager* to first move the objects of the layers and then to draw them.
+A scenes main task is to use the given _layerManager_ to first move the objects of the layers and then to draw them.
 
 There are a number of functions that are given to the constructor that are explained in this example. The functions can be combined in a object or a class:
+
 ```js
 import Engine from 'animationvideo/Engine.mjs'
 import SceneDefault from 'animationvideo/Scenes/Default.mjs'
@@ -356,7 +381,7 @@ const objectScene = new SceneDefault({
   //     ratio: 1       // the ratio between width and height
   //   }
   // - scene is the scene object this object is running in
-  // - parameter are the parameter that are given from the 
+  // - parameter are the parameter that are given from the
   //   last scene or the start parameter
   // - imageManager is the object that loads the images
   async init({ engine, output, scene, parameter, imageManager }) {
@@ -368,7 +393,7 @@ const objectScene = new SceneDefault({
   }
 
   // "destroy" is an optional function.
-  // It will run when the engine's destroy is called or 
+  // It will run when the engine's destroy is called or
   // when the engine switches a scene.
   destroy({ engine, scene, output }) {
     // clean up code
@@ -415,7 +440,7 @@ const objectScene = new SceneDefault({
   },
 
   // "endTime" can set the operational time of the animation in ms.
-  // If the scene is running for "endTime" ms the scene 
+  // If the scene is running for "endTime" ms the scene
   // will call the function "end".
   // By default the value is undefined and thus "end" will never be triggered.
   endTime: 1000,
@@ -440,8 +465,8 @@ const objectScene = new SceneDefault({
   // if a frame misses the target tickChunk-time. Default value is 0.1
   // can be a function or a fixed value
   tickChunkTolerance: 0.1,
-  
-  // "fixedUpdate" is a optional function that will be 
+
+  // "fixedUpdate" is a optional function that will be
   // called in fixed periodic intervals that is set in "tickChunk"
   // - engine is the engine object this scene is running in
   // - scene is the scene object this object is running in
@@ -507,7 +532,8 @@ engine.switchScene(objectScene).run();
 ```
 
 #### Layers
-A scenes main task is to use the given *layerManager* to first move the objects of the [Layers](#layers) and to draw them.
+
+A scenes main task is to use the given _layerManager_ to first move the objects of the [Layers](#layers) and to draw them.
 
 ```js
 import Engine from 'animationvideo/Engine.mjs';
@@ -515,7 +541,7 @@ import SceneDefault from 'animationvideo/Scenes/Default.mjs';
 import Rect from 'animationvideo/Sprites/Rect.mjs';
 
 new Engine({
-  canvas: document.querySelector('canvas'), 
+  canvas: document.querySelector('canvas'),
   scene: new SceneDefault({
     // get the first layerManager at reset
     reset({layerManager}) {
@@ -560,7 +586,7 @@ new Engine({
         function ({ engine, scene, layerManager, layer, output, totalTimePassed }) {
           output.context.drawImage(...)
           // return true will remove this function from the layer
-          return totalTimePassed > 1000 
+          return totalTimePassed > 1000
         }
       );
 
@@ -615,6 +641,7 @@ new Engine({
 ```
 
 ### Norm
+
 This scene is similar to the [Default](#default)-scene. But the coordinates are different: the middle of the canvas will be at 0, 0, left and bottom of the canvas at -1, -1 and the top right is at 1, 1. In addition the Norm has a function named `transformPoint(x,y)` that will transform normal x, y coordinates of the canvas (f.e. mouse position) into Norm-coordinates.
 
 ```js
@@ -682,18 +709,16 @@ new Engine({
             scaleX: 0.1,
             scaleY: 0.1,
             color: "#F00",
-            animation: new Forever(
-              [
-                new ChangeTo(
-                  {
-                    x: () => this.mx,
-                    y: () => this.my
-                  },
-                  500,
-                  CubicInOut
-                )
-              ]
-            )
+            animation: new Forever([
+              new ChangeTo(
+                {
+                  x: () => this.mx,
+                  y: () => this.my
+                },
+                500,
+                CubicInOut
+              )
+            ])
           })
         ]);
         return layerManager;
@@ -702,9 +727,11 @@ new Engine({
   )
 }).run(); // start the engine
 ```
+
 [Test code at codesandbox.io](https://codesandbox.io/s/infallible-wildflower-w3uo7?fontsize=14)
 
 ### Audio
+
 This scene is similar to the [Default](#default)-scene. In addition to the Default-scene-functions you have to set an "**audioElement**". "**end**" is automatically called without giving "**endTime**".
 
 ```js
@@ -943,177 +970,310 @@ new Engine({
   })
 }).run(); // start the engine
 ```
+
 [Test code at codesandbox.io](https://codesandbox.io/s/eloquent-field-55tk6?fontsize=14)
 
 ### NormAudio
+
 This scene is similar to the [Audio](#audio)-scene. But the coordinates are different: the middle of the canvas will be at 0, 0, left and bottom of the canvas at -1, -1 and the top right is at 1, 1. In addition the Norm has a function named `transformPoint(x,y)` that will transform normal x, y coordinates of the canvas (f.e. mouse position) into Norm-coordinates. See [Norm](#norm) for more information.
 
 ## Sprites
+
 **Sprites** are the objects that are drawn on the screen. They are the main ingredient of an animation.
 
 ### Image
-Renders an image to the canvas. Can be a real image or the reference to an image loaded with the *images* routine of the scene.
+
+Renders an image to the canvas. Can be a real image or the reference to an image loaded with the _images_ routine of the scene.
+
 ```js
-import Animationvideo from "animationvideo";
-const {
-  Engine,
-  Scenes: { Default },
-  Sprites: { Image },
-} = Animationvideo;
+import Engine from "animationvideo/Engine.mjs";
+import SceneDefault from "animationvideo/Scenes/Default.mjs";
+import Image from "animationvideo/Sprites/Image.mjs";
 
 new Engine({
   canvas: document.querySelector("canvas"),
-  scene: new Default({
+  scene: new SceneDefault({
     // load images beforehand
     images() {
       return { imageFile: "https://placekitten.com/400/400" };
     },
     // initialisation of the scene with sprites
     reset() {
-      return [[
-        new Image({
-          enabled: true,
-          image: 'imageFile', // name of the key of the image defined in "images"
-          x: 0, // position of the image
-          y: 0, 
-          width: undefined, // width and height of the image. Undefined to take
-          height: undefined, // it from the original image.
-          rotation: 0, // use rotationInDegree to give values in degree
-          scaleX: 1, // scalling of the image
-          scaleY: 1,
-          alpha: 1, // transparency
-          compositeOperation: 'source-over',
-          position: Image.CENTER, // or Image.LEFT_TOP - pivot of the image
-          frameX: 0, // left corner of the sprite that will be cut out from an image
-          frameY: 0, // top corner of the sprite that will be cut out from an image
-          frameWidth: 0, // width of the sprite that will be cut out from an image
-          frameHeight: 0, // height of the sprite that will be cut out from an image
-          norm: false, // resize the image, so it hits the corner of the canvas
-          animation: undefined
-        })
-      ]]
+      return [
+        [
+          new Image({
+            enabled: true,
+            image: "imageFile", // name of the key of the image defined in "images"
+            x: 0, // position of the image
+            y: 0,
+            width: undefined, // width and height of the image. Undefined to take
+            height: undefined, // it from the original image.
+            rotation: 0, // use rotationInDegree to give values in degree
+            scaleX: 1, // scalling of the image
+            scaleY: 1,
+            alpha: 1, // transparency
+            compositeOperation: "source-over",
+            position: Image.CENTER, // or Image.LEFT_TOP - pivot of the image
+            frameX: 0, // left corner of the sprite that will be cut out from an image
+            frameY: 0, // top corner of the sprite that will be cut out from an image
+            frameWidth: 0, // width of the sprite that will be cut out from an image
+            frameHeight: 0, // height of the sprite that will be cut out from an image
+            norm: false, // resize the image, so it hits the corner of the canvas
+            animation: undefined
+          })
+        ]
+      ];
     }
   })
 }).run();
 ```
-You can also use Sprite Sheets. You can cut out a single Sprite with *frameX*, *frameY*, *frameWidth*, *frameHeight*. See the [ImageFrame](#imageframe)-Animation for an example.
+
+You can also use Sprite Sheets. You can cut out a single Sprite with _frameX_, _frameY_, _frameWidth_, _frameHeight_. See the [ImageFrame](#imageframe)-Animation for an example.
+
 ### Rect
+
 Renders a rectangle in a color. Can be used in a short form to clear the screen.
+
 ```js
-import Animationvideo from "animationvideo";
-const {
-  Engine,
-  Scenes: { Default },
-  Sprites: { Rect },
-} = Animationvideo;
+import Engine from "animationvideo/Engine.mjs";
+import SceneDefault from "animationvideo/Scenes/Default.mjs";
+import Rect from "animationvideo/Sprites/Rect.mjs";
 
 new Engine({
   canvas: document.querySelector("canvas"),
-  scene: new Default({
+  scene: new SceneDefault({
     reset() {
-      return [[
-        new Rect({
-          enabled: true,
-          x: 0, // Position - default upper left corner
-          y: 0,
-          width: undefined, // Size - default full screen
-          height: undefined,
-          rotation: 0, // rotation in radian. Use rotationInDegree to give values in degree
-          alpha: 1, // transparency
-          compositeOperation: 'source-over',
-          color: "#fff", // color of the rect
-          borderColor: undefined, // optional border color - undefined to disable the border
-          lineWidth: 1, // size of the border
-          clear: false, // clear the rect instead of filling with color
-          animation: undefined
-        })
-      ],
-      [
-        new Rect({ clear:true }) // <- short form to clear the full canvas
-      ]]
+      return [
+        [
+          new Rect({
+            enabled: true,
+            x: 0, // Position - default upper left corner
+            y: 0,
+            width: undefined, // Size - default full screen
+            height: undefined,
+            rotation: 0, // rotation in radian. Use rotationInDegree to give values in degree
+            alpha: 1, // transparency
+            compositeOperation: "source-over",
+            color: "#fff", // color of the rect
+            borderColor: undefined, // optional border color - undefined to disable the border
+            lineWidth: 1, // size of the border
+            clear: false, // clear the rect instead of filling with color
+            animation: undefined
+          })
+        ],
+        [
+          new Rect({ clear: true }) // <- short form to clear the full canvas
+        ]
+      ];
     }
   })
 }).run();
 ```
+
 ### Circle
+
 Renders a circle in a color.
+
 ```js
-import Animationvideo from "animationvideo";
-const {
-  Engine,
-  Scenes: { Default },
-  Sprites: { Circle },
-} = Animationvideo;
+import Engine from "animationvideo/Engine.mjs";
+import SceneDefault from "animationvideo/Scenes/Default.mjs";
+import Circle from "animationvideo/Sprites/Circle.mjs";
 
 new Engine({
   canvas: document.querySelector("canvas"),
-  scene: new Default({
+  scene: new SceneDefault({
     reset() {
-      return [[
-        new Cirlce({
-          enabled: true,
-          x: 0, // Position - default upper left corner
-          y: 0,
-          scaleX: 1., // scalling of the cirlce
-          scaleY: 1.,
-          rotation: 0, // rotation in radian. Use rotationInDegree to give values in degree
-          alpha: 1, // transparency
-          compositeOperation: 'source-over',
-          color: "#fff", // color of the rect
-          animation: undefined
-        })
-      ]]
-       // position
-      x: 0,
-      y: 0,
-      // rotation
-      rotation: (value, givenParameter) => {
-        return ifNull(
-          value,
-          ifNull(
-            givenParameter.rotationInRadian,
-            ifNull(givenParameter.rotationInDegree, 0) * degToRad
-          )
-        );
-      }
+      return [
+        [
+          new Circle({
+            enabled: true,
+            x: 0, // Position - default upper left corner
+            y: 0,
+            scaleX: 1, // scalling of the cirlce
+            scaleY: 1,
+            rotation: 0, // rotation in radian. Use rotationInDegree to give values in degree
+            alpha: 1, // transparency
+            compositeOperation: "source-over",
+            color: "#fff", // color of the rect
+            animation: undefined
+          })
+        ]
+      ];
     }
   })
 }).run();
 ```
+
 ### Path
+
+Renders a ["Path"](https://developer.mozilla.org/en-US/docs/Web/API/Path2D/Path2D). With this you can render vector graphics. A special effect is the clipping. This will allow you to render stuff only inside the path.
+
+```js
+import Engine from "animationvideo/Engine.mjs";
+import SceneDefault from "animationvideo/Scenes/Default.mjs";
+import Path from "animationvideo/Sprites/Path.mjs";
+
+new Engine({
+  canvas: document.querySelector("canvas"),
+  scene: new SceneDefault({
+    reset() {
+      return [
+        [
+          new Path({
+            enabled: true,
+            x: 0, // Position - default upper left corner
+            y: 0,
+            scaleX: 1, // scalling of the path
+            scaleY: 1,
+            rotation: 0, // rotation in radian. Use rotationInDegree to give values in degree
+            alpha: 1, // transparency
+            compositeOperation: "source-over",
+            path: "...", // the svg path or a Path2D-Object
+            color: undefined, // color to fill the path
+            borderColor: undefined, // color of the border of the path
+            lineWidth: 1, // line width of the border
+            clip: false, // true will render "sprites" inside the path
+            sprites: [], // the sprites that will be rendered inside the path if clip is true
+            fixed: false, // the position, rotation and scalling will be the same as the path itself
+            animation: undefined, // in the animation you can even morph the path with ChangeTo!
+            polyfill: true // "true" will inject a workaround for edge and older browsers if needed
+          })
+        ]
+      ];
+    }
+  })
+}).run();
+```
+
 ### Text
+Renders text at the canvas.
+
+```js
+import Engine from "animationvideo/Engine.mjs";
+import SceneDefault from "animationvideo/Scenes/Default.mjs";
+import Text from "animationvideo/Sprites/Text.mjs";
+
+new Engine({
+  canvas: document.querySelector("canvas"),
+  scene: new SceneDefault({
+    reset() {
+      return [
+        [
+          new Text({
+            enabled: true,
+            x: 0, // Position - default upper left corner
+            y: 0,
+            scaleX: 1, // scalling of the text
+            scaleY: 1,
+            rotation: 0, // rotation in radian. Use rotationInDegree to give values in degree
+            alpha: 1, // transparency
+            compositeOperation: "source-over",
+            text: undefined, // Text to show
+            font: '26px monospace', // font to use
+            position: Text.CENTER, // or Text.LEFT_TOP - pivot of the text
+            color: undefined, // fill-color of the text
+            borderColor: undefined, // border color of the text
+            lineWidth: 1, // border size
+            animation: undefined
+          })
+        ]
+      ];
+    }
+  })
+}).run();
+```
 ### Callback
+Callback that will be called to manually render something on the canvas.
+
+```js
+import Engine from "animationvideo/Engine.mjs";
+import SceneDefault from "animationvideo/Scenes/Default.mjs";
+import SpriteCallback from "animationvideo/Sprites/Callback.mjs";
+
+new Engine({
+  canvas: document.querySelector("canvas"),
+  scene: new SceneDefault({
+    reset() {
+      return [
+        [
+          new SpriteCallback({
+            enabled: true,
+            // set the callback
+            callback: function(context, timePassed, additionalParameter, sprite) {
+              // in this function you can do whatever you want
+              context.drawImage(..);
+              ....
+            };
+            animation: undefined
+          })
+        ]
+      ];
+    }
+  })
+}).run();
+```
+
 ### FastBlur
+
 ### StarField
+
 ### Group
+
 ### Canvas
+
 ### Particle
+
 ### Emitter
+
 ### Scroller
+
+### StackBlur
+
+### StackBlurCanvas
+
 ## Animations
+
 ### Sequence
+
 ### Loop
+
 ### Forever
+
 ### State
+
 ### Wait
+
 ### WaitDisabled
+
 ### ChangeTo
+
 ### Move
+
 ### Image
+
 ### ImageFrame
+
 ### Shake
+
 ### Callback
+
 ### If
+
 ### Once
+
 ### ShowOnce
+
 ### End
+
 ### EndDisable
+
 ### Remove
 
 # TODO
-* write demo with audio
-* more tests
-* debug error messages in console log
+
+- write demo with audio
+- more tests
+- debug error messages in console log
 
 # License
 

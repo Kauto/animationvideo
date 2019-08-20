@@ -13,7 +13,7 @@ export default class Callback extends Circle {
   }
 
   getParameterList() {
-    return Object.assign({}, super.getParameterList(), {
+    return Object.assign({}, this.getBaseParameterList(), {
       callback: v => (typeof v === undefined ? () => {} : v)
     });
   }
