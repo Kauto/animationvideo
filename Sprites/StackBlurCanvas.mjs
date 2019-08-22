@@ -1,5 +1,6 @@
 import CanvasSprite from "./Canvas.mjs";
-import { imageDataRGBA } from "stackblur-canvas";
+import * as stackblur from "stackblur-canvas";
+const {imageDataRGBA} = stackblur.default || stackblur 
 
 export default class StackBlurCanvas extends CanvasSprite {
   constructor(givenParameter) {
