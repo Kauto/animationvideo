@@ -39,33 +39,6 @@ or in the **index.html**.
         - [FastBlur](#fastblur)
         - [StarField](#starfield)
         - [Group](#group)
-        - [Canvas](#canvas)
-        - [Particle](#particle)
-        - [Emitter](#emitter)
-        - [Scroller](#scroller)
-        - [StackBlur](#stackblur)
-        - [StackBlurCanvas](#stackblurcanvas)
-    - [Animations](#animations)
-        - [Sequence](#sequence)
-        - [Loop](#loop)
-        - [Forever](#forever)
-        - [State](#state)
-        - [Wait](#wait)
-        - [WaitDisabled](#waitdisabled)
-        - [ChangeTo](#changeto)
-        - [Move](#move)
-        - [Image](#image-1)
-        - [ImageFrame](#imageframe)
-        - [Shake](#shake)
-        - [Callback](#callback-1)
-        - [If](#if)
-        - [Once](#once)
-        - [ShowOnce](#showonce)
-        - [End](#end)
-        - [EndDisable](#enddisable)
-        - [Remove](#remove)
-- [TODO](#todo)
-- [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -1133,8 +1106,8 @@ new Engine({
             color: undefined, // color to fill the path
             borderColor: undefined, // color of the border of the path
             lineWidth: 1, // line width of the border
-            clip: false, // true will render "sprites" inside the path
-            sprites: [], // the sprites that will be rendered inside the path if clip is true
+            clip: false, // true will render "sprite" inside the path
+            sprite: [], // the sprites that will be rendered inside the path if clip is true
             fixed: false, // the position, rotation and scalling will be the same as the path itself
             animation: undefined, // in the animation you can even morph the path with ChangeTo!
             polyfill: true // "true" will inject a workaround for edge and older browsers if needed
@@ -1219,7 +1192,38 @@ new Engine({
 ### StarField
 
 ### Group
+Renders a Group of Sprites. This is used to move them together or to apply effects at the same time.
 
+```js
+import Engine from "animationvideo/Engine.mjs";
+import SceneDefault from "animationvideo/Scenes/Default.mjs";
+import Group from "animationvideo/Sprites/Group.mjs";
+
+new Engine({
+  canvas: document.querySelector("canvas"),
+  scene: new SceneDefault({
+    reset() {
+      return [
+        [
+          new Group({
+            // the sprites that will be rendered inside
+            // f.e. [ new Rect({...}), new Image({...})]
+            sprite: [], 
+            enabled: true,
+            x: 0, // Position - default upper left corner
+            y: 0,
+            scaleX: 1, // scalling of the path
+            scaleY: 1,
+            rotation: 0, // rotation in radian. Use rotationInDegree to give values in degree
+            alpha: 1, // transparency
+            compositeOperation: "source-over",
+            animation: undefined, // in the animation you can even morph the path with ChangeTo!
+          })
+        ]
+      ];
+    }
+  })
+}).run();
 ### Canvas
 
 ### Particle
@@ -1235,6 +1239,8 @@ new Engine({
 ## Animations
 
 ### Sequence
+
+#### Labels
 
 ### Loop
 
@@ -1266,9 +1272,13 @@ new Engine({
 
 ### End
 
-### EndDisable
+### EndDisabled
 
 ### Remove
+
+### Stop
+
+### StopDisabled
 
 # TODO
 

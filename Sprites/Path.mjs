@@ -44,8 +44,8 @@ export default class Path extends Group {
   // helper function for changeTo
   changeToPathInit(from, to) {
     return pasition._preprocessing(
-      pasition.path2shapes(from),
-      pasition.path2shapes(to)
+      typeof from === 'string' ? pasition.path2shapes(from) : from,
+      typeof to === 'string' ? pasition.path2shapes(to) : to
     );
   }
   changeToPath(progress, data, sprite) {

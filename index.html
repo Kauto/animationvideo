@@ -832,6 +832,15 @@
                 })
               })
             );
+            layerManager.addLayer().addElements([new SP.Path({
+              path: 'M-.5,0a.5,.5,0,1,1,1,0a.5,.5,0,1,1,-1,0',
+              color: '#0F0'
+            }),
+            new SP.Path({
+              path: 'M-.5,0A.5,.5,0,1,1,.5,0A.5,.5,0,1,1,-.5,0',
+              color: '#0F0'
+            })
+            ])
           }
         }
       )
