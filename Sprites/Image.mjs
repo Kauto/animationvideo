@@ -21,7 +21,8 @@ class Image extends Circle {
       frameWidth: 0,
       frameHeight: 0,
       // autoscale to max
-      norm: false
+      norm: false,
+      normCover: false
     });
   }
 
@@ -35,7 +36,12 @@ class Image extends Circle {
       const frameWidth = this.frameWidth || this.image.width,
         frameHeight = this.frameHeight || this.image.height;
       if (!this.normScale) {
-        this.normScale = this.norm
+        this.normScale = this.normCover
+          ? Math.max(
+              additionalModifier.width / frameWidth,
+              additionalModifier.height / frameHeight
+            )
+          : this.norm
           ? Math.min(
               additionalModifier.width / frameWidth,
               additionalModifier.height / frameHeight

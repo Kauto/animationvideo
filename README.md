@@ -15,30 +15,29 @@ or in the **index.html**.
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
 - [Installation](#installation)
 - [General overview](#general-overview)
-    - [How to import](#how-to-import)
-    - [Example](#example)
-    - [Engine](#engine)
-        - [Constructor-option "autoSize"](#constructor-option-autosize)
-        - [Commands](#commands)
-    - [Scenes](#scenes)
-        - [Default](#default)
-            - [Layers](#layers)
-        - [Norm](#norm)
-        - [Audio](#audio)
-        - [NormAudio](#normaudio)
-    - [Sprites](#sprites)
-        - [Image](#image)
-        - [Rect](#rect)
-        - [Circle](#circle)
-        - [Path](#path)
-        - [Text](#text)
-        - [Callback](#callback)
-        - [FastBlur](#fastblur)
-        - [StarField](#starfield)
-        - [Group](#group)
+  - [How to import](#how-to-import)
+  - [Example](#example)
+  - [Engine](#engine)
+    - [Constructor-option "autoSize"](#constructor-option-autosize)
+    - [Commands](#commands)
+  - [Scenes](#scenes)
+    - [Default](#default)
+      - [Layers](#layers)
+    - [Norm](#norm)
+    - [Audio](#audio)
+    - [NormAudio](#normaudio)
+  - [Sprites](#sprites)
+    - [Image](#image)
+    - [Rect](#rect)
+    - [Circle](#circle)
+    - [Path](#path)
+    - [Text](#text)
+    - [Callback](#callback)
+    - [FastBlur](#fastblur)
+    - [StarField](#starfield)
+    - [Group](#group)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -125,7 +124,7 @@ For simple web projects you can include the js-file directly and use the global 
 </script>
 ```
 
-Other examples are done in the _index.html_.
+Other examples are in the _index.html_.
 
 ## Example
 
@@ -951,6 +950,10 @@ new Engine({
 
 This scene is similar to the [Audio](#audio)-scene. But the coordinates are different: the middle of the canvas will be at 0, 0, left and bottom of the canvas at -1, -1 and the top right is at 1, 1. In addition the Norm has a function named `transformPoint(x,y)` that will transform normal x, y coordinates of the canvas (f.e. mouse position) into Norm-coordinates. See [Norm](#norm) for more information.
 
+### NormCamera
+
+This is a [Norm](#norm)-Scene that has controls for zooming and moving the content of the canvas with a _camera_. There is support for mobile.
+
 ## Sprites
 
 **Sprites** are the objects that are drawn on the screen. They are the main ingredient of an animation.
@@ -993,6 +996,7 @@ new Engine({
             frameWidth: 0, // width of the sprite that will be cut out from an image
             frameHeight: 0, // height of the sprite that will be cut out from an image
             norm: false, // resize the image, so it hits the corner of the canvas
+            normCover: false, // resize the image, so it's completly covering the canvas
             animation: undefined
           })
         ]
@@ -1021,8 +1025,8 @@ new Engine({
         [
           new Rect({
             enabled: true,
-            x: 0, // Position - default upper left corner
-            y: 0,
+            x: undefined, // Position - default upper left corner
+            y: undefined,
             width: undefined, // Size - default full screen
             height: undefined,
             rotation: 0, // rotation in radian. Use rotationInDegree to give values in degree
@@ -1032,6 +1036,9 @@ new Engine({
             borderColor: undefined, // optional border color - undefined to disable the border
             lineWidth: 1, // size of the border
             clear: false, // clear the rect instead of filling with color
+            // resize the rect, so it hits the corner of the canvas
+            // default is true if x, y, width and height is undefined
+            norm: false,
             animation: undefined
           })
         ],
@@ -1061,7 +1068,7 @@ new Engine({
         [
           new Circle({
             enabled: true,
-            x: 0, // Position - default upper left corner
+            x: 0, // Position
             y: 0,
             scaleX: 1, // scalling of the cirlce
             scaleY: 1,
@@ -1095,7 +1102,7 @@ new Engine({
         [
           new Path({
             enabled: true,
-            x: 0, // Position - default upper left corner
+            x: 0, // Position
             y: 0,
             scaleX: 1, // scalling of the path
             scaleY: 1,
@@ -1120,6 +1127,7 @@ new Engine({
 ```
 
 ### Text
+
 Renders text at the canvas.
 
 ```js
@@ -1135,7 +1143,7 @@ new Engine({
         [
           new Text({
             enabled: true,
-            x: 0, // Position - default upper left corner
+            x: 0, // Position
             y: 0,
             scaleX: 1, // scalling of the text
             scaleY: 1,
@@ -1143,7 +1151,7 @@ new Engine({
             alpha: 1, // transparency
             compositeOperation: "source-over",
             text: undefined, // Text to show
-            font: '26px monospace', // font to use
+            font: "26px monospace", // font to use
             position: Text.CENTER, // or Text.LEFT_TOP - pivot of the text
             color: undefined, // fill-color of the text
             borderColor: undefined, // border color of the text
@@ -1156,7 +1164,9 @@ new Engine({
   })
 }).run();
 ```
+
 ### Callback
+
 Callback that will be called to manually render something on the canvas.
 
 ```js
@@ -1191,7 +1201,53 @@ new Engine({
 
 ### StarField
 
+Renders moving "stars".
+
+```js
+import Engine from "animationvideo/Engine.mjs";
+import SceneDefault from "animationvideo/Scenes/Default.mjs";
+import Rect from "animationvideo/Sprites/Rect.mjs";
+import StarField from "animationvideo/Sprites/StarField.mjs";
+
+new Engine({
+  canvas: document.querySelector("canvas"),
+  scene: new SceneDefault({
+    reset() {
+      return [
+        [
+          new Rect({color: '#000'})
+        ],
+        [
+          new StarField({
+            enabled: true,
+            x: undefined, // Position - default upper left corner
+            y: undefined,
+            width: undefined, // Size - default full screen
+            height: undefined,
+            // resize, so it hits the corner of the canvas
+            // default is true if x, y, width and height is undefined
+            norm: false,
+            alpha: 1, // transparency
+            compositeOperation: "source-over",
+            color: "#fff", // color of the rect
+            count: 40, // how many stars
+            // where the stars moves to - you don't see anything if everything is zero
+            moveX: 0.,
+            moveY: 0.,
+            moveZ: 0.,
+            lineWidth: undefined, // size of the stars
+            highScale: true // false is faster, but true is needed for "Norm"-scenes
+            animation: undefined, // in the animation you can even morph the path with ChangeTo!
+          })
+        ]
+      ];
+    }
+  })
+}).run();
+```
+
 ### Group
+
 Renders a Group of Sprites. This is used to move them together or to apply effects at the same time.
 
 ```js
@@ -1208,7 +1264,7 @@ new Engine({
           new Group({
             // the sprites that will be rendered inside
             // f.e. [ new Rect({...}), new Image({...})]
-            sprite: [], 
+            sprite: [],
             enabled: true,
             x: 0, // Position - default upper left corner
             y: 0,
@@ -1217,13 +1273,15 @@ new Engine({
             rotation: 0, // rotation in radian. Use rotationInDegree to give values in degree
             alpha: 1, // transparency
             compositeOperation: "source-over",
-            animation: undefined, // in the animation you can even morph the path with ChangeTo!
+            animation: undefined // in the animation you can even morph the path with ChangeTo!
           })
         ]
       ];
     }
   })
 }).run();
+```
+
 ### Canvas
 
 ### Particle

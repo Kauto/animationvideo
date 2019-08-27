@@ -121,7 +121,12 @@ class Scene {
     ctx.globalAlpha = 1;
     ctx.clearRect(0, 0, output.w, output.h);
     ctx.fillStyle = "#aaa";
-    ctx.fillRect(0, output.height / 2 - loadedHeight / 2, output.width, loadedHeight);
+    ctx.fillRect(
+      0,
+      output.height / 2 - loadedHeight / 2,
+      output.width,
+      loadedHeight
+    );
     ctx.font = "20px Georgia";
     ctx.fillStyle = "#fff";
     ctx.textAlign = "left";
@@ -153,6 +158,19 @@ class Scene {
     return false;
   }
 
+  fixedUpdate(output, timePassed) {
+    if (this.configuration.fixedUpdate) {
+      this.configuration.fixedUpdate({
+        engine: this.engine,
+        scene: this,
+        layerManager: this.layerManager,
+        output,
+        timePassed,
+        totalTimePassed: this.totalTimePassed
+      });
+    }
+  }
+
   move(output, timePassed) {
     // calc total time
     this.totalTimePassed += timePassed;
@@ -180,39 +198,23 @@ class Scene {
         });
     }
 
-    if (this.configuration.fixedUpdate) {
-      if (this.tickChunk) {
-        if (timePassed >= this.tickChunk - this.tickChunkTolerance) {
-          // how many frames should be skipped. Maximum is a skip of 2 frames
-          for (
-            let calcFrame = 0,
-              frames = Math.min(
-                this.maxSkippedTickChunk,
-                Math.floor(timePassed / this.tickChunk)
-              );
-            calcFrame < frames;
-            calcFrame++
-          ) {
-            this.configuration.fixedUpdate({
-              engine: this.engine,
-              scene: this,
-              layerManager: this.layerManager,
-              output,
-              timePassed,
-              totalTimePassed: this.totalTimePassed
-            });
-          }
+    if (this.tickChunk) {
+      if (timePassed >= this.tickChunk - this.tickChunkTolerance) {
+        // how many frames should be skipped. Maximum is a skip of 2 frames
+        for (
+          let calcFrame = 0,
+            frames = Math.min(
+              this.maxSkippedTickChunk,
+              Math.floor(timePassed / this.tickChunk)
+            );
+          calcFrame < frames;
+          calcFrame++
+        ) {
+          this.fixedUpdate(output, this.tickChunk, calcFrame === frames - 1);
         }
-      } else {
-        this.configuration.fixedUpdate({
-          engine: this.engine,
-          scene: this,
-          layerManager: this.layerManager,
-          output,
-          timePassed,
-          totalTimePassed: this.totalTimePassed
-        });
       }
+    } else {
+      this.fixedUpdate(output, timePassed, true);
     }
 
     if (this.configuration.update) {

@@ -1,4 +1,6 @@
 import Circle from "./Circle.mjs";
+import ifNull from "../func/ifnull.mjs";
+import calc from "../func/calc.mjs";
 
 // Sprite
 // Draw a Circle
@@ -15,8 +17,35 @@ export default class Rect extends Circle {
       height: undefined,
       borderColor: undefined,
       lineWidth: 1,
-      clear: false
+      clear: false,
+      norm: (value, givenParameter, setParameter) =>
+      ifNull(
+        calc(value),
+        setParameter.x === undefined &&
+          setParameter.y === undefined &&
+          setParameter.width === undefined &&
+          setParameter.height === undefined
+      )
     });
+  }
+
+  normalizeFullScreen(additionalModifier) {
+    if (this.x === undefined || this.norm) {
+      this.x = additionalModifier.visibleScreen.x;
+    }
+    if (this.y === undefined || this.norm) {
+      this.y = additionalModifier.visibleScreen.y;
+    }
+    if (this.width === undefined || this.norm) {
+      this.width = additionalModifier.visibleScreen.width;
+    }
+    if (this.height === undefined || this.norm) {
+      this.height = additionalModifier.visibleScreen.height;
+    }
+  }
+
+  resize(context, additionalModifier) {
+    this.normalizeFullScreen(additionalModifier);
   }
 
   // Draw-Funktion

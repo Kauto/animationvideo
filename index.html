@@ -10,6 +10,7 @@
   <canvas id="canvas" width="800" height="300">Browser too old</canvas>
   <canvas id="canvasNorm" width="800" height="300">Browser too old</canvas>
   <canvas id="canvasStarNorm" width="800" height="300">Browser too old</canvas>
+  <canvas id="canvasCameraNorm" width="800" height="300">Browser too old</canvas>
   <div>
     <canvas id="canvasAudio" width="800" height="300">Browser too old</canvas><br />
     <audio id="audio" controls style="width:800px"
@@ -1068,6 +1069,34 @@
         }
       })
     }).run(); // start the engine
+    // -----------
+    new AnimationVideo.Engine({
+      canvas: document.getElementById("canvasCameraNorm"),
+      // The Engine uses the scene "Audio"
+      scene: AnimationVideo.Scenes.NormCamera({
+        cam: {
+          click(e, x, y) {
+            alert(JSON.stringify({e, x, y}));
+          }
+        },
+        images() {
+          return { imageFile: "https://placekitten.com/400/400" };
+        },
+        reset() {
+          return [
+            [
+              SP.Rect({ clear: true })
+            ],
+            [
+              SP.Image({
+                normCover: true,
+                image: 'imageFile'
+              })
+            ]
+          ]
+        }
+      })
+    }).run()
   </script>
 </body>
 

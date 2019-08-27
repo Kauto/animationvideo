@@ -6,25 +6,32 @@ export default class SceneNorm extends Scene {
     super(...args);
     this.transform = null;
     this.transformInvert = null;
+    this.cam = {
+      zoom: 1,
+      x: 0,
+      y: 0
+    };
   }
 
   _getViewport() {
     if (!this.engine) return new Transform();
 
     if (!this.transform) {
-      const hw = this.engine._output.width / 2;
-      const hh = this.engine._output.height / 2;
-      const scale = this.engine._output.ratio > 1 ? hw : hh;
-
-      this.transform = new Transform().translate(hw, hh).scale(scale, scale);
+      this.transform = this._getViewportByCam(this.cam);
       this.transformInvert = null;
-
-      // Maybe move a cam in the future
-      //			output.context.scale(cam.zoom,cam.zoom);
-      //			output.context.translate(-cam.centerX,-cam.centerY);
-      //output.context.translate(-0.5,-0.5);
     }
     return this.transform;
+  }
+
+  _getViewportByCam(cam) {
+    const hw = this.engine._output.width / 2;
+    const hh = this.engine._output.height / 2;
+    const scale = this.engine._output.ratio > 1 ? hw : hh;
+    return new Transform()
+      .translate(hw, hh)
+      .scale(scale, scale)
+      .scale(cam.zoom, cam.zoom)
+      .translate(-cam.x, -cam.y);
   }
 
   resize(output) {
