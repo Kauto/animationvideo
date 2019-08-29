@@ -147,6 +147,7 @@ export default class SceneNormCamera extends SceneNorm {
   }
 
   _mouseDown(e) {
+    e.preventDefault();
     const [mx, my] = this._getMousePosition(e);
     this._mousePos.x = mx;
     this._mousePos.y = my;
@@ -155,9 +156,9 @@ export default class SceneNormCamera extends SceneNorm {
     this._mousePos._isDown = true;
     this._mousePos._distance = undefined;
     this._mousePos._timestamp = Date.now();
-    
   }
   _mouseUp(e) {
+    e.preventDefault();
     this._mousePos._isDown = false;
     const [mx, my] = this._getMousePosition(e);
     if (
@@ -168,12 +169,12 @@ export default class SceneNormCamera extends SceneNorm {
       const [x, y] = this.transformPoint(mx, my);
       if (this._configuration.doubleClick) {
         if (this._mousePos.doubleClickTimer) {
-          clearTimeout(this._mousePos.doubleClickTimer)
-          this._mousePos.doubleClickTimer = undefined
+          clearTimeout(this._mousePos.doubleClickTimer);
+          this._mousePos.doubleClickTimer = undefined;
           this._configuration.doubleClick(e, x, y);
         } else {
-          this._mousePos.doubleClickTimer = setTimeout(()=>{
-            this._mousePos.doubleClickTimer = undefined
+          this._mousePos.doubleClickTimer = setTimeout(() => {
+            this._mousePos.doubleClickTimer = undefined;
             this._configuration.click(e, x, y);
           }, this._configuration.doubleClickDetectInterval);
         }
@@ -186,22 +187,30 @@ export default class SceneNormCamera extends SceneNorm {
     this._mousePos._isDown = false;
   }
   _mouseMove(e) {
-    if (e && this.camConfig.enabled && this._mousePos._isDown) {
+    e.preventDefault();
+    if (this.camConfig.enabled && this._mousePos._isDown) {
       if (e.touches && e.touches.length >= 2) {
         const t = e.touches;
-        // Abstand der zwei Finger ausrechnen
+        // get distance of two fingers
         const distance = Math.sqrt(
           (t[0].pageX - t[1].pageX) * (t[0].pageX - t[1].pageX) +
             (t[0].pageY - t[1].pageY) * (t[0].pageY - t[1].pageY)
         );
-        if (this._mousePos._distance !== undefined) {
-          if (distance > this._mousePos._distance) {
-            this.zoomIn();
-          } else if (distance < this._mousePos._distance) {
-            this.zoomOut();
+        if (this._mousePos._distance === undefined) {
+          if (this._mousePos._distance > 0) {
+            this._mousePos._distance = distance;
+            this._mousePos._czoom = this.toCam.zoom;
           }
+        } else {
+          this.toCam.zoom = Math.max(
+            this.camConfig.zoomMin,
+            Math.min(
+              this.camConfig.zoomMax,
+              this._mousePos._czoom * distance / this._mousePos._distance
+            )
+          );
+          this.clampView();
         }
-        this._mousePos._distance = distance;
       } else {
         this._mousePos._distance = undefined;
         const [mx, my] = this._getMousePosition(e);
@@ -218,8 +227,8 @@ export default class SceneNormCamera extends SceneNorm {
     }
   }
   _mouseWheel(e) {
-    if (e && this.camConfig.enabled) {
-      e.preventDefault();
+    e.preventDefault();
+    if (this.camConfig.enabled) {
       const [mx, my] = this._getMousePosition(e);
       const [ox, oy] = this._getViewportByCam(this.toCam)
         .invert()
