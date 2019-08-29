@@ -191,13 +191,13 @@ export default class SceneNormCamera extends SceneNorm {
     if (this.camConfig.enabled && this._mousePos._isDown) {
       if (e.touches && e.touches.length >= 2) {
         const t = e.touches;
-        // get distance of two fingers
+        // get distance of two finger
         const distance = Math.sqrt(
           (t[0].pageX - t[1].pageX) * (t[0].pageX - t[1].pageX) +
             (t[0].pageY - t[1].pageY) * (t[0].pageY - t[1].pageY)
         );
         if (this._mousePos._distance === undefined) {
-          if (this._mousePos._distance > 0) {
+          if (distance > 0) {
             this._mousePos._distance = distance;
             this._mousePos._czoom = this.toCam.zoom;
           }
