@@ -13,24 +13,23 @@ export default class SceneNormCamera extends SceneNorm {
         tween: 4,
         registerEvents: true,
         enabled: true,
-        click: (e, x, y) => {},
-        dblClick: undefined,
-        callResize: true
+        callResize: true,
+        doubleClickDetectInterval: 350
       },
-      calc(this.configuration.cam) || {}
+      calc(this._configuration.cam) || {}
     );
+    if (!this._configuration.click) {
+      this._configuration.click = () => {};
+    }
     this.toCam = {
       x: 0,
       y: 0,
-      distance: undefined,
       zoom: 1
     };
 
-    this.mousePos = {
-      x: 0,
-      y: 0,
-      timestamp: 0,
-      isDown: false
+    this._mousePos = {
+      _isDown: false,
+      _timestamp: 0
     };
   }
 
@@ -104,7 +103,7 @@ export default class SceneNormCamera extends SceneNorm {
     return ret;
   }
 
-  registerCamEvents(element = this.engine._output.canvas) {
+  registerCamEvents(element) {
     for (const eventName of ["touchstart", "mousedown"]) {
       element.addEventListener(eventName, this._mouseDown.bind(this), true);
     }
@@ -120,7 +119,7 @@ export default class SceneNormCamera extends SceneNorm {
     element.addEventListener("mousewheel", this._mouseWheel.bind(this), true);
   }
 
-  destroyCamEvents(element = this.engine._output.canvas) {
+  destroyCamEvents(element) {
     for (const eventName of ["touchstart", "mousedown"]) {
       element.removeEventListener(eventName, this._mouseDown, true);
     }
@@ -148,34 +147,46 @@ export default class SceneNormCamera extends SceneNorm {
   }
 
   _mouseDown(e) {
-    if (e && this.camConfig.enabled) {
-      const [mx, my] = this._getMousePosition(e);
-      this.mousePos.x = mx;
-      this.mousePos.y = my;
-      this.mousePos.cx = this.toCam.x;
-      this.mousePos.cy = this.toCam.y;
-      this.mousePos.isDown = true;
-      this.mousePos.distance = undefined;
-      this.mousePos.timestamp = Date.now();
-    }
+    const [mx, my] = this._getMousePosition(e);
+    this._mousePos.x = mx;
+    this._mousePos.y = my;
+    this._mousePos._cx = this.toCam.x;
+    this._mousePos._cy = this.toCam.y;
+    this._mousePos._isDown = true;
+    this._mousePos._distance = undefined;
+    this._mousePos._timestamp = Date.now();
+    
   }
   _mouseUp(e) {
-    this.mousePos.isDown = false;
+    this._mousePos._isDown = false;
     const [mx, my] = this._getMousePosition(e);
     if (
-      Date.now() - this.mousePos.timestamp < 150 &&
-      Math.abs(this.mousePos.x - mx) < 5 &&
-      Math.abs(this.mousePos.y - my) < 5
+      Date.now() - this._mousePos._timestamp < 150 &&
+      Math.abs(this._mousePos.x - mx) < 5 &&
+      Math.abs(this._mousePos.y - my) < 5
     ) {
       const [x, y] = this.transformPoint(mx, my);
-      this.camConfig.click(e, x, y);
+      if (this._configuration.doubleClick) {
+        if (this._mousePos.doubleClickTimer) {
+          clearTimeout(this._mousePos.doubleClickTimer)
+          this._mousePos.doubleClickTimer = undefined
+          this._configuration.doubleClick(e, x, y);
+        } else {
+          this._mousePos.doubleClickTimer = setTimeout(()=>{
+            this._mousePos.doubleClickTimer = undefined
+            this._configuration.click(e, x, y);
+          }, this._configuration.doubleClickDetectInterval);
+        }
+      } else {
+        this._configuration.click(e, x, y);
+      }
     }
   }
   _mouseOut(e) {
-    this.mousePos.isDown = false;
+    this._mousePos._isDown = false;
   }
   _mouseMove(e) {
-    if (e && this.camConfig.enabled && this.mousePos.isDown) {
+    if (e && this.camConfig.enabled && this._mousePos._isDown) {
       if (e.touches && e.touches.length >= 2) {
         const t = e.touches;
         // Abstand der zwei Finger ausrechnen
@@ -183,25 +194,25 @@ export default class SceneNormCamera extends SceneNorm {
           (t[0].pageX - t[1].pageX) * (t[0].pageX - t[1].pageX) +
             (t[0].pageY - t[1].pageY) * (t[0].pageY - t[1].pageY)
         );
-        if (this.mousePos.distance !== undefined) {
-          if (distance > this.mousePos.distance) {
-            this._zoomIn();
-          } else if (distance < this.mousePos.distance) {
-            this._zoomOut();
+        if (this._mousePos._distance !== undefined) {
+          if (distance > this._mousePos._distance) {
+            this.zoomIn();
+          } else if (distance < this._mousePos._distance) {
+            this.zoomOut();
           }
         }
-        this.mousePos.distance = distance;
+        this._mousePos._distance = distance;
       } else {
-        this.mousePos.distance = undefined;
+        this._mousePos._distance = undefined;
         const [mx, my] = this._getMousePosition(e);
         const viewMatrix = this._getViewportByCam(this.toCam).invert();
         const [ox, oy] = viewMatrix.transformPoint(
-          this.mousePos.x,
-          this.mousePos.y
+          this._mousePos.x,
+          this._mousePos.y
         );
         const [nx, ny] = viewMatrix.transformPoint(mx, my);
-        this.toCam.x = this.mousePos.cx + ox - nx;
-        this.toCam.y = this.mousePos.cy + oy - ny;
+        this.toCam.x = this._mousePos._cx + ox - nx;
+        this.toCam.y = this._mousePos._cy + oy - ny;
         this.clampView();
       }
     }
@@ -215,7 +226,7 @@ export default class SceneNormCamera extends SceneNorm {
         .transformPoint(mx, my);
       const wheelData = e.wheelDelta || e.deltaY * -1;
       if (wheelData / 120 > 0) {
-        this._zoomIn();
+        this.zoomIn();
         const [nx, ny] = this._getViewportByCam(this.toCam)
           .invert()
           .transformPoint(mx, my);
@@ -223,17 +234,17 @@ export default class SceneNormCamera extends SceneNorm {
         this.toCam.y -= ny - oy;
         this.clampView();
       } else {
-        this._zoomOut();
+        this.zoomOut();
       }
     }
   }
-  _zoomIn() {
+  zoomIn() {
     this.toCam.zoom = Math.min(
       this.camConfig.zoomMax,
       this.toCam.zoom * this.camConfig.zoomFactor
     );
   }
-  _zoomOut() {
+  zoomOut() {
     this.toCam.zoom = Math.max(
       this.camConfig.zoomMin,
       this.toCam.zoom / this.camConfig.zoomFactor
@@ -243,10 +254,10 @@ export default class SceneNormCamera extends SceneNorm {
 
   clampView = function() {
     const invert = this._getViewportByCam(this.toCam).invert();
-    const [x1,y1] = invert.transformPoint(0, 0);
-    const [x2,y2] = invert.transformPoint(
-      this.engine._output.width,
-      this.engine._output.height
+    const [x1, y1] = invert.transformPoint(0, 0);
+    const [x2, y2] = invert.transformPoint(
+      this.engine.getWidth(),
+      this.engine.getHeight()
     );
 
     // check for x

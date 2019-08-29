@@ -11,9 +11,9 @@ export default class SceneNormAudio extends SceneAudio {
     if (!this.engine) return new Transform();
 
     if (!this.transform) {
-      const hw = this.engine._output.width / 2;
-      const hh = this.engine._output.height / 2;
-      const scale = this.engine._output.ratio > 1 ? hw : hh;
+      const hw = this.engine.getWidth() / 2;
+      const hh = this.engine.getHeight() / 2;
+      const scale = this.engine.getRatio() > 1 ? hw : hh;
 
       this.transform = new Transform().translate(hw, hh).scale(scale, scale);
       this.transformInvert = null;

@@ -7,6 +7,7 @@ AnimationVideo is a javascript library to animate objects inside a canvas. The a
 - [Perfect audio sync](https://codesandbox.io/s/eloquent-field-55tk6?fontsize=14)
 - [Zoom with gloom](https://codesandbox.io/s/quirky-ives-hwqqb?fontsize=14)
 - [Follow mouse move and feedback effect](https://codesandbox.io/s/infallible-wildflower-w3uo7?fontsize=14)
+- [Mouse controls to move and zoom](https://codesandbox.io/s/thirsty-https-v26ff?fontsize=14)
 
 or in the **index.html**.
 
@@ -408,8 +409,6 @@ const objectScene = new SceneDefault({
       10 + Math.random() * 3,
       output.h - 10 + Math.random() * 3
     );
-
-    engine && engine.normalizeContext(ctx);
   },
 
   // "endTime" can set the operational time of the animation in ms.
@@ -1340,7 +1339,7 @@ new Engine({
 
 # TODO
 
-- write demo with audio
+- half fps feature to cool down mobile
 - more tests
 - debug error messages in console log
 

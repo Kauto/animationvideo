@@ -47,7 +47,7 @@ class Engine {
     // reference to
     this._referenceRequestAnimationFrame = null;
 
-    // data about the _output canvas
+    // data about the output canvas
     this._output.canvas = options.canvas;
     if (
       !(
@@ -123,7 +123,6 @@ class Engine {
       );
     }
     this.switchScene(options.scene);
-    this.normalizeContext(this._output.context);
   }
 
   handleVisibilityChange() {
@@ -136,7 +135,7 @@ class Engine {
     }
   }
 
-  normalizeContext(ctx) {
+  _normalizeContext(ctx) {
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
     ctx.globalAlpha = 1;
@@ -149,6 +148,10 @@ class Engine {
 
   getHeight() {
     return this._output.height;
+  }
+
+  getRatio() {
+    return this._output.ratio;
   }
 
   recalculateCanvas() {
@@ -229,6 +232,7 @@ class Engine {
         this._timePassed = this._timePassed + shiftTime;
         this._lastTimestamp = now + shiftTime;
 
+        this._normalizeContext(this._output.context);
         if (this._isSceneInitialized) {
           if (this._timePassed !== 0) {
             if (this._autoSize && this._autoSize.enabled) {

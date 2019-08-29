@@ -24,9 +24,9 @@ export default class SceneNorm extends Scene {
   }
 
   _getViewportByCam(cam) {
-    const hw = this.engine._output.width / 2;
-    const hh = this.engine._output.height / 2;
-    const scale = this.engine._output.ratio > 1 ? hw : hh;
+    const hw = this.engine.getWidth() / 2;
+    const hh = this.engine.getHeight() / 2;
+    const scale = this.engine.getRatio() > 1 ? hw : hh;
     return new Transform()
       .translate(hw, hh)
       .scale(scale, scale)

@@ -6,9 +6,9 @@ import ifNull from "../func/ifnull.mjs";
 class Scene {
   constructor(configurationClassOrObject) {
     if (typeof configurationClassOrObject === "function") {
-      this.configuration = new configurationClassOrObject();
+      this._configuration = new configurationClassOrObject();
     } else {
-      this.configuration = configurationClassOrObject;
+      this._configuration = configurationClassOrObject;
     }
 
     // Layer consists of Sprites
@@ -20,13 +20,13 @@ class Scene {
     this.initDone = false;
     this.additionalModifier = undefined;
 
-    this.tickChunk = ifNull(calc(this.configuration.tickChunk), 100 / 6);
+    this.tickChunk = ifNull(calc(this._configuration.tickChunk), 100 / 6);
     this.maxSkippedTickChunk = ifNull(
-      calc(this.configuration.maxSkippedTickChunk),
+      calc(this._configuration.maxSkippedTickChunk),
       3
     );
     this.tickChunkTolerance = ifNull(
-      calc(this.configuration.tickChunkTolerance),
+      calc(this._configuration.tickChunkTolerance),
       0.1
     );
   }
@@ -47,7 +47,7 @@ class Scene {
   }
 
   shiftTime(timePassed) {
-    if (!this.configuration.fixedUpdate) {
+    if (!this._configuration.fixedUpdate) {
       return 0;
     }
     return -(timePassed % this.tickChunk);
@@ -56,13 +56,13 @@ class Scene {
   callInit(output, parameter, engine) {
     this.engine = engine;
     this.resize(output);
-    const images = calc(this.configuration.images);
+    const images = calc(this._configuration.images);
     if (images) {
       ImageManager.add(images);
     }
     Promise.resolve(
-      this.configuration.init &&
-        this.configuration.init({
+      this._configuration.init &&
+        this._configuration.init({
           engine,
           output,
           scene: this,
@@ -97,15 +97,15 @@ class Scene {
 
   destroy(output) {
     const parameter =
-      this.configuration.destroy &&
-      this.configuration.destroy({ engine: this.engine, scene: this, output });
+      this._configuration.destroy &&
+      this._configuration.destroy({ engine: this.engine, scene: this, output });
     this.initDone = false;
     return parameter;
   }
 
   loadingScreen(output, progress) {
-    if (this.configuration.loading) {
-      return this.configuration.loading({
+    if (this._configuration.loading) {
+      return this._configuration.loading({
         engine: this.engine,
         scene: this,
         output,
@@ -142,8 +142,6 @@ class Scene {
       10 + Math.random() * 3,
       output.height - 10 + Math.random() * 3
     );
-
-    this.engine && this.engine.normalizeContext(ctx);
   }
 
   callLoading(output) {
@@ -159,8 +157,8 @@ class Scene {
   }
 
   fixedUpdate(output, timePassed) {
-    if (this.configuration.fixedUpdate) {
-      this.configuration.fixedUpdate({
+    if (this._configuration.fixedUpdate) {
+      this._configuration.fixedUpdate({
         engine: this.engine,
         scene: this,
         layerManager: this.layerManager,
@@ -181,15 +179,15 @@ class Scene {
       this.reset(output);
       timePassed = this.totalTimePassed;
     } else if (
-      this.configuration.endTime &&
-      this.configuration.endTime <= this.totalTimePassed
+      this._configuration.endTime &&
+      this._configuration.endTime <= this.totalTimePassed
     ) {
       // set timepassed to match endtime
-      timePassed -= this.totalTimePassed - this.configuration.endTime;
-      this.totalTimePassed = this.configuration.endTime;
+      timePassed -= this.totalTimePassed - this._configuration.endTime;
+      this.totalTimePassed = this._configuration.endTime;
       // End Engine
-      this.configuration.end &&
-        this.configuration.end({
+      this._configuration.end &&
+        this._configuration.end({
           engine: this.engine,
           scene: this,
           output,
@@ -217,8 +215,8 @@ class Scene {
       this.fixedUpdate(output, timePassed, true);
     }
 
-    if (this.configuration.update) {
-      this.configuration.update({
+    if (this._configuration.update) {
+      this._configuration.update({
         engine: this.engine,
         scene: this,
         layerManager: this.layerManager,
@@ -259,8 +257,8 @@ class Scene {
   }
 
   reset(output) {
-    let result = this.configuration.reset
-      ? this.configuration.reset({
+    let result = this._configuration.reset
+      ? this._configuration.reset({
           engine: this.engine,
           scene: this,
           layerManager: this.layerManager,

@@ -8,7 +8,7 @@ class Text extends Circle {
   getParameterList() {
     return Object.assign({}, super.getParameterList(), {
       text: undefined,
-      font: '26px monospace',
+      font: '1em monospace',
       position: Text.CENTER,
       color: undefined,
       borderColor: undefined,
@@ -22,7 +22,7 @@ class Text extends Circle {
       context.globalCompositeOperation = this.compositeOperation;
       context.globalAlpha = this.alpha * additionalModifier.alpha;
       context.save();
-      if (Text.LEFT_TOP) {
+      if (!this.position) {
         context.textAlign = 'left';
         context.textBaseline = 'top';
       }

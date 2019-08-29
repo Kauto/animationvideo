@@ -6,7 +6,7 @@ export default class SceneAudio extends Scene {
     this.audioStartTime = null;
     this.audioPosition = null;
     this.enableAndroidHack = false;
-    this.audioElement = this.configuration.audioElement;
+    this.audioElement = this._configuration.audioElement;
   }
 
   currentTime() {
@@ -99,8 +99,8 @@ export default class SceneAudio extends Scene {
         if (playPromise) {
           playPromise.catch(e => {});
         }
-        if (!this.configuration.endTime) {
-          this.configuration.endTime = this.audioElement.duration * 1000;
+        if (!this._configuration.endTime) {
+          this._configuration.endTime = this.audioElement.duration * 1000;
         }
         this.loadingScreen(output, "Click to play");
       }
