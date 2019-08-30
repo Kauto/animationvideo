@@ -311,10 +311,6 @@ const engine = new Engine({
     registerVisibilityEvents: true,
     // sets canvas width and height by setting the style attribute of the canvas
     setCanvasStyle: false,
-    // if false it will measure the time between frames to determine the autosize
-    // if true it will measure the time for the frame itself. It measures only 
-    // the time for moving and drawing of objects.
-    measureFrame: false,
     // start values for the waitTime and the offsetTime
     currentWaitedTime: 0,
     currentOffsetTime: 0

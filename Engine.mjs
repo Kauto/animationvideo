@@ -70,8 +70,7 @@ class Engine {
         offsetTimeDelta: 3,
         registerResizeEvents: true,
         registerVisibilityEvents: true,
-        setCanvasStyle: false,
-        measureFrame: false
+        setCanvasStyle: false
       };
       if (typeof options.autoSize === "object") {
         this._autoSize = Object.assign(
@@ -207,7 +206,10 @@ class Engine {
         mainLoop.bind(this)
       );
 
-      if (this._recalculateCanvas && !(this._reduceFramerate && this._isOddFrame)) {
+      if (
+        this._recalculateCanvas &&
+        !(this._reduceFramerate && this._isOddFrame)
+      ) {
         this.recalculateCanvas();
         this._recalculateCanvas = false;
       }
@@ -256,18 +258,22 @@ class Engine {
               this._scene.draw(this._output);
 
               if (this._autoSize && this._autoSize.enabled) {
-                const deltaTimestamp = timestamp - this._realLastTimestamp;
-                const delta =
-                  (this._autoSize.measureFrame || !deltaTimestamp
-                    ? this._now() - nowAutoSize
-                    : deltaTimestamp) -
-                  this._autoSize.offsetTimeTarget *
-                    (this._reduceFramerate ? 2 : 1);
+                const deltaTimestamp =
+                  timestamp - this._realLastTimestamp - targetTime;
+
                 if (
                   this._autoSize.currentWaitedTime < this._autoSize.waitTime
                 ) {
                   this._autoSize.currentWaitedTime += deltaTimestamp;
                 } else {
+                  const targetTime =
+                    this._autoSize.offsetTimeTarget *
+                    (this._reduceFramerate ? 2 : 1);
+                  const deltaFrame = this._now() - nowAutoSize - targetTime;
+                  const delta =
+                    Math.abs(deltaTimestamp) > Math.abs(deltaFrame)
+                      ? deltaTimestamp
+                      : deltaFrame;
                   if (Math.abs(delta) <= this._autoSize.offsetTimeDelta) {
                     this._autoSize.currentOffsetTime =
                       this._autoSize.currentOffsetTime >= 0
