@@ -259,7 +259,7 @@ class Engine {
 
               if (this._autoSize && this._autoSize.enabled) {
                 const deltaTimestamp =
-                  timestamp - this._realLastTimestamp - targetTime;
+                  timestamp - this._realLastTimestamp;
 
                 if (
                   this._autoSize.currentWaitedTime < this._autoSize.waitTime
@@ -269,11 +269,11 @@ class Engine {
                   const targetTime =
                     this._autoSize.offsetTimeTarget *
                     (this._reduceFramerate ? 2 : 1);
-                  const deltaFrame = this._now() - nowAutoSize - targetTime;
+                  const deltaFrame = this._now() - nowAutoSize;
                   const delta =
-                    Math.abs(deltaTimestamp) > Math.abs(deltaFrame)
+                    (Math.abs(deltaTimestamp - targetTime) > Math.abs(deltaFrame - targetTime)
                       ? deltaTimestamp
-                      : deltaFrame;
+                      : deltaFrame) - targetTime;
                   if (Math.abs(delta) <= this._autoSize.offsetTimeDelta) {
                     this._autoSize.currentOffsetTime =
                       this._autoSize.currentOffsetTime >= 0
