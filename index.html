@@ -657,8 +657,9 @@
       }
     );
     var engineNorm = new AnimationVideo.Engine({
+      reduceFramerate: true,
       canvas: document.getElementById("canvasNorm"),
-      autoSize: { setCanvasStyle: true }
+      autoSize: { setCanvasStyle: true, currentScale: 4}
     })
       .switchScene(sceneNorm)
       .run();

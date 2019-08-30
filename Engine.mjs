@@ -15,12 +15,14 @@ class Engine {
     }
     let options = Object.assign(
       {},
+      /* undefined is falsy - saves a few bytes
       {
         scene: null,
         canvas: null,
         autoSize: false,
-        clickToPlayAudio: false
-      },
+        clickToPlayAudio: false,
+        reduceFramerate: false
+      }, */
       givenOptions
     );
 
@@ -49,15 +51,6 @@ class Engine {
 
     // data about the output canvas
     this._output.canvas = options.canvas;
-    if (
-      !(
-        typeof options.canvas === "object" &&
-        options.canvas !== null &&
-        options.canvas.getContext
-      )
-    ) {
-      throw new Error("Countn't create contect for canvas in Engine");
-    }
 
     if (options.autoSize) {
       const defaultAutoSizeSettings = {
@@ -77,7 +70,8 @@ class Engine {
         offsetTimeDelta: 3,
         registerResizeEvents: true,
         registerVisibilityEvents: true,
-        setCanvasStyle: false
+        setCanvasStyle: false,
+        measureFrame: false
       };
       if (typeof options.autoSize === "object") {
         this._autoSize = Object.assign(
@@ -122,6 +116,11 @@ class Engine {
         false
       );
     }
+
+    this._reduceFramerate = options.reduceFramerate;
+    // not needed because undefined is falsy
+    // this._isOddFrame = true
+
     this.switchScene(options.scene);
   }
 
@@ -161,8 +160,12 @@ class Engine {
       if (width <= 0 || height <= 0) {
         return;
       }
-      this._output.canvas.width = Math.round(width / this._autoSize.currentScale);
-      this._output.canvas.height = Math.round(height / this._autoSize.currentScale);
+      this._output.canvas.width = Math.round(
+        width / this._autoSize.currentScale
+      );
+      this._output.canvas.height = Math.round(
+        height / this._autoSize.currentScale
+      );
       if (this._autoSize.setCanvasStyle) {
         this._output.canvas.style.width = `${width}px`;
         this._output.canvas.style.height = `${height}px`;
@@ -193,6 +196,9 @@ class Engine {
     return this;
   }
 
+  _now() {
+    return window.performance ? performance.now() : Date.now();
+  }
   run(initParameter) {
     initParameter = initParameter || {};
 
@@ -222,96 +228,104 @@ class Engine {
       }
 
       if (this._scene && this._output.canvas.width) {
-        let now = this._scene.currentTime();
+        if (this._reduceFramerate) {
+          this._isOddFrame = !this._isOddFrame;
+        }
+        if (!this._reduceFramerate || this._isOddFrame) {
+          let now = this._scene.currentTime();
 
-        // modify time by scene
-        // first set a min/max
-        this._timePassed = this._scene.clampTime(now - this._lastTimestamp);
-        // then maybe shift to fit a framerate
-        const shiftTime = this._scene.shiftTime(this._timePassed);
-        this._timePassed = this._timePassed + shiftTime;
-        this._lastTimestamp = now + shiftTime;
+          // modify time by scene
+          // first set a min/max
+          this._timePassed = this._scene.clampTime(now - this._lastTimestamp);
+          // then maybe shift to fit a framerate
+          const shiftTime = this._scene.shiftTime(this._timePassed);
+          this._timePassed = this._timePassed + shiftTime;
+          this._lastTimestamp = now + shiftTime;
 
-        this._normalizeContext(this._output.context);
-        if (this._isSceneInitialized) {
-          if (this._timePassed !== 0) {
-            if (this._autoSize && this._autoSize.enabled) {
-              now = window.performance ? performance.now() : Date.now();
-            }
+          this._normalizeContext(this._output.context);
+          if (this._isSceneInitialized) {
+            if (this._timePassed !== 0) {
+              const nowAutoSize = this._now();
+              this._scene.move(this._output, this._timePassed);
 
-            this._scene.move(this._output, this._timePassed);
+              // if timepassed is negativ scene will do a reset. timepassed have to be the full new time
+              if (this._timePassed < 0) {
+                this._timePassed = this._scene.totalTimePassed;
+              }
 
-            // if timepassed is negativ scene will do a reset. timepassed have to be the full new time
-            if (this._timePassed < 0) {
-              this._timePassed = this._scene.totalTimePassed;
-            }
+              this._scene.draw(this._output);
 
-            this._scene.draw(this._output);
-
-            if (this._autoSize && this._autoSize.enabled) {
-              const delta =
-                (window.performance ? performance.now() : Date.now()) -
-                now -
-                this._autoSize.offsetTimeTarget;
-              if (this._autoSize.currentWaitedTime < this._autoSize.waitTime) {
-                this._autoSize.currentWaitedTime +=
-                  timestamp - this._realLastTimestamp;
-              } else {
-                if (Math.abs(delta) <= this._autoSize.offsetTimeDelta) {
-                  this._autoSize.currentOffsetTime =
-                    this._autoSize.currentOffsetTime >= 0
-                      ? Math.max(
-                          0,
-                          this._autoSize.currentOffsetTime -
-                            this._autoSize.offsetTimeDelta
-                        )
-                      : Math.min(
-                          0,
-                          this._autoSize.currentOffsetTime +
-                            this._autoSize.offsetTimeDelta
-                        );
+              if (this._autoSize && this._autoSize.enabled) {
+                const deltaTimestamp = timestamp - this._realLastTimestamp;
+                const delta =
+                  (this._autoSize.measureFrame || !deltaTimestamp
+                    ? this._now() - nowAutoSize
+                    : deltaTimestamp) -
+                  this._autoSize.offsetTimeTarget *
+                    (this._reduceFramerate ? 2 : 1);
+                if (
+                  this._autoSize.currentWaitedTime < this._autoSize.waitTime
+                ) {
+                  this._autoSize.currentWaitedTime += deltaTimestamp;
                 } else {
-                  if (
-                    delta < 0 &&
-                    this._autoSize.currentScale > this._autoSize.scaleLimitMin
-                  ) {
-                    this._autoSize.currentOffsetTime += delta;
+                  if (Math.abs(delta) <= this._autoSize.offsetTimeDelta) {
+                    this._autoSize.currentOffsetTime =
+                      this._autoSize.currentOffsetTime >= 0
+                        ? Math.max(
+                            0,
+                            this._autoSize.currentOffsetTime -
+                              this._autoSize.offsetTimeDelta
+                          )
+                        : Math.min(
+                            0,
+                            this._autoSize.currentOffsetTime +
+                              this._autoSize.offsetTimeDelta
+                          );
+                  } else {
                     if (
-                      this._autoSize.currentOffsetTime <=
-                      this._autoSize.offsetTimeLimitDown
+                      delta < 0 &&
+                      this._autoSize.currentScale > this._autoSize.scaleLimitMin
                     ) {
-                      this._autoSize.currentScale = Math.max(
-                        this._autoSize.scaleLimitMin,
-                        this._autoSize.currentScale / this._autoSize.scaleFactor
-                      );
-                      this._recalculateCanvas = true;
-                    }
-                  } else if (
-                    delta > 0 &&
-                    this._autoSize.currentScale < this._autoSize.scaleLimitMax
-                  ) {
-                    this._autoSize.currentOffsetTime += delta;
-                    if (
-                      this._autoSize.currentOffsetTime >=
-                      this._autoSize.offsetTimeLimitUp
+                      this._autoSize.currentOffsetTime += delta;
+                      if (
+                        this._autoSize.currentOffsetTime <=
+                        -this._autoSize.offsetTimeLimitDown
+                      ) {
+                        this._autoSize.currentScale = Math.max(
+                          this._autoSize.scaleLimitMin,
+                          this._autoSize.currentScale /
+                            this._autoSize.scaleFactor
+                        );
+                        this._recalculateCanvas = true;
+                      }
+                    } else if (
+                      delta > 0 &&
+                      this._autoSize.currentScale < this._autoSize.scaleLimitMax
                     ) {
-                      this._autoSize.currentScale = Math.min(
-                        this._autoSize.scaleLimitMax,
-                        this._autoSize.currentScale * this._autoSize.scaleFactor
-                      );
-                      this._recalculateCanvas = true;
+                      this._autoSize.currentOffsetTime += delta;
+                      if (
+                        this._autoSize.currentOffsetTime >=
+                        this._autoSize.offsetTimeLimitUp
+                      ) {
+                        this._autoSize.currentScale = Math.min(
+                          this._autoSize.scaleLimitMax,
+                          this._autoSize.currentScale *
+                            this._autoSize.scaleFactor
+                        );
+                        this._recalculateCanvas = true;
+                      }
                     }
                   }
                 }
               }
             }
-          }
-        } else {
-          this._isSceneInitialized = this._scene.callLoading(this._output);
-          if (this._isSceneInitialized) {
-            this._scene.reset(this._output);
-            if (this._autoSize) {
-              this._autoSize.currentWaitedTime = 0;
+          } else {
+            this._isSceneInitialized = this._scene.callLoading(this._output);
+            if (this._isSceneInitialized) {
+              this._scene.reset(this._output);
+              if (this._autoSize) {
+                this._autoSize.currentWaitedTime = 0;
+              }
             }
           }
         }
@@ -331,7 +345,7 @@ class Engine {
     this._referenceRequestAnimationFrame &&
       window.cancelAnimationFrame(this._referenceRequestAnimationFrame);
     this._referenceRequestAnimationFrame = null;
-    this._scene && this._scene.destroy(this._output)
+    this._scene && this._scene.destroy(this._output);
     window.removeEventListener(
       "resize",
       this.recalculateCanvas.bind(this),

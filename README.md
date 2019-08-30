@@ -16,29 +16,61 @@ or in the **index.html**.
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [Installation](#installation)
 - [General overview](#general-overview)
-  - [How to import](#how-to-import)
-  - [Example](#example)
-  - [Engine](#engine)
-    - [Constructor-option "autoSize"](#constructor-option-autosize)
-    - [Commands](#commands)
-  - [Scenes](#scenes)
-    - [Default](#default)
-      - [Layers](#layers)
-    - [Norm](#norm)
-    - [Audio](#audio)
-    - [NormAudio](#normaudio)
-  - [Sprites](#sprites)
-    - [Image](#image)
-    - [Rect](#rect)
-    - [Circle](#circle)
-    - [Path](#path)
-    - [Text](#text)
-    - [Callback](#callback)
-    - [FastBlur](#fastblur)
-    - [StarField](#starfield)
-    - [Group](#group)
+    - [How to import](#how-to-import)
+    - [Example](#example)
+    - [Engine](#engine)
+        - [Constructor-option "autoSize"](#constructor-option-autosize)
+        - [Commands](#commands)
+    - [Scenes](#scenes)
+        - [Default](#default)
+            - [Layers](#layers)
+        - [Norm](#norm)
+        - [Audio](#audio)
+        - [NormAudio](#normaudio)
+        - [NormCamera](#normcamera)
+    - [Sprites](#sprites)
+        - [Image](#image)
+        - [Rect](#rect)
+        - [Circle](#circle)
+        - [Path](#path)
+        - [Text](#text)
+        - [Callback](#callback)
+        - [FastBlur](#fastblur)
+        - [StarField](#starfield)
+        - [Group](#group)
+        - [Canvas](#canvas)
+        - [Particle](#particle)
+        - [Emitter](#emitter)
+        - [Scroller](#scroller)
+        - [StackBlur](#stackblur)
+        - [StackBlurCanvas](#stackblurcanvas)
+    - [Animations](#animations)
+        - [Sequence](#sequence)
+            - [Labels](#labels)
+        - [Loop](#loop)
+        - [Forever](#forever)
+        - [State](#state)
+        - [Wait](#wait)
+        - [WaitDisabled](#waitdisabled)
+        - [ChangeTo](#changeto)
+        - [Move](#move)
+        - [Image](#image-1)
+        - [ImageFrame](#imageframe)
+        - [Shake](#shake)
+        - [Callback](#callback-1)
+        - [If](#if)
+        - [Once](#once)
+        - [ShowOnce](#showonce)
+        - [End](#end)
+        - [EndDisabled](#enddisabled)
+        - [Remove](#remove)
+        - [Stop](#stop)
+        - [StopDisabled](#stopdisabled)
+- [TODO](#todo)
+- [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -226,7 +258,11 @@ const engine = new Engine({
   // the canvas that is used by AnimationVideo
   canvas: null,
   // click event will be added to the canvas and send to an audio-scene
-  clickToPlayAudio: false
+  clickToPlayAudio: false,
+  // render only every second frame
+  // this is intended for mobile to save energy and prevent heating
+  // you could combine this with https://github.com/juliangruber/is-mobile
+  reduceFramerate: false,
   // the current scene
   scene: null,
 });
@@ -275,6 +311,10 @@ const engine = new Engine({
     registerVisibilityEvents: true,
     // sets canvas width and height by setting the style attribute of the canvas
     setCanvasStyle: false,
+    // if false it will measure the time between frames to determine the autosize
+    // if true it will measure the time for the frame itself. It measures only 
+    // the time for moving and drawing of objects.
+    measureFrame: false,
     // start values for the waitTime and the offsetTime
     currentWaitedTime: 0,
     currentOffsetTime: 0
@@ -1339,9 +1379,9 @@ new Engine({
 
 # TODO
 
-- half fps feature to cool down mobile
+- more readme
 - more tests
-- debug error messages in console log
+- helper function for NormCamera to zoom into a rectangle to make it completely visible (zoomTo(x1,y1,x2,y2))
 
 # License
 
