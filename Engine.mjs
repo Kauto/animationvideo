@@ -207,7 +207,7 @@ class Engine {
         mainLoop.bind(this)
       );
 
-      if (this._recalculateCanvas) {
+      if (this._recalculateCanvas && !(this._reduceFramerate && this._isOddFrame)) {
         this.recalculateCanvas();
         this._recalculateCanvas = false;
       }
