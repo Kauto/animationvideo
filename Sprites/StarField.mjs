@@ -136,6 +136,8 @@ export default class StarField extends Rect {
     return ret;
   }
 
+  resize(context, additionalModifier){}
+
   // Draw-Funktion
   draw(context, additionalModifier) {
     if (this.enabled) {

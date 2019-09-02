@@ -49,6 +49,10 @@ export default class SceneNormCamera extends SceneNorm {
     };
   }
 
+  camTween(tween) {
+    this.camConfig.tween = tween;
+  }
+
   callInit(output, parameter, engine) {
     if (this.camConfig.registerEvents) {
       this.registerCamEvents(output.canvas);
@@ -171,15 +175,15 @@ export default class SceneNormCamera extends SceneNorm {
         if (this._mousePos.doubleClickTimer) {
           clearTimeout(this._mousePos.doubleClickTimer);
           this._mousePos.doubleClickTimer = undefined;
-          this._configuration.doubleClick(e, x, y);
+          this._configuration.doubleClick({ event: e, x, y, scene: this });
         } else {
           this._mousePos.doubleClickTimer = setTimeout(() => {
             this._mousePos.doubleClickTimer = undefined;
-            this._configuration.click(e, x, y);
-          }, this._configuration.doubleClickDetectInterval);
+            this._configuration.click({ event: e, x, y, scene: this });
+          }, this.camConfig.doubleClickDetectInterval);
         }
       } else {
-        this._configuration.click(e, x, y);
+        this._configuration.click({ event: e, x, y, scene: this });
       }
     }
   }
@@ -206,7 +210,7 @@ export default class SceneNormCamera extends SceneNorm {
             this.camConfig.zoomMin,
             Math.min(
               this.camConfig.zoomMax,
-              this._mousePos._czoom * distance / this._mousePos._distance
+              (this._mousePos._czoom * distance) / this._mousePos._distance
             )
           );
           this.clampView();
@@ -259,6 +263,26 @@ export default class SceneNormCamera extends SceneNorm {
       this.toCam.zoom / this.camConfig.zoomFactor
     );
     this.clampView();
+  }
+  zoomTo(x1, y1, x2, y2) {
+    const invert = this._getViewportByCam(this.toCam).invert();
+    const [sx1, sy1] = invert.transformPoint(0, 0);
+    const [sx2, sy2] = invert.transformPoint(
+      this.engine.getWidth(),
+      this.engine.getHeight()
+    );
+    const sw = sx2 - sx1;
+    const sh = sy2 - sy1;
+    const w = x2 - x1;
+    const h = y2 - y1;
+    const mx = x1 + w / 2;
+    const my = y1 + h / 2;
+    const zoomX = sw / w;
+    const zoomY = sh / h;
+    this.toCam.x = mx;
+    this.toCam.y = my;
+    this.toCam.zoom =
+      this.toCam.zoom * Math.max(Math.min(zoomX, zoomY), Number.MIN_VALUE);
   }
 
   clampView = function() {

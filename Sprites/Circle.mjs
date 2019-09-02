@@ -42,16 +42,32 @@ export default class Circle {
       // rotation
       rotation: (value, givenParameter) => {
         return ifNull(
-          value,
+          calc(value),
           ifNull(
-            givenParameter.rotationInRadian,
-            ifNull(givenParameter.rotationInDegree, 0) * degToRad
+            calc(givenParameter.rotationInRadian),
+            ifNull(calc(givenParameter.rotationInDegree), 0) * degToRad
           )
         );
       },
       // scalling
-      scaleX: 1.,
-      scaleY: 1.,
+      scaleX: (value, givenParameter) => {
+        return ifNull(
+          calc(value),
+          ifNull(
+            calc(givenParameter.scale),
+            1.
+          )
+        );
+      },
+      scaleY: (value, givenParameter) => {
+        return ifNull(
+          calc(value),
+          ifNull(
+            calc(givenParameter.scale),
+            1.
+          )
+        );
+      },
       // alpha
       alpha: 1.,
       // blending

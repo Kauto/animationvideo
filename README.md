@@ -1318,6 +1318,42 @@ new Engine({
 ```
 
 ### Canvas
+Creates a new Canvas and renders sprites on top of it. For pre-rendering and feedback effects.
+
+```js
+import Engine from "animationvideo/Engine.mjs";
+import SceneDefault from "animationvideo/Scenes/Default.mjs";
+import SpriteCanvas from "animationvideo/Sprites/Canvas.mjs";
+
+new Engine({
+  canvas: document.querySelector("canvas"),
+  scene: new SceneDefault({
+    reset() {
+      return [
+        [
+          new SpriteCanvas({
+            // the sprites that will be rendered inside
+            // f.e. [ new Rect({...}), new Image({...})]
+            sprite: [],
+            enabled: true,
+            x: undefined, // Position - default upper left corner
+            y: undefined,
+            width: undefined,
+            height: undefined,
+            norm: false, // is true by default if x,y,width and height are undefined. Set the size of the canvas to the original canvas size
+            scaleX: 1, // the scalled internal size of the canvas. F.e. if scaleX and scaleY is 2 then the the internal
+            scaleY: 1, // canvas has half of the size of the original canvas
+            gridSize: undefined, // if defined overrides scaleX and scaleY. The internal width and height of the canvas.
+            rotation: 0, // rotation in radian. Use rotationInDegree to give values in degree
+            alpha: 1, // transparency
+            compositeOperation: "source-over",
+            animation: undefined // in the animation you can even morph the path with ChangeTo!
+          })
+        ]
+      ];
+    }
+  })
+}).run();
 
 ### Particle
 

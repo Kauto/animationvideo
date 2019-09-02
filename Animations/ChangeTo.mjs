@@ -1,6 +1,6 @@
-import calc from '../func/calc.mjs';
-import ifNull from '../func/ifnull.mjs';
-import Color from 'color';
+import calc from "../func/calc.mjs";
+import ifNull from "../func/ifnull.mjs";
+import Color from "color";
 
 const degToRad = 0.017453292519943295; //Math.PI / 180;
 
@@ -27,40 +27,52 @@ function moveColor(progress, data, sprite) {
 }
 
 function movePath(progress, data, sprite) {
-  return sprite.changeToPath(progress, data, sprite)
+  return sprite.changeToPath(progress, data, sprite);
 }
 
 // to values of a object
 export default class ChangeTo {
-
   constructor(changeValues, duration, ease) {
     this.initialized = false;
     this.changeValues = [];
     for (let k in changeValues) {
       const orgValue = changeValues[k];
-      const value = k === "rotationInDegree" ?  orgValue * degToRad : orgValue;
-      const name = k === "rotationInRadian" || k === "rotationInDegree" ? "rotation" : k;
-      const isColor = k === 'color';
-      const isPath = k === 'path';
-      const isFunction = typeof value === 'function';
+      const value = k === "rotationInDegree" ? orgValue * degToRad : orgValue;
+      const isColor = k === "color";
+      const isPath = k === "path";
+      const isFunction = typeof value === "function";
       const isBezier = !isColor && Array.isArray(value);
-      this.changeValues.push({
-        name,
-        to: isBezier ? value[value.length - 1] : calc(value, 1, {}),
-        bezier: isBezier ? value : false,
-        isColor,
-        isPath,
-        isFunction: isFunction ? value : false,
-        moveAlgorithm: isColor ? moveColor : isPath ? movePath : isBezier ? moveBezier : moveDefault
-      });
+      const names =
+        k === "scale"
+          ? ["scaleX", "scaleY"]
+          : k === "rotationInRadian" || k === "rotationInDegree"
+          ? ["rotation"]
+          : [k];
+      for (const name of names) {
+        this.changeValues.push({
+          name,
+          to: isBezier ? value[value.length - 1] : calc(value, 1, {}),
+          bezier: isBezier ? value : false,
+          isColor,
+          isPath,
+          isFunction: isFunction ? value : false,
+          moveAlgorithm: isColor
+            ? moveColor
+            : isPath
+            ? movePath
+            : isBezier
+            ? moveBezier
+            : moveDefault
+        });
+      }
     }
     this.duration = ifNull(calc(duration), 0);
-    this.ease = ifNull(ease, (t)=>t);
+    this.ease = ifNull(ease, t => t);
   }
 
   reset() {
     this.initialized = false;
-  };
+  }
 
   init(sprite, time) {
     var l = this.changeValues.length,
@@ -75,10 +87,12 @@ export default class ChangeTo {
           data.colorTo = Color(data.to);
           data.moveAlgorithm = moveColor;
         } else if (data.isPath) {
-          [data.pathFrom, data.pathTo] = sprite.changeToPathInit(data.from, data.to);
+          [data.pathFrom, data.pathTo] = sprite.changeToPathInit(
+            data.from,
+            data.to
+          );
           data.moveAlgorithm = movePath;
-        }
-        else if (Array.isArray(data.to)) {
+        } else if (Array.isArray(data.to)) {
           data.values = [sprite[data.name], ...data.to];
           data.moveAlgorithm = moveBezier;
         } else {
@@ -89,7 +103,10 @@ export default class ChangeTo {
         data.colorFrom = Color(sprite[data.name]);
         data.colorTo = Color(data.to);
       } else if (data.isPath) {
-        [data.pathFrom, data.pathTo] = sprite.changeToPathInit(sprite[data.name], data.to);
+        [data.pathFrom, data.pathTo] = sprite.changeToPathInit(
+          sprite[data.name],
+          data.to
+        );
       } else if (data.bezier) {
         data.values = [sprite[data.name], ...data.bezier];
       } else {
@@ -97,7 +114,7 @@ export default class ChangeTo {
         data.delta = data.to - data.from;
       }
     }
-  };
+  }
 
   run(sprite, time) {
     if (!this.initialized) {
