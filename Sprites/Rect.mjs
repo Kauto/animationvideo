@@ -51,10 +51,10 @@ export default class Rect extends Circle {
   // Draw-Funktion
   draw(context, additionalModifier) {
     if (this.enabled) {
-      if (!this.width) {
+      if (this.width === undefined) {
         this.width = additionalModifier.width;
       }
-      if (!this.height) {
+      if (this.height === undefined) {
         this.height = additionalModifier.height;
       }
       if (this.x === undefined) {

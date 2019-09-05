@@ -8,6 +8,7 @@ AnimationVideo is a javascript library to animate objects inside a canvas. The a
 - [Zoom with gloom](https://codesandbox.io/s/quirky-ives-hwqqb?fontsize=14)
 - [Follow mouse move and feedback effect](https://codesandbox.io/s/infallible-wildflower-w3uo7?fontsize=14)
 - [Mouse controls to move and zoom](https://codesandbox.io/s/thirsty-https-v26ff?fontsize=14)
+- [Mouse zoom and mark regions](https://codesandbox.io/s/funny-williams-fhgx6?fontsize=14)
 
 or in the **index.html**.
 
@@ -16,59 +17,58 @@ or in the **index.html**.
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
 - [Installation](#installation)
 - [General overview](#general-overview)
-    - [How to import](#how-to-import)
-    - [Example](#example)
-    - [Engine](#engine)
-        - [Constructor-option "autoSize"](#constructor-option-autosize)
-        - [Commands](#commands)
-    - [Scenes](#scenes)
-        - [Default](#default)
-            - [Layers](#layers)
-        - [Norm](#norm)
-        - [Audio](#audio)
-        - [NormAudio](#normaudio)
-        - [NormCamera](#normcamera)
-    - [Sprites](#sprites)
-        - [Image](#image)
-        - [Rect](#rect)
-        - [Circle](#circle)
-        - [Path](#path)
-        - [Text](#text)
-        - [Callback](#callback)
-        - [FastBlur](#fastblur)
-        - [StarField](#starfield)
-        - [Group](#group)
-        - [Canvas](#canvas)
-        - [Particle](#particle)
-        - [Emitter](#emitter)
-        - [Scroller](#scroller)
-        - [StackBlur](#stackblur)
-        - [StackBlurCanvas](#stackblurcanvas)
-    - [Animations](#animations)
-        - [Sequence](#sequence)
-            - [Labels](#labels)
-        - [Loop](#loop)
-        - [Forever](#forever)
-        - [State](#state)
-        - [Wait](#wait)
-        - [WaitDisabled](#waitdisabled)
-        - [ChangeTo](#changeto)
-        - [Move](#move)
-        - [Image](#image-1)
-        - [ImageFrame](#imageframe)
-        - [Shake](#shake)
-        - [Callback](#callback-1)
-        - [If](#if)
-        - [Once](#once)
-        - [ShowOnce](#showonce)
-        - [End](#end)
-        - [EndDisabled](#enddisabled)
-        - [Remove](#remove)
-        - [Stop](#stop)
-        - [StopDisabled](#stopdisabled)
+  - [How to import](#how-to-import)
+  - [Example](#example)
+  - [Engine](#engine)
+    - [Constructor-option "autoSize"](#constructor-option-autosize)
+    - [Commands](#commands)
+  - [Scenes](#scenes)
+    - [Default](#default)
+      - [Layers](#layers)
+    - [Norm](#norm)
+    - [Audio](#audio)
+    - [NormAudio](#normaudio)
+    - [NormCamera](#normcamera)
+  - [Sprites](#sprites)
+    - [Image](#image)
+    - [Rect](#rect)
+    - [Circle](#circle)
+    - [Path](#path)
+    - [Text](#text)
+    - [Callback](#callback)
+    - [FastBlur](#fastblur)
+    - [StarField](#starfield)
+    - [Group](#group)
+    - [Canvas](#canvas)
+    - [Particle](#particle)
+    - [Emitter](#emitter)
+    - [Scroller](#scroller)
+    - [StackBlur](#stackblur)
+    - [StackBlurCanvas](#stackblurcanvas)
+  - [Animations](#animations)
+    - [Sequence](#sequence)
+      - [Labels](#labels)
+    - [Loop](#loop)
+    - [Forever](#forever)
+    - [State](#state)
+    - [Wait](#wait)
+    - [WaitDisabled](#waitdisabled)
+    - [ChangeTo](#changeto)
+    - [Move](#move)
+    - [Image](#image-1)
+    - [ImageFrame](#imageframe)
+    - [Shake](#shake)
+    - [Callback](#callback-1)
+    - [If](#if)
+    - [Once](#once)
+    - [ShowOnce](#showonce)
+    - [End](#end)
+    - [EndDisabled](#enddisabled)
+    - [Remove](#remove)
+    - [Stop](#stop)
+    - [StopDisabled](#stopdisabled)
 - [TODO](#todo)
 - [License](#license)
 
@@ -243,13 +243,13 @@ new Engine({
 The Engine is the foundation of AnimationVideo that runs the system. It's a class that needs to be instantiated with `new`. The parameter is an object or a canvas.
 
 ```js
-import Engine from 'animationvideo/Engine.mjs'
+import Engine from "animationvideo/Engine.mjs";
 
 // general setup
 const engine = new Engine(canvasOrOptions);
 
 // init with canvas
-const engine = new Engine(document.querySelector('canvas'));
+const engine = new Engine(document.querySelector("canvas"));
 
 // init with object
 const engine = new Engine({
@@ -264,7 +264,7 @@ const engine = new Engine({
   // you could combine this with https://github.com/juliangruber/is-mobile
   reduceFramerate: false,
   // the current scene
-  scene: null,
+  scene: null
 });
 ```
 
@@ -989,6 +989,104 @@ This scene is similar to the [Audio](#audio)-scene. But the coordinates are diff
 
 This is a [Norm](#norm)-Scene that has controls for zooming and moving the content of the canvas with a _camera_. There is support for mobile.
 
+```js
+import "./styles.css";
+import Animationvideo from "animationvideo";
+const {
+  Engine,
+  Scenes: { NormCamera },
+  Animations: { Remove, ChangeTo },
+  Sprites: { Image, Rect },
+  Easing: { QuadOut }
+} = Animationvideo;
+
+// The Engine runs the scene "NormCamera"
+new Engine({
+  autoSize: true,
+  canvas: document.querySelector("canvas"),
+  // The Engine uses the scene "NormCamera"
+  scene: new NormCamera({
+    cam: {
+      // use alternative camera controls
+      // -> you will move the camera with second mouse button/two finger touch
+      alternative: true,
+      zoomMax: 10, // max zoom factor
+      zoomMin: 0.5, // min zoom factor
+      zoomFactor: 1.2, // scoll factor of the mouse wheel
+      tween: 4, // how fast to interpolate the new position - higher = slower
+      registerEvents: true, // let NormCamera be the mouse
+      preventDefault: true, // block all other events that are bound
+      enabled: true, // enable camera movement - with this you can lock the camera
+      callResize: true, // call the resize events of the sprites
+      doubleClickDetectInterval: 350 // how long to wait (ms) for double click detection
+    },
+    // click event
+    // x, y is in Norm-space
+    click({ event, scene, x, y }) {
+      scene.zoomTo(x - 0.2, y - 0.2, x + 0.2, y + 0.2);
+    },
+    // double click event
+    // x, y is in Norm-space
+    doubleClick({ event, scene, x, y }) {
+      scene.zoomTo(-1, -1, 1, 1);
+    },
+    // event while marking a region
+    // x1,y1 will be the upper left corner, x2,y2 the bottom right corner in Norm Space
+    // fromX, fromY is the start position of the region
+    // toX, toY is the current position of the region
+    regionMove({ event, scene, x1, y1, x2, y2, fromX, fromY, toX, toY }) {
+      this.spriteMarker.enabled = true;
+      this.spriteMarker.x = x1;
+      this.spriteMarker.y = y1;
+      this.spriteMarker.width = x2 - x1;
+      this.spriteMarker.height = y2 - y1;
+    },
+    // event after marking a region
+    // x1,y1 will be the upper left corner, x2,y2 the bottom right corner in Norm Space
+    // fromX, fromY is the start position of the region
+    // toX, toY is the current position of the region
+    region({ event, scene, x1, y1, x2, y2, fromX, fromY, toX, toY }) {
+      this.spriteMarker.enabled = false;
+      this.layerOverlay.addElement(
+        new Rect({
+          x: x1,
+          y: y1,
+          width: x2 - x1,
+          height: y2 - y1,
+          color: "#fff",
+          compositeOperation: "lighter",
+          animation: [new ChangeTo({ alpha: 0 }, 3000, QuadOut), new Remove()]
+        })
+      );
+    },
+    images() {
+      return { imageFile: "https://placekitten.com/400/400" };
+    },
+    reset({ layerManager }) {
+      layerManager.addLayer().addElement(new Rect({ clear: true }));
+      layerManager.addLayer().addElement(
+        new Image({
+          normCover: true,
+          image: "imageFile"
+        })
+      );
+      this.layerOverlay = layerManager.addLayer();
+      this.spriteMarker = this.layerOverlay.addElement(
+        new Rect({
+          enabled: false,
+          color: "#fff",
+          norm: false,
+          compositeOperation: "difference"
+        })
+      );
+      return layerManager;
+    }
+  })
+}).run(); // start the engine
+```
+
+[Test code at codesandbox.io](https://codesandbox.io/s/funny-williams-fhgx6?fontsize=14)
+
 ## Sprites
 
 **Sprites** are the objects that are drawn on the screen. They are the main ingredient of an animation.
@@ -1105,7 +1203,7 @@ new Engine({
             enabled: true,
             x: 0, // Position
             y: 0,
-            scaleX: 1, // scalling of the cirlce
+            scaleX: 1, // scalling of the circle
             scaleY: 1,
             rotation: 0, // rotation in radian. Use rotationInDegree to give values in degree
             alpha: 1, // transparency
@@ -1234,6 +1332,43 @@ new Engine({
 
 ### FastBlur
 
+Creates a new Canvas and copies the screen on top of it. Because the new canvas is much smaller than the current one, the image will be blurred. You can use it to apply _glow_-effect or to copy the current screen to a part of the screen.
+
+```js
+import Engine from "animationvideo/Engine.mjs";
+import SceneDefault from "animationvideo/Scenes/Default.mjs";
+import SpriteFastBlur from "animationvideo/Sprites/FastBlur.mjs";
+
+new Engine({
+  canvas: document.querySelector("canvas"),
+  scene: new SceneDefault({
+    reset() {
+      return [
+        [
+          new SpriteFastBlur({
+            enabled: true,
+            x: undefined, // Position - default upper left corner
+            y: undefined,
+            width: undefined,
+            height: undefined,
+            norm: false, // is true by default if x, y, width and height are undefined. Set the size of the canvas to the original canvas size
+            scaleX: 1, // the scalled internal size of the canvas. F.e. if scaleX and scaleY is 2 then the the internal
+            scaleY: 1, // canvas has half of the size of the original canvas
+            gridSize: undefined, // if defined overrides scaleX and scaleY. The internal width and height of the canvas. Usefull for Norm-Scenes
+            alpha: 1, // transparency
+            compositeOperation: "source-over", // "lighter" will give you a glow effect
+            darker: 0, // makes the picture darker by rendering a black color with alpha over the canvas. Useful for "lighter"
+            pixel: false, // will make the image look pixelated. This can be used to create a "censored" effect
+            clear: false, // clear the screen before rendering back to the screen from the canvas
+            animation: undefined // in the animation you can even morph the path with ChangeTo!
+          })
+        ]
+      ];
+    }
+  })
+}).run();
+```
+
 ### StarField
 
 Renders moving "stars".
@@ -1318,6 +1453,7 @@ new Engine({
 ```
 
 ### Canvas
+
 Creates a new Canvas and renders sprites on top of it. For pre-rendering and feedback effects.
 
 ```js
@@ -1340,7 +1476,7 @@ new Engine({
             y: undefined,
             width: undefined,
             height: undefined,
-            norm: false, // is true by default if x,y,width and height are undefined. Set the size of the canvas to the original canvas size
+            norm: false, // is true by default if x, y, width and height are undefined. Set the size of the canvas to the original canvas size
             scaleX: 1, // the scalled internal size of the canvas. F.e. if scaleX and scaleY is 2 then the the internal
             scaleY: 1, // canvas has half of the size of the original canvas
             gridSize: undefined, // if defined overrides scaleX and scaleY. The internal width and height of the canvas.
@@ -1354,16 +1490,206 @@ new Engine({
     }
   })
 }).run();
+```
 
 ### Particle
 
+Renders a transparent colored circle on the screen. Used for particle effects.
+
+```js
+import Engine from "animationvideo/Engine.mjs";
+import SceneDefault from "animationvideo/Scenes/Default.mjs";
+import SpriteParticle from "animationvideo/Sprites/Particle.mjs";
+
+new Engine({
+  canvas: document.querySelector("canvas"),
+  scene: new SceneDefault({
+    reset() {
+      return [
+        [
+          new SpriteParticle({
+            enabled: true,
+            x: 0, // Position
+            y: 0,
+            scaleX: 1, // scalling/size of the particle
+            scaleY: 1,
+            alpha: 1, // transparency
+            compositeOperation: "source-over", // render effect. Use "lighter" to get a glow.
+            color: "#fff", // color of the particle
+            animation: undefined
+          })
+        ]
+      ];
+    }
+  })
+}).run();
+```
+
 ### Emitter
+
+Renders a number of objects at once. All parameters can be modified with a function, so you can create powerful particle effects with one (complex) call.
+
+```js
+import Engine from "animationvideo/Engine.mjs";
+import SceneDefault from "animationvideo/Scenes/Default.mjs";
+import SpriteEmitter from "animationvideo/Sprites/Emitter.mjs";
+import SpriteParticle from "animationvideo/Sprites/Particle.mjs";
+
+new Engine({
+  canvas: document.querySelector("canvas"),
+  scene: new SceneDefault({
+    reset() {
+      return [
+        [
+          new SpriteEmitter({
+            self: {
+              // parameter like in group that will be assigned to the emitter itself
+            },
+            class: SpriteParticle, // default is undefined. The sprite that should be genereated
+            count: 1, // number of sprites to generate
+            ...
+            // each parameter will be part of the generated child
+            // if the parameter is a function the index will be given
+            // f.e.
+            // color: (i)=>`RGBA($(i),255,255,1)`
+            // compositeOperation: (i) => i % 2 ? "source-over" : "lighter"
+            // animation: (i) => [
+            // i * 10,
+            // new ChangeTo...
+            // ]
+          })
+        ]
+      ];
+    }
+  })
+}).run();
+```
 
 ### Scroller
 
+Scroller is a [Emitter](#emitter) for [Text](#text). It will cut a full text in it's letters and each letter will be a [Text sprite](#text). A space will be created too but it will be disabled (enabled: false) by default.
+
+```js
+import Engine from "animationvideo/Engine.mjs";
+import SceneDefault from "animationvideo/Scenes/Default.mjs";
+import SpriteScroller from "animationvideo/Sprites/Scroller.mjs";
+
+new Engine({
+  canvas: document.querySelector("canvas"),
+  scene: new SceneDefault({
+    reset() {
+      return [
+        [
+          new SpriteScroller({
+            self: {
+              // parameter like in group that will be assigned to the scroller itself
+            },
+            text: "...", // the text that should be rendered
+            ...
+            // each other parameter will be part of the generated child
+            // if the parameter is a function the index will be given
+            // f.e.
+            // color: (i)=>`RGBA($(i),255,255,1)`
+            // compositeOperation: (i) => i % 2 ? "source-over" : "lighter"
+            // animation: (i) => [
+            // i * 10,
+            // new ChangeTo...
+            // ]
+          })
+        ]
+      ];
+    }
+  })
+}).run();
+```
+
 ### StackBlur
 
+A better but slower blur than [FastBlur](#fastblur) by [Mario Klingemann](http://incubator.quasimondo.com/processing/fast_blur_deluxe.php). Creates a new Canvas and copies the screen on top of it. Because the new canvas is much smaller than the current one, the image will be blurred. You can use it to apply _glow_-effect or to copy the current screen to a part of the screen.
+
+```js
+import Engine from "animationvideo/Engine.mjs";
+import SceneDefault from "animationvideo/Scenes/Default.mjs";
+import SpriteStackBlur from "animationvideo/Sprites/StackBlur.mjs";
+
+new Engine({
+  canvas: document.querySelector("canvas"),
+  scene: new SceneDefault({
+    reset() {
+      return [
+        [
+          new SpriteStackBlur({
+            // settings from FastBlur
+            enabled: true,
+            x: undefined, // Position - default upper left corner
+            y: undefined,
+            width: undefined,
+            height: undefined,
+            norm: false, // is true by default if x, y, width and height are undefined. Set the size of the canvas to the original canvas size
+            scaleX: 1, // the scalled internal size of the canvas. F.e. if scaleX and scaleY is 2 then the the internal
+            scaleY: 1, // canvas has half of the size of the original canvas
+            gridSize: undefined, // if defined overrides scaleX and scaleY. The internal width and height of the canvas. Usefull for Norm-Scenes
+            alpha: 1, // transparency
+            compositeOperation: "source-over", // "lighter" will give you a glow effect
+            darker: 0, // makes the picture darker by rendering a black color with alpha over the canvas. Useful for "lighter"
+            pixel: false, // will make the image look pixelated. This can be used to create a "censored" effect
+            clear: false, // clear the screen before rendering back to the screen from the canvas
+            animation: undefined, // in the animation you can even morph the path with ChangeTo!
+            // Special settings for Stackblur
+            onCanvas: false, // will override all other settings and applies the blur directly on the underlying canvas. This is a big performence gain but you will lose some possible effects
+            radius: undefined, // the radius of the blur. The more the blurier.
+            radiusPart: undefined // if radiusPart is set it will define radius as a part of the screen. Smaller values give more blur. radius = max(canvasWidth/canvasHeight) / radiusPart
+          })
+        ]
+      ];
+    }
+  })
+}).run();
+```
+
 ### StackBlurCanvas
+
+Uses the [Canvas-sprite](#canvas) but applies a blur on it. Internally it creates a new Canvas, renders sprites on top of it and blurs everything. For pre-rendering and feedback effects.
+
+```js
+import Engine from "animationvideo/Engine.mjs";
+import SceneDefault from "animationvideo/Scenes/Default.mjs";
+import SpriteStackBlurCanvas from "animationvideo/Sprites/StackBlurCanvas.mjs";
+
+new Engine({
+  canvas: document.querySelector("canvas"),
+  scene: new SceneDefault({
+    reset() {
+      return [
+        [
+          new SpriteStackBlurCanvas({
+            // --- settings from Canvas
+            // the sprites that will be rendered inside
+            // f.e. [ new Rect({...}), new Image({...})]
+            sprite: [],
+            enabled: true,
+            x: undefined, // Position - default upper left corner
+            y: undefined,
+            width: undefined,
+            height: undefined,
+            norm: false, // is true by default if x, y, width and height are undefined. Set the size of the canvas to the original canvas size
+            scaleX: 1, // the scalled internal size of the canvas. F.e. if scaleX and scaleY is 2 then the the internal
+            scaleY: 1, // canvas has half of the size of the original canvas
+            gridSize: undefined, // if defined overrides scaleX and scaleY. The internal width and height of the canvas.
+            rotation: 0, // rotation in radian. Use rotationInDegree to give values in degree
+            alpha: 1, // transparency
+            compositeOperation: "source-over",
+            animation: undefined // in the animation you can even morph the path with ChangeTo!
+            // --- Special settings for Stackblur
+            radius: undefined, // the radius of the blur. The more the blurier.
+            radiusPart: undefined // if radiusPart is set it will define radius as a part of the screen. Smaller values give more blur. radius = max(canvasWidth/canvasHeight) / radiusPart
+          })
+        ]
+      ];
+    }
+  })
+}).run();
+```
 
 ## Animations
 
@@ -1413,7 +1739,7 @@ new Engine({
 
 - more readme
 - more tests
-- helper function for NormCamera to zoom into a rectangle to make it completely visible (zoomTo(x1,y1,x2,y2))
+- alternative input mode with two finger/right click scroll that makes it possible to "draw" regions
 
 # License
 

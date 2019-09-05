@@ -5,31 +5,22 @@ import Group from "./Group.mjs";
 export default class Emitter extends Group {
   constructor(givenParameter) {
     super(givenParameter.self || {});
-    let staticArray = {},
-      functionArray = {};
-
-    for (let i in givenParameter) {
-      if (!["self", "class", "count"].includes(i)) {
-        if (typeof givenParameter[i] === "function") {
-          functionArray[i] = givenParameter[i];
-        } else {
-          staticArray[i] = givenParameter[i];
-        }
-      }
-    }
 
     let count = ifNull(calc(givenParameter.count), 1);
     this.sprite = [];
+    const classToEmit = givenParameter.class;
 
     for (let i = 0; i < count; i++) {
-      const classToEmit = givenParameter.class;
       let parameter = {};
-      for (let index in staticArray) {
-        parameter[index] = staticArray[index];
-      }
-      for (let index in functionArray) {
-        parameter[index] = functionArray[index].call(null, i);
-      }
+      for (let index in givenParameter) {
+        if (!["self", "class", "count"].includes(index)) {
+          if (typeof givenParameter[index] === "function") {
+            parameter[index] = givenParameter[index].call(givenParameter, i);
+          } else {
+            parameter[index] = givenParameter[index];
+          }
+        }
+      } 
       this.sprite[i] = new classToEmit(parameter);
     }
   }

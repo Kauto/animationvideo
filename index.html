@@ -1072,27 +1072,62 @@
       canvas: document.getElementById("canvasCameraNorm"),
       // The Engine uses the scene "Audio"
       scene: AnimationVideo.Scenes.NormCamera({
+        cam: {
+          alternative: true
+        },
         click({ scene, x, y }) {
           scene.zoomTo(x - 0.2, y - 0.2, x + 0.2, y + 0.2);
         },
         doubleClick({ scene }) {
           scene.zoomTo(-1, -1, 1, 1);
         },
+        rangeMove({ x1, y1, x2, y2 }) {
+          this.spriteMarker.enabled = true;
+          this.spriteMarker.x = x1;
+          this.spriteMarker.y = y1;
+          this.spriteMarker.width = x2 - x1;
+          this.spriteMarker.height = y2 - y1;
+        },
+        range({ x1, y1, x2, y2 }){
+          this.spriteMarker.enabled = false;
+          this.layerOverlay.addElement(
+            SP.Rect({
+              x: x1,
+              y: y1,
+              width: x2-x1,
+              height: y2-y1,
+              color: '#fff',
+              compositeOperation: 'lighter',
+              animation: [
+                ANI.ChangeTo({ alpha: 0 }, 3000, Easing.quadOut),
+                ANI.Remove()
+              ]
+            })
+          )
+        },
         images() {
           return { imageFile: "https://placekitten.com/400/400" };
         },
-        reset() {
-          return [
-            [
-              SP.Rect({ clear: true })
-            ],
-            [
-              SP.Image({
-                normCover: true,
-                image: 'imageFile'
-              })
-            ]
-          ]
+        reset({ layerManager }) {
+          layerManager.addLayer().addElement(
+            SP.Rect({ clear: true })
+          );
+          layerManager.addLayer().addElement(
+            SP.Image({
+              normCover: true,
+              image: 'imageFile'
+            })
+          )
+          this.layerOverlay = layerManager.addLayer()
+          this.spriteMarker = this.layerOverlay.addElement(
+            SP.Rect({
+              enabled: false,
+              color: '#fff',
+              norm: false, 
+              compositeOperation: 'difference'
+            })
+          )
+          return layerManager;
         }
       })
     }).run()

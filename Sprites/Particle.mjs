@@ -122,6 +122,4 @@ class Particle extends Circle {
   }
 }
 
-Particle.Gradient = null;
-
 export default Particle;

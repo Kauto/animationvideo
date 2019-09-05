@@ -98,6 +98,11 @@ export default class Canvas extends Group {
         tw = this.temp_canvas.width,
         th = this.temp_canvas.height;
 
+      this.tctx.textBaseline = "middle";
+      this.tctx.textAlign = "center";
+      this.tctx.globalAlpha = 1;
+      this.tctx.globalCompositeOperation = "source-over";
+
       // draw all sprites
       for (let i in this.sprite) {
         this.sprite[i].draw(this.tctx, {

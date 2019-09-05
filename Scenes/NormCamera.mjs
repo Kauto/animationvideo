@@ -12,9 +12,11 @@ export default class SceneNormCamera extends SceneNorm {
         zoomFactor: 1.2,
         tween: 4,
         registerEvents: true,
+        preventDefault: true,
         enabled: true,
         callResize: true,
-        doubleClickDetectInterval: 350
+        doubleClickDetectInterval: 350,
+        alternative: false
       },
       calc(this._configuration.cam) || {}
     );
@@ -27,10 +29,7 @@ export default class SceneNormCamera extends SceneNorm {
       zoom: 1
     };
 
-    this._mousePos = {
-      _isDown: false,
-      _timestamp: 0
-    };
+    this._mousePos = [];
   }
 
   camEnable() {
@@ -53,6 +52,11 @@ export default class SceneNormCamera extends SceneNorm {
     this.camConfig.tween = tween;
   }
 
+  camAlternative(bool) {
+    this._mousePos = [];
+    this.camConfig.alternative = bool;
+  }
+
   callInit(output, parameter, engine) {
     if (this.camConfig.registerEvents) {
       this.registerCamEvents(output.canvas);
@@ -69,9 +73,9 @@ export default class SceneNormCamera extends SceneNorm {
 
   _hasCamChanged() {
     return (
-      this.toCam.x !== this.cam.x ||
-      this.toCam.y !== this.cam.y ||
-      this.toCam.zoom !== this.cam.zoom
+      Math.abs(this.toCam.x - this.cam.x) >= Number.EPSILON ||
+      Math.abs(this.toCam.y - this.cam.y) >= Number.EPSILON ||
+      Math.abs(this.toCam.zoom - this.cam.zoom) >= Number.EPSILON
     );
   }
 
@@ -121,6 +125,7 @@ export default class SceneNormCamera extends SceneNorm {
       element.addEventListener(eventName, this._mouseMove.bind(this), true);
     }
     element.addEventListener("mousewheel", this._mouseWheel.bind(this), true);
+    element.addEventListener("contextmenu", this._eventPrevent, true);
   }
 
   destroyCamEvents(element) {
@@ -137,62 +142,106 @@ export default class SceneNormCamera extends SceneNorm {
       element.removeEventListener(eventName, this._mouseMove, true);
     }
     element.removeEventListener("mousewheel", this._mouseWheel, true);
+    element.removeEventListener("contextmenu", this._eventPrevent, true);
+  }
+
+  _eventPrevent(e) {
+    e.preventDefault();
   }
 
   _getMousePosition(e) {
-    if (e && e.touches && e.touches.length > 0) {
+    if (e.touches && e.touches.length > 0) {
       const rect = e.target.getBoundingClientRect();
+      const length = e.targetTouches.length;
       return [
-        e.targetTouches[0].pageX - rect.left,
-        e.targetTouches[0].pageY - rect.top
+        e.targetTouches.reduce((sum, v) => sum + v.pageX, 0) / length -
+          rect.left,
+        e.targetTouches.reduce((sum, v) => sum + v.pageY, 0) / length - rect.top
       ];
     }
     return [e.offsetX, e.offsetY];
   }
 
+  _getMouseButton(e) {
+    return this.camConfig.alternative
+      ? e.which
+        ? e.which - 1
+        : e.button || 0
+      : 0;
+  }
+
   _mouseDown(e) {
-    e.preventDefault();
+    if (this.camConfig.preventDefault) e.preventDefault();
     const [mx, my] = this._getMousePosition(e);
-    this._mousePos.x = mx;
-    this._mousePos.y = my;
-    this._mousePos._cx = this.toCam.x;
-    this._mousePos._cy = this.toCam.y;
-    this._mousePos._isDown = true;
-    this._mousePos._distance = undefined;
-    this._mousePos._timestamp = Date.now();
+    const i = this._getMouseButton(e);
+    this._mousePos[i] = Object.assign({}, this._mousePos[i], {
+      x: mx,
+      y: my,
+      _cx: this.toCam.x,
+      _cy: this.toCam.y,
+      _isDown: true,
+      _distance: undefined,
+      _timestamp: Date.now()
+    });
   }
   _mouseUp(e) {
-    e.preventDefault();
-    this._mousePos._isDown = false;
+    if (this.camConfig.preventDefault) e.preventDefault();
+    const i = this._getMouseButton(e);
+    this._mousePos[i]._isDown = false;
     const [mx, my] = this._getMousePosition(e);
     if (
-      Date.now() - this._mousePos._timestamp < 150 &&
-      Math.abs(this._mousePos.x - mx) < 5 &&
-      Math.abs(this._mousePos.y - my) < 5
+      Date.now() - this._mousePos[i]._timestamp < 150 &&
+      Math.abs(this._mousePos[i].x - mx) < 5 &&
+      Math.abs(this._mousePos[i].y - my) < 5 &&
+      i == 0
     ) {
       const [x, y] = this.transformPoint(mx, my);
       if (this._configuration.doubleClick) {
-        if (this._mousePos.doubleClickTimer) {
-          clearTimeout(this._mousePos.doubleClickTimer);
-          this._mousePos.doubleClickTimer = undefined;
+        if (this._mousePos[i].doubleClickTimer) {
+          clearTimeout(this._mousePos[i].doubleClickTimer);
+          this._mousePos[i].doubleClickTimer = undefined;
           this._configuration.doubleClick({ event: e, x, y, scene: this });
         } else {
-          this._mousePos.doubleClickTimer = setTimeout(() => {
-            this._mousePos.doubleClickTimer = undefined;
+          this._mousePos[i].doubleClickTimer = setTimeout(() => {
+            this._mousePos[i].doubleClickTimer = undefined;
             this._configuration.click({ event: e, x, y, scene: this });
           }, this.camConfig.doubleClickDetectInterval);
         }
       } else {
         this._configuration.click({ event: e, x, y, scene: this });
       }
+    } else if (this.camConfig.alternative && i === 0) {
+      const [x, y] = this.transformPoint(mx, my);
+      const [ox, oy] = this.transformPoint(
+        this._mousePos[i].x,
+        this._mousePos[i].y
+      );
+      this._configuration.region &&
+        this._configuration.region({
+          event: e,
+          x1: Math.min(ox, x),
+          y1: Math.min(oy, y),
+          x2: Math.max(ox, x),
+          y2: Math.max(oy, y),
+          fromX: ox,
+          fromY: oy,
+          toX: x,
+          toY: y,
+          scene: this
+        });
     }
   }
   _mouseOut(e) {
-    this._mousePos._isDown = false;
+    const i = this._getMouseButton(e);
+    this._mousePos[i]._isDown = false;
   }
   _mouseMove(e) {
-    e.preventDefault();
-    if (this.camConfig.enabled && this._mousePos._isDown) {
+    const i = this._getMouseButton(e);
+    if (this.camConfig.preventDefault) e.preventDefault();
+    if (!this._mousePos[i] || !this._mousePos[i]._isDown || e.which === 0) {
+      return;
+    }
+    if (this.camConfig.enabled) {
       if (e.touches && e.touches.length >= 2) {
         const t = e.touches;
         // get distance of two finger
@@ -200,38 +249,78 @@ export default class SceneNormCamera extends SceneNorm {
           (t[0].pageX - t[1].pageX) * (t[0].pageX - t[1].pageX) +
             (t[0].pageY - t[1].pageY) * (t[0].pageY - t[1].pageY)
         );
-        if (this._mousePos._distance === undefined) {
+        if (this._mousePos[i]._distance === undefined) {
           if (distance > 0) {
-            this._mousePos._distance = distance;
-            this._mousePos._czoom = this.toCam.zoom;
+            this._mousePos[i]._distance = distance;
+            this._mousePos[i]._czoom = this.toCam.zoom;
           }
         } else {
           this.toCam.zoom = Math.max(
             this.camConfig.zoomMin,
             Math.min(
               this.camConfig.zoomMax,
-              (this._mousePos._czoom * distance) / this._mousePos._distance
+              (this._mousePos[i]._czoom * distance) /
+                this._mousePos[i]._distance
             )
           );
+          if (this.camConfig.alternative) {
+            const viewMatrix = this._getViewportByCam(this.toCam).invert();
+            const [ox, oy] = viewMatrix.transformPoint(
+              this._mousePos[i].x,
+              this._mousePos[i].y
+            );
+            const [nx, ny] = viewMatrix.transformPoint(
+              ...this._getMousePosition(e)
+            );
+            this.toCam.x = this._mousePos[i]._cx + ox - nx;
+            this.toCam.y = this._mousePos[i]._cy + oy - ny;
+          }
           this.clampView();
         }
       } else {
-        this._mousePos._distance = undefined;
-        const [mx, my] = this._getMousePosition(e);
-        const viewMatrix = this._getViewportByCam(this.toCam).invert();
-        const [ox, oy] = viewMatrix.transformPoint(
-          this._mousePos.x,
-          this._mousePos.y
-        );
-        const [nx, ny] = viewMatrix.transformPoint(mx, my);
-        this.toCam.x = this._mousePos._cx + ox - nx;
-        this.toCam.y = this._mousePos._cy + oy - ny;
-        this.clampView();
+        this._mousePos[i]._distance = undefined;
+        if (!this.camConfig.alternative || i === 2) {
+          const viewMatrix = this._getViewportByCam(this.toCam).invert();
+          const [ox, oy] = viewMatrix.transformPoint(
+            this._mousePos[i].x,
+            this._mousePos[i].y
+          );
+          const [nx, ny] = viewMatrix.transformPoint(
+            ...this._getMousePosition(e)
+          );
+          this.toCam.x = this._mousePos[i]._cx + ox - nx;
+          this.toCam.y = this._mousePos[i]._cy + oy - ny;
+          this.clampView();
+        }
       }
+    }
+    if (
+      this.camConfig.alternative &&
+      i === 0 &&
+      this._configuration.regionMove &&
+      Date.now() - this._mousePos[i]._timestamp >= 150
+    ) {
+      const [x, y] = this.transformPoint(...this._getMousePosition(e));
+      const [ox, oy] = this.transformPoint(
+        this._mousePos[i].x,
+        this._mousePos[i].y
+      );
+      this._configuration.regionMove({
+        event: e,
+        x1: Math.min(ox, x),
+        y1: Math.min(oy, y),
+        x2: Math.max(ox, x),
+        y2: Math.max(oy, y),
+        fromX: ox,
+        fromY: oy,
+        toX: x,
+        toY: y,
+        scene: this
+      });
     }
   }
   _mouseWheel(e) {
-    e.preventDefault();
+    if (this.camConfig.preventDefault) e.preventDefault();
     if (this.camConfig.enabled) {
       const [mx, my] = this._getMousePosition(e);
       const [ox, oy] = this._getViewportByCam(this.toCam)
