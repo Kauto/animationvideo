@@ -1081,14 +1081,14 @@
         doubleClick({ scene }) {
           scene.zoomTo(-1, -1, 1, 1);
         },
-        rangeMove({ x1, y1, x2, y2 }) {
+        regionMove({ x1, y1, x2, y2 }) {
           this.spriteMarker.enabled = true;
           this.spriteMarker.x = x1;
           this.spriteMarker.y = y1;
           this.spriteMarker.width = x2 - x1;
           this.spriteMarker.height = y2 - y1;
         },
-        range({ x1, y1, x2, y2 }){
+        region({ x1, y1, x2, y2 }){
           this.spriteMarker.enabled = false;
           this.layerOverlay.addElement(
             SP.Rect({

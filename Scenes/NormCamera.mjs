@@ -150,13 +150,19 @@ export default class SceneNormCamera extends SceneNorm {
   }
 
   _getMousePosition(e) {
+    let touches
     if (e.touches && e.touches.length > 0) {
+      touches = e.targetTouches;
+    } else if(e.changedTouches && e.changedTouches.length > 0) {
+      touches = e.changedTouches;
+    }
+    if (touches) {
       const rect = e.target.getBoundingClientRect();
-      const length = e.targetTouches.length;
+      const length = touches.length;
+      touches = Array.from(touches);
       return [
-        e.targetTouches.reduce((sum, v) => sum + v.pageX, 0) / length -
-          rect.left,
-        e.targetTouches.reduce((sum, v) => sum + v.pageY, 0) / length - rect.top
+        touches.reduce((sum, v) => sum + v.pageX, 0) / length - rect.left,
+        touches.reduce((sum, v) => sum + v.pageY, 0) / length - rect.top
       ];
     }
     return [e.offsetX, e.offsetY];
@@ -233,12 +239,16 @@ export default class SceneNormCamera extends SceneNorm {
   }
   _mouseOut(e) {
     const i = this._getMouseButton(e);
-    this._mousePos[i]._isDown = false;
+    if (this._mousePos[i]) this._mousePos[i]._isDown = false;
   }
   _mouseMove(e) {
     const i = this._getMouseButton(e);
     if (this.camConfig.preventDefault) e.preventDefault();
-    if (!this._mousePos[i] || !this._mousePos[i]._isDown || e.which === 0) {
+    if (
+      !this._mousePos[i] ||
+      !this._mousePos[i]._isDown ||
+      (e.which === 0 && !e.touches)
+    ) {
       return;
     }
     if (this.camConfig.enabled) {
