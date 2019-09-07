@@ -150,10 +150,10 @@ export default class SceneNormCamera extends SceneNorm {
   }
 
   _getMousePosition(e) {
-    let touches
+    let touches;
     if (e.touches && e.touches.length > 0) {
       touches = e.targetTouches;
-    } else if(e.changedTouches && e.changedTouches.length > 0) {
+    } else if (e.changedTouches && e.changedTouches.length > 0) {
       touches = e.changedTouches;
     }
     if (touches) {
@@ -195,46 +195,48 @@ export default class SceneNormCamera extends SceneNorm {
     const i = this._getMouseButton(e);
     this._mousePos[i]._isDown = false;
     const [mx, my] = this._getMousePosition(e);
-    if (
-      Date.now() - this._mousePos[i]._timestamp < 150 &&
-      Math.abs(this._mousePos[i].x - mx) < 5 &&
-      Math.abs(this._mousePos[i].y - my) < 5 &&
-      i == 0
-    ) {
-      const [x, y] = this.transformPoint(mx, my);
-      if (this._configuration.doubleClick) {
-        if (this._mousePos[i].doubleClickTimer) {
-          clearTimeout(this._mousePos[i].doubleClickTimer);
-          this._mousePos[i].doubleClickTimer = undefined;
-          this._configuration.doubleClick({ event: e, x, y, scene: this });
-        } else {
-          this._mousePos[i].doubleClickTimer = setTimeout(() => {
+    if (!e.changedTouches || e.changedTouches.length === 1) {
+      if (
+        Date.now() - this._mousePos[i]._timestamp < 150 &&
+        Math.abs(this._mousePos[i].x - mx) < 5 &&
+        Math.abs(this._mousePos[i].y - my) < 5 &&
+        i == 0
+      ) {
+        const [x, y] = this.transformPoint(mx, my);
+        if (this._configuration.doubleClick) {
+          if (this._mousePos[i].doubleClickTimer) {
+            clearTimeout(this._mousePos[i].doubleClickTimer);
             this._mousePos[i].doubleClickTimer = undefined;
-            this._configuration.click({ event: e, x, y, scene: this });
-          }, this.camConfig.doubleClickDetectInterval);
+            this._configuration.doubleClick({ event: e, x, y, scene: this });
+          } else {
+            this._mousePos[i].doubleClickTimer = setTimeout(() => {
+              this._mousePos[i].doubleClickTimer = undefined;
+              this._configuration.click({ event: e, x, y, scene: this });
+            }, this.camConfig.doubleClickDetectInterval);
+          }
+        } else {
+          this._configuration.click({ event: e, x, y, scene: this });
         }
-      } else {
-        this._configuration.click({ event: e, x, y, scene: this });
+      } else if (this.camConfig.alternative && i === 0) {
+        const [x, y] = this.transformPoint(mx, my);
+        const [ox, oy] = this.transformPoint(
+          this._mousePos[i].x,
+          this._mousePos[i].y
+        );
+        this._configuration.region &&
+          this._configuration.region({
+            event: e,
+            x1: Math.min(ox, x),
+            y1: Math.min(oy, y),
+            x2: Math.max(ox, x),
+            y2: Math.max(oy, y),
+            fromX: ox,
+            fromY: oy,
+            toX: x,
+            toY: y,
+            scene: this
+          });
       }
-    } else if (this.camConfig.alternative && i === 0) {
-      const [x, y] = this.transformPoint(mx, my);
-      const [ox, oy] = this.transformPoint(
-        this._mousePos[i].x,
-        this._mousePos[i].y
-      );
-      this._configuration.region &&
-        this._configuration.region({
-          event: e,
-          x1: Math.min(ox, x),
-          y1: Math.min(oy, y),
-          x2: Math.max(ox, x),
-          y2: Math.max(oy, y),
-          fromX: ox,
-          fromY: oy,
-          toX: x,
-          toY: y,
-          scene: this
-        });
     }
   }
   _mouseOut(e) {
@@ -308,7 +310,8 @@ export default class SceneNormCamera extends SceneNorm {
       this.camConfig.alternative &&
       i === 0 &&
       this._configuration.regionMove &&
-      Date.now() - this._mousePos[i]._timestamp >= 150
+      Date.now() - this._mousePos[i]._timestamp >= 150 &&
+      (!e.touches || e.touches.length === 1)
     ) {
       const [x, y] = this.transformPoint(...this._getMousePosition(e));
       const [ox, oy] = this.transformPoint(
