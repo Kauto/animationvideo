@@ -50,7 +50,10 @@ or in the **index.html**.
         - [StackBlurCanvas](#stackblurcanvas)
     - [Animations](#animations)
         - [Sequence](#sequence)
+            - [Short form for Sequence](#short-form-for-sequence)
+            - [Short form for Wait](#short-form-for-wait)
             - [Labels](#labels)
+            - [Parallel sequences](#parallel-sequences)
         - [Loop](#loop)
         - [Forever](#forever)
         - [State](#state)
@@ -1361,7 +1364,7 @@ new Engine({
             darker: 0, // makes the picture darker by rendering a black color with alpha over the canvas. Useful for "lighter"
             pixel: false, // will make the image look pixelated. This can be used to create a "censored" effect
             clear: false, // clear the screen before rendering back to the screen from the canvas
-            animation: undefined // in the animation you can even morph the path with ChangeTo!
+            animation: undefined // the animation
           })
         ]
       ];
@@ -1408,7 +1411,7 @@ new Engine({
             moveZ: 0.,
             lineWidth: undefined, // size of the stars
             highScale: true // false is faster, but true is needed for "Norm"-scenes
-            animation: undefined, // in the animation you can even morph the path with ChangeTo!
+            animation: undefined, // the animation
           })
         ]
       ];
@@ -1444,7 +1447,7 @@ new Engine({
             rotation: 0, // rotation in radian. Use rotationInDegree to give values in degree
             alpha: 1, // transparency
             compositeOperation: "source-over",
-            animation: undefined // in the animation you can even morph the path with ChangeTo!
+            animation: undefined // the animation
           })
         ]
       ];
@@ -1484,7 +1487,7 @@ new Engine({
             rotation: 0, // rotation in radian. Use rotationInDegree to give values in degree
             alpha: 1, // transparency
             compositeOperation: "source-over",
-            animation: undefined // in the animation you can even morph the path with ChangeTo!
+            animation: undefined // the animation
           })
         ]
       ];
@@ -1635,7 +1638,7 @@ new Engine({
             darker: 0, // makes the picture darker by rendering a black color with alpha over the canvas. Useful for "lighter"
             pixel: false, // will make the image look pixelated. This can be used to create a "censored" effect
             clear: false, // clear the screen before rendering back to the screen from the canvas
-            animation: undefined, // in the animation you can even morph the path with ChangeTo!
+            animation: undefined, // the animation
             // Special settings for Stackblur
             onCanvas: false, // will override all other settings and applies the blur directly on the underlying canvas. This is a big performence gain but you will lose some possible effects
             radius: undefined, // the radius of the blur. The more the blurier.
@@ -1680,7 +1683,7 @@ new Engine({
             rotation: 0, // rotation in radian. Use rotationInDegree to give values in degree
             alpha: 1, // transparency
             compositeOperation: "source-over",
-            animation: undefined // in the animation you can even morph the path with ChangeTo!
+            animation: undefined // the animation
             // --- Special settings for Stackblur
             radius: undefined, // the radius of the blur. The more the blurier.
             radiusPart: undefined // if radiusPart is set it will define radius as a part of the screen. Smaller values give more blur. radius = max(canvasWidth/canvasHeight) / radiusPart
@@ -1693,13 +1696,142 @@ new Engine({
 ```
 
 ## Animations
+All sprites have a configuration for animation. This animation will be played back and is very precise, so can be synced to an audio source.
 
 ### Sequence
+Given an array of animation-commands, `Sequence` will play back the commands one after another. You can define more than one array and they will be played back in parallel. The sequence finish when every array is finished. They don't repeat.
+```js
+import Engine from "animationvideo/Engine.mjs";
+import SceneDefault from "animationvideo/Scenes/Default.mjs";
+import SpriteRect from "animationvideo/Sprites/StackBlurCanvas.mjs";
+import Sequence from "animationvideo/Animations/Sequence.mjs";
+import ChangeTo from "animationvideo/Animations/ChangeTo.mjs";
+
+new Engine({
+  canvas: document.querySelector("canvas"),
+  scene: new SceneDefault({
+    reset() {
+      return [
+        [
+          new SpriteRect({
+            color: '#fff',
+            animation: new Sequence([
+              new ChangeTo({ color:'#f00' }, 1000),
+              new ChangeTo({ color:'#00f' }, 1000)
+            ])
+          })
+        ]
+      ];
+    }
+  })
+}).run();
+```
+#### Short form for Sequence
+If you only have one array of animation-commands, you can give the array directly to the `animations`-attribute and don't have to create a new [Sequence-Object].(#sequence)
+```js
+import Engine from "animationvideo/Engine.mjs";
+import SceneDefault from "animationvideo/Scenes/Default.mjs";
+import SpriteRect from "animationvideo/Sprites/StackBlurCanvas.mjs";
+import ChangeTo from "animationvideo/Animations/ChangeTo.mjs";
+
+new Engine({
+  canvas: document.querySelector("canvas"),
+  scene: new SceneDefault({
+    reset() {
+      return [
+        [
+          new SpriteRect({
+            color: '#fff',
+            animation: [
+              new ChangeTo({ color:'#f00' }, 1000),
+              new ChangeTo({ color:'#00f' }, 1000)
+            ]
+          })
+        ]
+      ];
+    }
+  })
+}).run();
+```
+#### Short form for Wait
+You can add a wait time by giving the Sequence a number as first parameter. This time can even be negative. A negative value will fast forward the animation to the point in time.
+
+```js
+import Engine from "animationvideo/Engine.mjs";
+import SceneDefault from "animationvideo/Scenes/Default.mjs";
+import SpriteRect from "animationvideo/Sprites/StackBlurCanvas.mjs";
+import ChangeTo from "animationvideo/Animations/ChangeTo.mjs";
+
+new Engine({
+  canvas: document.querySelector("canvas"),
+  scene: new SceneDefault({
+    reset() {
+      return [
+        [
+          new SpriteRect({
+            x: 0,
+            y: 0,
+            width: 100,
+            height: 100,
+            color: '#fff',
+            animation: [
+              2500,
+              new ChangeTo({ color:'#f00' }, 10000),
+              new ChangeTo({ color:'#00f' }, 10000)
+            ]
+          })
+          new SpriteRect({
+            x: 100,
+            y: 100,
+            width: 100,
+            height: 100,
+            color: '#fff',
+            animation: [
+              -2500
+              new ChangeTo({ color:'#f00' }, 10000),
+              new ChangeTo({ color:'#00f' }, 10000)
+            ]
+          })
+        ]
+      ];
+    }
+  })
+}).run();
+```
 
 #### Labels
 
-### Loop
+#### Parallel sequences
 
+### Loop
+`Loop` works like [Sequence](#sequence) but repeats the commands a given amount of time.
+
+```js
+import Engine from "animationvideo/Engine.mjs";
+import SceneDefault from "animationvideo/Scenes/Default.mjs";
+import SpriteRect from "animationvideo/Sprites/StackBlurCanvas.mjs";
+import Loop from "animationvideo/Animations/Loop.mjs";
+import ChangeTo from "animationvideo/Animations/ChangeTo.mjs";
+
+new Engine({
+  canvas: document.querySelector("canvas"),
+  scene: new SceneDefault({
+    reset() {
+      return [
+        [
+          new SpriteRect({
+            color: '#fff',
+            animation: new Loop(10, // repeat 10 times and then stop
+              new ChangeTo({ color:'#f00' }, 1000),
+              new ChangeTo({ color:'#00f' }, 1000)
+            )
+          })
+        ]
+      ];
+    }
+  })
+}).run();
+```
 ### Forever
 
 ### State
@@ -1740,7 +1872,6 @@ new Engine({
 
 - more readme
 - more tests
-- alternative input mode with two finger/right click scroll that makes it possible to "draw" regions
 
 # License
 

@@ -6,6 +6,7 @@ class Sequence {
     if (typeof sequences[0] === "number") {
       timeWait = sequences.shift();
     }
+    
     // init position-array
     this.sequences = sequences.map(sequence => {
       if (!Array.isArray(sequence)) {

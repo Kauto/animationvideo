@@ -25,9 +25,7 @@ export default class Circle {
         let result = calc(value);
         return Array.isArray(result)
           ? new Sequence(result)
-          : typeof result === "object"
-          ? result
-          : undefined;
+          : result;
       },
       // if it's rendering or not
       enabled: true
