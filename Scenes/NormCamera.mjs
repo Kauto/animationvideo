@@ -194,10 +194,10 @@ export default class SceneNormCamera extends SceneNorm {
     if (this.camConfig.preventDefault) e.preventDefault();
     const i = this._getMouseButton(e);
     const down = this._mousePos[i]._isDown;
-    this._mousePos[i]._isDown = false;
     if (this._configuration.debug) {
-      console.log(i, this._mousePos[i], e.changedTouches);
+      console.log(i, this._mousePos[i], e.changedTouches.length, e);
     }
+    this._mousePos[i]._isDown = false;
     if (!down || (e.changedTouches && e.changedTouches.length > 1)) {
       return;
     }
