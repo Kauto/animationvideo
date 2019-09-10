@@ -10,7 +10,7 @@ export default class SceneNormCamera extends SceneNorm {
         zoomMax: 10,
         zoomMin: 0.5,
         zoomFactor: 1.2,
-        tween: 4,
+        tween: 2,
         registerEvents: true,
         preventDefault: true,
         enabled: true,
@@ -193,54 +193,53 @@ export default class SceneNormCamera extends SceneNorm {
   _mouseUp(e) {
     if (this.camConfig.preventDefault) e.preventDefault();
     const i = this._getMouseButton(e);
+    const down = this._mousePos[i]._isDown;
+    this._mousePos[i]._isDown = false;
+    if (!down || (e.changedTouches && e.changedTouches.length !== 1)) {
+      return;
+    }
     const [mx, my] = this._getMousePosition(e);
     if (
-      this._mousePos[i]._isDown &&
-      (!e.changedTouches || e.changedTouches.length === 1)
+      Date.now() - this._mousePos[i]._timestamp < 150 &&
+      Math.abs(this._mousePos[i].x - mx) < 5 &&
+      Math.abs(this._mousePos[i].y - my) < 5 &&
+      i == 0
     ) {
-      if (
-        Date.now() - this._mousePos[i]._timestamp < 150 &&
-        Math.abs(this._mousePos[i].x - mx) < 5 &&
-        Math.abs(this._mousePos[i].y - my) < 5 &&
-        i == 0
-      ) {
-        const [x, y] = this.transformPoint(mx, my);
-        if (this._configuration.doubleClick) {
-          if (this._mousePos[i].doubleClickTimer) {
-            clearTimeout(this._mousePos[i].doubleClickTimer);
-            this._mousePos[i].doubleClickTimer = undefined;
-            this._configuration.doubleClick({ event: e, x, y, scene: this });
-          } else {
-            this._mousePos[i].doubleClickTimer = setTimeout(() => {
-              this._mousePos[i].doubleClickTimer = undefined;
-              this._configuration.click({ event: e, x, y, scene: this });
-            }, this.camConfig.doubleClickDetectInterval);
-          }
+      const [x, y] = this.transformPoint(mx, my);
+      if (this._configuration.doubleClick) {
+        if (this._mousePos[i].doubleClickTimer) {
+          clearTimeout(this._mousePos[i].doubleClickTimer);
+          this._mousePos[i].doubleClickTimer = undefined;
+          this._configuration.doubleClick({ event: e, x, y, scene: this });
         } else {
-          this._configuration.click({ event: e, x, y, scene: this });
+          this._mousePos[i].doubleClickTimer = setTimeout(() => {
+            this._mousePos[i].doubleClickTimer = undefined;
+            this._configuration.click({ event: e, x, y, scene: this });
+          }, this.camConfig.doubleClickDetectInterval);
         }
-      } else if (this.camConfig.alternative && i === 0) {
-        const [x, y] = this.transformPoint(mx, my);
-        const [ox, oy] = this.transformPoint(
-          this._mousePos[i].x,
-          this._mousePos[i].y
-        );
-        this._configuration.region &&
-          this._configuration.region({
-            event: e,
-            x1: Math.min(ox, x),
-            y1: Math.min(oy, y),
-            x2: Math.max(ox, x),
-            y2: Math.max(oy, y),
-            fromX: ox,
-            fromY: oy,
-            toX: x,
-            toY: y,
-            scene: this
-          });
+      } else {
+        this._configuration.click({ event: e, x, y, scene: this });
       }
+    } else if (this.camConfig.alternative && i === 0) {
+      const [x, y] = this.transformPoint(mx, my);
+      const [ox, oy] = this.transformPoint(
+        this._mousePos[i].x,
+        this._mousePos[i].y
+      );
+      this._configuration.region &&
+        this._configuration.region({
+          event: e,
+          x1: Math.min(ox, x),
+          y1: Math.min(oy, y),
+          x2: Math.max(ox, x),
+          y2: Math.max(oy, y),
+          fromX: ox,
+          fromY: oy,
+          toX: x,
+          toY: y,
+          scene: this
+        });
     }
-    this._mousePos[i]._isDown = false;
   }
   _mouseOut(e) {
     const i = this._getMouseButton(e);
