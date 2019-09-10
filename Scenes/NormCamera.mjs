@@ -195,7 +195,10 @@ export default class SceneNormCamera extends SceneNorm {
     const i = this._getMouseButton(e);
     const down = this._mousePos[i]._isDown;
     this._mousePos[i]._isDown = false;
-    if (!down || (e.changedTouches && e.changedTouches.length !== 1)) {
+    if (this._configuration.debug) {
+      console.log(i, this._mousePos[i], e.changedTouches);
+    }
+    if (!down || (e.changedTouches && e.changedTouches.length > 1)) {
       return;
     }
     const [mx, my] = this._getMousePosition(e);
@@ -203,7 +206,7 @@ export default class SceneNormCamera extends SceneNorm {
       Date.now() - this._mousePos[i]._timestamp < 150 &&
       Math.abs(this._mousePos[i].x - mx) < 5 &&
       Math.abs(this._mousePos[i].y - my) < 5 &&
-      i == 0
+      !i // i === 0
     ) {
       const [x, y] = this.transformPoint(mx, my);
       if (this._configuration.doubleClick) {
@@ -220,7 +223,7 @@ export default class SceneNormCamera extends SceneNorm {
       } else {
         this._configuration.click({ event: e, x, y, scene: this });
       }
-    } else if (this.camConfig.alternative && i === 0) {
+    } else if (this.camConfig.alternative && !i /* i === 0 */) {
       const [x, y] = this.transformPoint(mx, my);
       const [ox, oy] = this.transformPoint(
         this._mousePos[i].x,
