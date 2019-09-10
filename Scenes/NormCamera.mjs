@@ -186,6 +186,7 @@ export default class SceneNormCamera extends SceneNorm {
       _cx: this.toCam.x,
       _cy: this.toCam.y,
       _isDown: true,
+      _numOfFingers: (e.touches && e.touches.length) || 1,
       _distance: undefined,
       _timestamp: Date.now()
     });
@@ -194,11 +195,11 @@ export default class SceneNormCamera extends SceneNorm {
     if (this.camConfig.preventDefault) e.preventDefault();
     const i = this._getMouseButton(e);
     const down = this._mousePos[i]._isDown;
-    if (this._configuration.debug) {
-      console.log(i, this._mousePos[i], e.changedTouches.length, e);
-    }
+    const numCurrentFingers = (e.changedTouches && e.changedTouches.length) || 1;
+    const numOfFingers = Math.max(this._mousePos[i]._numOfFingers, numCurrentFingers);
     this._mousePos[i]._isDown = false;
-    if (!down || (e.changedTouches && e.changedTouches.length > 1)) {
+    this._mousePos[i]._numOfFingers -= numCurrentFingers;
+    if (!down || numOfFingers > 1) {
       return;
     }
     const [mx, my] = this._getMousePosition(e);
