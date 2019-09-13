@@ -72,15 +72,16 @@ export default class SceneNormCamera extends SceneNorm {
   }
 
   hasCamChanged() {
+    const t = this.camConfig.tween || 1;
     return (
-      Math.abs(this.toCam.x - this.cam.x) >= Number.EPSILON ||
-      Math.abs(this.toCam.y - this.cam.y) >= Number.EPSILON ||
-      Math.abs(this.toCam.zoom - this.cam.zoom) >= Number.EPSILON
+      Math.abs(this.toCam.x - this.cam.x) >= Number.EPSILON * t ||
+      Math.abs(this.toCam.y - this.cam.y) >= Number.EPSILON * t ||
+      Math.abs(this.toCam.zoom - this.cam.zoom) >= Number.EPSILON * t
     );
   }
 
   fixedUpdate(output, timePassed, lastCall) {
-    const ret = super.fixedUpdate(output, timePassed);
+    const ret = super.fixedUpdate(output, timePassed, lastCall);
     if (this.camConfig.tween && this.hasCamChanged()) {
       this.cam.x += (this.toCam.x - this.cam.x) / this.camConfig.tween;
       this.cam.y += (this.toCam.y - this.cam.y) / this.camConfig.tween;

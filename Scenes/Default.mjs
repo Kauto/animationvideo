@@ -160,7 +160,7 @@ class Scene {
     return false;
   }
 
-  fixedUpdate(output, timePassed) {
+  fixedUpdate(output, timePassed, lastCall) {
     if (this._configuration.fixedUpdate) {
       this._configuration.fixedUpdate({
         engine: this.engine,
@@ -168,7 +168,8 @@ class Scene {
         layerManager: this.layerManager,
         output,
         timePassed,
-        totalTimePassed: this.totalTimePassed
+        totalTimePassed: this.totalTimePassed,
+        lastCall
       });
     }
   }
