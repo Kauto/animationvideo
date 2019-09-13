@@ -81,7 +81,7 @@ export default class SceneNormCamera extends SceneNorm {
 
   fixedUpdate(output, timePassed, lastCall) {
     const ret = super.fixedUpdate(output, timePassed);
-    if (this.camConfig.tween && this._hasCamChanged()) {
+    if (this.camConfig.tween && this.hasCamChanged()) {
       this.cam.x += (this.toCam.x - this.cam.x) / this.camConfig.tween;
       this.cam.y += (this.toCam.y - this.cam.y) / this.camConfig.tween;
       this.cam.zoom += (this.toCam.zoom - this.cam.zoom) / this.camConfig.tween;
@@ -99,7 +99,7 @@ export default class SceneNormCamera extends SceneNorm {
 
   move(output, timePassed) {
     const ret = super.move(output, timePassed);
-    if (!this.camConfig.tween && this._hasCamChanged()) {
+    if (!this.camConfig.tween && this.hasCamChanged()) {
       this.cam = Object.assign({}, this.toCam);
       if (this.camConfig.callResize) {
         this.resize(output);
