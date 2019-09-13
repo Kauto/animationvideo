@@ -16,7 +16,7 @@ export default class StarField extends Rect {
     ) {
       this.init();
     } else {
-      this.centerX = undefined;
+      this._centerX = undefined;
     }
   }
 
@@ -34,101 +34,101 @@ export default class StarField extends Rect {
   }
 
   init() {
-    this.centerX = this.width / 2 + this.x;
-    this.centerY = this.height / 2 + this.y;
-    this.scaleZ = Math.max(this.width, this.height) / 2;
-    this.starsX = [];
-    this.starsY = [];
-    this.starsZ = [];
-    this.starsOldX = [];
-    this.starsOldY = [];
-    this.starsNewX = [];
-    this.starsNewY = [];
-    this.starsEnabled = [];
-    this.starsLineWidth = [];
+    this._centerX = this.width / 2 + this.x;
+    this._centerY = this.height / 2 + this.y;
+    this._scaleZ = Math.max(this.width, this.height) / 2;
+    this._starsX = [];
+    this._starsY = [];
+    this._starsZ = [];
+    this._starsOldX = [];
+    this._starsOldY = [];
+    this._starsNewX = [];
+    this._starsNewY = [];
+    this._starsEnabled = [];
+    this._starsLineWidth = [];
     for (let i = 0; i < this.count; i++) {
-      this.starsX[i] = Math.random() * this.width - this.width / 2;
-      this.starsY[i] = Math.random() * this.height - this.height / 2;
-      this.starsZ[i] = Math.random() * this.scaleZ;
+      this._starsX[i] = Math.random() * this.width - this.width / 2;
+      this._starsY[i] = Math.random() * this.height - this.height / 2;
+      this._starsZ[i] = Math.random() * this._scaleZ;
     }
   }
 
   moveStar(i, scaled_timepassed, firstPass) {
     if (firstPass) {
-      this.starsEnabled[i] = true;
+      this._starsEnabled[i] = true;
     }
     const hw = this.width / 2;
     const hh = this.height / 2;
-    let x = this.starsX[i] + this.moveX * scaled_timepassed,
-      y = this.starsY[i] + this.moveY * scaled_timepassed,
-      z = this.starsZ[i] + this.moveZ * scaled_timepassed;
+    let x = this._starsX[i] + this.moveX * scaled_timepassed,
+      y = this._starsY[i] + this.moveY * scaled_timepassed,
+      z = this._starsZ[i] + this.moveZ * scaled_timepassed;
     while (x < -hw) {
       x += this.width;
       y = Math.random() * this.height - hh;
-      this.starsEnabled[i] = false;
+      this._starsEnabled[i] = false;
     }
     while (x > hw) {
       x -= this.width;
       y = Math.random() * this.height - hh;
-      this.starsEnabled[i] = false;
+      this._starsEnabled[i] = false;
     }
 
     while (y < -hh) {
       y += this.height;
       x = Math.random() * this.width - hw;
-      this.starsEnabled[i] = false;
+      this._starsEnabled[i] = false;
     }
     while (y > hh) {
       y -= this.height;
       x = Math.random() * this.width - hw;
-      this.starsEnabled[i] = false;
+      this._starsEnabled[i] = false;
     }
 
     while (z <= 0) {
-      z += this.scaleZ;
+      z += this._scaleZ;
       x = Math.random() * this.width - hw;
       y = Math.random() * this.height - hh;
-      this.starsEnabled[i] = false;
+      this._starsEnabled[i] = false;
     }
-    while (z > this.scaleZ) {
-      z -= this.scaleZ;
+    while (z > this._scaleZ) {
+      z -= this._scaleZ;
       x = Math.random() * this.width - hw;
       y = Math.random() * this.height - hh;
-      this.starsEnabled[i] = false;
+      this._starsEnabled[i] = false;
     }
 
-    const projectX = this.centerX + (x / z) * hw;
-    const projectY = this.centerY + (y / z) * hh;
-    this.starsEnabled[i] =
-      this.starsEnabled[i] &&
+    const projectX = this._centerX + (x / z) * hw;
+    const projectY = this._centerY + (y / z) * hh;
+    this._starsEnabled[i] =
+      this._starsEnabled[i] &&
       projectX >= this.x &&
       projectY >= this.y &&
       projectX < this.x + this.width &&
       projectY < this.y + this.height;
     if (firstPass) {
-      this.starsX[i] = x;
-      this.starsY[i] = y;
-      this.starsZ[i] = z;
-      this.starsNewX[i] = projectX;
-      this.starsNewY[i] = projectY;
+      this._starsX[i] = x;
+      this._starsY[i] = y;
+      this._starsZ[i] = z;
+      this._starsNewX[i] = projectX;
+      this._starsNewY[i] = projectY;
     } else {
-      this.starsOldX[i] = projectX;
-      this.starsOldY[i] = projectY;
-      let lw = (1 - this.starsZ[i] / this.scaleZ) * 4;
+      this._starsOldX[i] = projectX;
+      this._starsOldY[i] = projectY;
+      let lw = (1 - this._starsZ[i] / this._scaleZ) * 4;
       if (!this.highScale) {
         lw = Math.ceil(lw);
       }
-      this.starsLineWidth[i] = lw;
+      this._starsLineWidth[i] = lw;
     }
   }
 
   animate(timepassed) {
     let ret = super.animate(timepassed);
-    if (this.enabled && this.centerX !== undefined) {
+    if (this.enabled && this._centerX !== undefined) {
       let i = this.count;
       while (i--) {
         this.moveStar(i, timepassed / 16, true);
-        if (this.starsEnabled[i]) {
+        if (this._starsEnabled[i]) {
           this.moveStar(i, -5, false);
         }
       }
@@ -141,7 +141,7 @@ export default class StarField extends Rect {
   // Draw-Funktion
   draw(context, additionalModifier) {
     if (this.enabled) {
-      if (this.centerX === undefined) {
+      if (this._centerX === undefined) {
         this.width = this.width || additionalModifier.width;
         this.height = this.height || additionalModifier.height;
         this.x = this.x === undefined ? additionalModifier.x : this.x;
@@ -161,12 +161,12 @@ export default class StarField extends Rect {
         context.fillStyle = this.color;
         let i = this.count;
         while (i--) {
-          if (this.starsEnabled[i]) {
+          if (this._starsEnabled[i]) {
             context.fillRect(
-              this.starsNewX[i],
-              this.starsNewY[i] - (this.starsLineWidth[i] * this.lineWidth) / 2,
-              this.starsOldX[i] - this.starsNewX[i],
-              this.starsLineWidth[i] * this.lineWidth
+              this._starsNewX[i],
+              this._starsNewY[i] - (this._starsLineWidth[i] * this.lineWidth) / 2,
+              this._starsOldX[i] - this._starsNewX[i],
+              this._starsLineWidth[i] * this.lineWidth
             );
           }
         }
@@ -175,11 +175,11 @@ export default class StarField extends Rect {
         if (this.highScale) {
           let i = this.count;
           while (i--) {
-            if (this.starsEnabled[i]) {
+            if (this._starsEnabled[i]) {
               context.beginPath();
-              context.lineWidth = this.starsLineWidth[i] * this.lineWidth;
-              context.moveTo(this.starsOldX[i], this.starsOldY[i]);
-              context.lineTo(this.starsNewX[i], this.starsNewY[i]);
+              context.lineWidth = this._starsLineWidth[i] * this.lineWidth;
+              context.moveTo(this._starsOldX[i], this._starsOldY[i]);
+              context.lineTo(this._starsNewX[i], this._starsNewY[i]);
               context.stroke();
               context.closePath();
             }
@@ -192,9 +192,9 @@ export default class StarField extends Rect {
             context.lineWidth = lw * this.lineWidth;
             i = this.count;
             while (i--) {
-              if (this.starsEnabled[i] && this.starsLineWidth[i] === lw) {
-                context.moveTo(this.starsOldX[i], this.starsOldY[i]);
-                context.lineTo(this.starsNewX[i], this.starsNewY[i]);
+              if (this._starsEnabled[i] && this._starsLineWidth[i] === lw) {
+                context.moveTo(this._starsOldX[i], this._starsOldY[i]);
+                context.lineTo(this._starsNewX[i], this._starsNewY[i]);
               }
             }
             context.stroke();

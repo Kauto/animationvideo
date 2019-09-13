@@ -103,6 +103,10 @@ class Scene {
     return parameter;
   }
 
+  getConfiguration() {
+    return this._configuration;
+  }
+
   loadingScreen(output, progress) {
     if (this._configuration.loading) {
       return this._configuration.loading({
@@ -169,6 +173,17 @@ class Scene {
     }
   }
 
+  isFrameToSkip(output, timePassed) {
+    return this._configuration.isFrameToSkip && this._configuration.isFrameToSkip({
+      engine: this.engine,
+      scene: this,
+      layerManager: this.layerManager,
+      output,
+      timePassed,
+      totalTimePassed: this.totalTimePassed
+    });
+  }
+
   move(output, timePassed) {
     // calc total time
     this.totalTimePassed += timePassed;
@@ -176,8 +191,9 @@ class Scene {
     // Jump back?
     if (timePassed < 0) {
       // Back to the beginning
-      this.reset(output);
       timePassed = this.totalTimePassed;
+      this.reset(output);
+      this.totalTimePassed = timePassed;
     } else if (
       this._configuration.endTime &&
       this._configuration.endTime <= this.totalTimePassed
@@ -257,6 +273,7 @@ class Scene {
   }
 
   reset(output) {
+    this.totalTimePassed = 0;
     let result = this._configuration.reset
       ? this._configuration.reset({
           engine: this.engine,

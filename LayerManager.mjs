@@ -2,54 +2,54 @@ import Layer from "./Layer.mjs";
 
 class LayerManager {
   constructor() {
-    this.layers = [];
+    this._layers = [];
   }
 
   addLayer() {
-    this.layers[this.layers.length] = new Layer();
-    return this.layers[this.layers.length - 1];
+    this._layers[this._layers.length] = new Layer();
+    return this._layers[this._layers.length - 1];
   }
 
   addLayers(numberOfLayer = 1) {
     let newLayers = Array.from({ length: numberOfLayer }, v => new Layer());
-    this.layers = this.layers.concat(newLayers);
+    this._layers = this._layers.concat(newLayers);
     return newLayers;
   }
 
   addLayerForId() {
-    this.layers[this.layers.length] = new Layer();
-    return this.layers.length - 1;
+    this._layers[this._layers.length] = new Layer();
+    return this._layers.length - 1;
   }
 
   addLayersForIds(numberOfLayer = 1) {
     const result = Array.from(
       { length: numberOfLayer },
-      (v, k) => k + this.layers.length
+      (v, k) => k + this._layers.length
     );
-    this.layers = this.layers.concat(
+    this._layers = this._layers.concat(
       Array.from({ length: numberOfLayer }, v => new Layer())
     );
     return result;
   }
 
   getById(layerId) {
-    return this.layers[layerId];
+    return this._layers[layerId];
   }
 
   forEach(callback) {
     let i;
-    const l = this.layers.length;
+    const l = this._layers.length;
     for (i = 0; i < l; i++) {
-      this.layers[i].forEach(callback);
+      this._layers[i].forEach(callback);
     }
   }
 
   count() {
-    return this.layers.length;
+    return this._layers.length;
   }
 
   clear() {
-    this.layers = [];
+    this._layers = [];
   }
 }
 

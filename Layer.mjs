@@ -1,9 +1,9 @@
 class Layer {
   constructor() {
-    this.layer = [];
-    this.isFunction = [];
-    this.start = 0;
-    this.nextFree = 0;
+    this._layer = [];
+    this._isFunction = [];
+    this._start = 0;
+    this._nextFree = 0;
   }
 
   addElement(element) {
@@ -17,32 +17,32 @@ class Layer {
   }
 
   addElementForId(element) {
-    let len = this.layer.length;
-    let id = this.nextFree;
-    this.layer[id] = element;
-    this.isFunction[id] = typeof element === "function";
+    let len = this._layer.length;
+    let id = this._nextFree;
+    this._layer[id] = element;
+    this._isFunction[id] = typeof element === "function";
     if (len === id) {
       len++;
     }
-    let nextFree = this.nextFree + 1;
-    while (nextFree !== len && layer[nextFree]) {
+    let nextFree = this._nextFree + 1;
+    while (nextFree !== len && this._layer[nextFree]) {
       nextFree++;
     }
-    this.nextFree = nextFree;
-    if (this.start > id) {
-      this.start = id;
+    this._nextFree = nextFree;
+    if (this._start > id) {
+      this._start = id;
     }
     return id;
   }
 
   addElementsForIds(arrayOfElements) {
-    let len = this.layer.length;
-    let id = this.nextFree;
+    let len = this._layer.length;
+    let id = this._nextFree;
     if (len === id) {
-      this.layer = this.layer.concat(arrayOfElements);
-      this.nextFree = this.layer.length;
+      this._layer = this._layer.concat(arrayOfElements);
+      this._nextFree = this._layer.length;
       arrayOfElements.forEach((v, k) => {
-        this.isFunction[len + k] = typeof v === "function";
+        this._isFunction[len + k] = typeof v === "function";
       });
       return Array.from({ length: arrayOfElements.length }, (v, k) => k + len);
     } else {
@@ -51,11 +51,11 @@ class Layer {
   }
 
   getById(elementId) {
-    return this.layer[elementId];
+    return this._layer[elementId];
   }
 
   getIdByElement(element) {
-    return this.layer.indexOf(element);
+    return this._layer.indexOf(element);
   }
 
   deleteByElement(element) {
@@ -66,35 +66,35 @@ class Layer {
   }
 
   deleteById(elementId) {
-    let len = this.layer.length - 1;
+    let len = this._layer.length - 1;
     if (len > 0 && elementId === len) {
-      this.layer[elementId] = null;
-      while (len && !this.layer[len - 1]) {
+      this._layer[elementId] = null;
+      while (len && !this._layer[len - 1]) {
         len--;
       }
-      this.layer.length = len;
-      this.isFunction.length = len;
-      this.nextFree = Math.min(this.nextFree, len);
-      this.start = Math.min(this.start, len);
+      this._layer.length = len;
+      this._isFunction.length = len;
+      this._nextFree = Math.min(this._nextFree, len);
+      this._start = Math.min(this._start, len);
     } else {
-      this.layer[elementId] = null;
-      this.nextFree = Math.min(this.nextFree, elementId);
-      if (this.start === elementId) {
-        this.start = elementId + 1;
+      this._layer[elementId] = null;
+      this._nextFree = Math.min(this._nextFree, elementId);
+      if (this._start === elementId) {
+        this._start = elementId + 1;
       }
     }
   }
 
   forEach(callback) {
     let index, element;
-    const l = this.layer.length;
-    for (index = this.start; index < l; index++) {
-      element = this.layer[index];
+    const l = this._layer.length;
+    for (index = this._start; index < l; index++) {
+      element = this._layer[index];
       if (element) {
         callback({
           index,
           element,
-          isFunction: this.isFunction[index],
+          isFunction: this._isFunction[index],
           layer: this
         });
       }
@@ -103,18 +103,18 @@ class Layer {
 
   count() {
     let count = 0;
-    const l = this.layer.length;
-    for (let index = this.start; index < l; index++) {
-      if (this.layer[index]) count++;
+    const l = this._layer.length;
+    for (let index = this._start; index < l; index++) {
+      if (this._layer[index]) count++;
     }
     return count;
   }
 
   clear() {
-    this.layer = [];
-    this.isFunction = [];
-    this.start = 0;
-    this.nextFree = 0;
+    this._layer = [];
+    this._isFunction = [];
+    this._start = 0;
+    this._nextFree = 0;
   }
 }
 

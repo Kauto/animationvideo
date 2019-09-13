@@ -15,14 +15,15 @@ class Engine {
     }
     let options = Object.assign(
       {},
-      /* undefined is falsy - saves a few bytes
       {
+        /* undefined is falsy - saves a few bytes
         scene: null,
         canvas: null,
         autoSize: false,
         clickToPlayAudio: false,
         reduceFramerate: false
-      }, */
+        */
+      },
       givenOptions
     );
 
@@ -206,13 +207,6 @@ class Engine {
         mainLoop.bind(this)
       );
 
-      if (
-        this._recalculateCanvas &&
-        !(this._reduceFramerate && this._isOddFrame)
-      ) {
-        this.recalculateCanvas();
-        this._recalculateCanvas = false;
-      }
       if (!this._realLastTimestamp) {
         this._realLastTimestamp = timestamp;
       }
@@ -233,6 +227,7 @@ class Engine {
         if (this._reduceFramerate) {
           this._isOddFrame = !this._isOddFrame;
         }
+
         if (!this._reduceFramerate || this._isOddFrame) {
           let now = this._scene.currentTime();
 
@@ -247,6 +242,12 @@ class Engine {
           this._normalizeContext(this._output.context);
           if (this._isSceneInitialized) {
             if (this._timePassed !== 0) {
+              const drawFrame = !this._scene.isFrameToSkip(this._output, this._timePassed);
+              if (this._recalculateCanvas && drawFrame) {
+                this.recalculateCanvas();
+                this._recalculateCanvas = false;
+              }
+
               const nowAutoSize = this._now();
               this._scene.move(this._output, this._timePassed);
 
@@ -255,23 +256,23 @@ class Engine {
                 this._timePassed = this._scene.totalTimePassed;
               }
 
-              this._scene.draw(this._output);
+              drawFrame && this._scene.draw(this._output);
 
               if (this._autoSize && this._autoSize.enabled) {
-                const deltaTimestamp =
-                  timestamp - this._realLastTimestamp;
+                const deltaTimestamp = timestamp - this._realLastTimestamp;
 
                 if (
                   this._autoSize.currentWaitedTime < this._autoSize.waitTime
                 ) {
                   this._autoSize.currentWaitedTime += deltaTimestamp;
-                } else {
+                } else if (drawFrame) {
                   const targetTime =
                     this._autoSize.offsetTimeTarget *
                     (this._reduceFramerate ? 2 : 1);
                   const deltaFrame = this._now() - nowAutoSize;
                   const delta =
-                    (Math.abs(deltaTimestamp - targetTime) > Math.abs(deltaFrame - targetTime)
+                    (Math.abs(deltaTimestamp - targetTime) >
+                    Math.abs(deltaFrame - targetTime)
                       ? deltaTimestamp
                       : deltaFrame) - targetTime;
                   if (Math.abs(delta) <= this._autoSize.offsetTimeDelta) {

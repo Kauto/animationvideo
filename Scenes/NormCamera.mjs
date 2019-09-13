@@ -71,7 +71,7 @@ export default class SceneNormCamera extends SceneNorm {
     return super.destroy(output);
   }
 
-  _hasCamChanged() {
+  hasCamChanged() {
     return (
       Math.abs(this.toCam.x - this.cam.x) >= Number.EPSILON ||
       Math.abs(this.toCam.y - this.cam.y) >= Number.EPSILON ||

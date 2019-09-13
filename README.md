@@ -4,11 +4,12 @@ AnimationVideo is a javascript library to animate objects inside a canvas. The a
 
 ## Examples
 
-- [Perfect audio sync](https://codesandbox.io/s/eloquent-field-55tk6?fontsize=14)
-- [Zoom with gloom](https://codesandbox.io/s/quirky-ives-hwqqb?fontsize=14)
-- [Follow mouse move and feedback effect](https://codesandbox.io/s/infallible-wildflower-w3uo7?fontsize=14)
-- [Mouse controls to move and zoom](https://codesandbox.io/s/thirsty-https-v26ff?fontsize=14)
-- [Mouse zoom and mark regions](https://codesandbox.io/s/funny-williams-fhgx6?fontsize=14)
+- [Perfect audio sync](https://codesandbox.io/s/eloquent-field-55tk6)
+- [Zoom with gloom](https://codesandbox.io/s/quirky-ives-hwqqb)
+- [Follow mouse move and feedback effect](https://codesandbox.io/s/infallible-wildflower-w3uo7)
+- [Mouse controls to move and zoom](https://codesandbox.io/s/thirsty-https-v26ff)
+- [Mouse zoom and mark regions](https://codesandbox.io/s/funny-williams-fhgx6)
+- [Screenshot Lightbox](https://codesandbox.io/s/gallant-davinci-ts8v4)
 
 or in the **index.html**.
 
@@ -240,7 +241,7 @@ new Engine({
 }).run(); // start the engine
 ```
 
-[Test code at codesandbox.io](https://codesandbox.io/s/quirky-ives-hwqqb?fontsize=14)
+[Test code at codesandbox.io](https://codesandbox.io/s/quirky-ives-hwqqb)
 
 ## Engine
 
@@ -477,6 +478,28 @@ const objectScene = new SceneDefault({
   // if a frame misses the target tickChunk-time. Default value is 0.1
   // can be a function or a fixed value
   tickChunkTolerance: 0.1,
+
+  // "isFrameToSkip" is a optional function that will determine if a scene should be drawn
+  // If this function returns true it will still call "update" and "fixedUpdate" but
+  // it will not draw the sprites
+  // - engine is the engine object this scene is running in
+  // - scene is the scene object this object is running in
+  // - layerManager is the object that manages all objects that are in the scene
+  // - output is a object with canvas information
+  //   output = {
+  //     canvas: null,  // the canvas object
+  //     context: null, // the context2d of the canvas
+  //     width: 0,      // the width of the canvas
+  //     height: 0,     // the height of the canvas
+  //     ratio: 1       // the ratio between width and height
+  //   }
+  // - timePassed is the time in ms that has passed since the last frame
+  // - totalTimePassed is the time in ms that has passed since the start of the
+  //   animation
+  isFrameToSkip({ engine, scene, layerManager, output, timePassed, totalTimePassed }) {
+    // calculation for the draw logic. f.e.
+    // return totalTimePassed>=10000 && !scene.hasCamChanged();
+  }
 
   // "fixedUpdate" is a optional function that will be
   // called in fixed periodic intervals that is set in "tickChunk"
@@ -740,7 +763,7 @@ new Engine({
 }).run(); // start the engine
 ```
 
-[Test code at codesandbox.io](https://codesandbox.io/s/infallible-wildflower-w3uo7?fontsize=14)
+[Test code at codesandbox.io](https://codesandbox.io/s/infallible-wildflower-w3uo7)
 
 ### Audio
 
@@ -983,7 +1006,7 @@ new Engine({
 }).run(); // start the engine
 ```
 
-[Test code at codesandbox.io](https://codesandbox.io/s/eloquent-field-55tk6?fontsize=14)
+[Test code at codesandbox.io](https://codesandbox.io/s/eloquent-field-55tk6)
 
 ### NormAudio
 
@@ -1089,7 +1112,7 @@ new Engine({
 }).run(); // start the engine
 ```
 
-[Test code at codesandbox.io](https://codesandbox.io/s/funny-williams-fhgx6?fontsize=14)
+[Test code at codesandbox.io](https://codesandbox.io/s/funny-williams-fhgx6)
 
 ## Sprites
 

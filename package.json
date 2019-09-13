@@ -15,9 +15,15 @@
   },
   "keywords": [
     "animation",
+    "animations",
     "canvas",
     "audio",
-    "tween"
+    "tween",
+    "mouse",
+    "touch",
+    "engine",
+    "sprite",
+    "sprites"
   ],
   "mangle": {
     "regex": "^_"
