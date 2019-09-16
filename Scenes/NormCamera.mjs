@@ -142,7 +142,9 @@ export default class SceneNormCamera extends SceneNorm {
     for (const eventName of ["touchmove", "mousemove"]) {
       element.removeEventListener(eventName, this._mouseMove, true);
     }
-    element.removeEventListener("mousewheel", this._mouseWheel, true);
+    for (const eventName of ["mousewheel", "wheel"]) {
+      element.removeEventListener(eventName, this._mouseWheel, true);
+    }
     element.removeEventListener("contextmenu", this._eventPrevent, true);
   }
 
