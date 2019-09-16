@@ -22,7 +22,8 @@ class Image extends Circle {
       frameHeight: 0,
       // autoscale to max
       norm: false,
-      normCover: false
+      normCover: false,
+      normToScreen: false,
     });
   }
 
@@ -36,7 +37,17 @@ class Image extends Circle {
       const frameWidth = this.frameWidth || this.image.width,
         frameHeight = this.frameHeight || this.image.height;
       if (!this.normScale) {
-        this.normScale = this.normCover
+        this.normScale = this.normToScreen ? (this.normCover
+          ? Math.max(
+              additionalModifier.fullScreen.width / frameWidth,
+              additionalModifier.fullScreen.height / frameHeight
+            )
+          : this.norm
+          ? Math.min(
+              additionalModifier.fullScreen.width / frameWidth,
+              additionalModifier.fullScreen.height / frameHeight
+            )
+          : 1) : (this.normCover
           ? Math.max(
               additionalModifier.width / frameWidth,
               additionalModifier.height / frameHeight
@@ -46,7 +57,7 @@ class Image extends Circle {
               additionalModifier.width / frameWidth,
               additionalModifier.height / frameHeight
             )
-          : 1;
+          : 1);
       }
       const sX = frameWidth * this.normScale * this.scaleX,
         sY = frameHeight * this.normScale * this.scaleY;

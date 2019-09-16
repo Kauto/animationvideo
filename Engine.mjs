@@ -45,7 +45,7 @@ class Engine {
     // time measurement
     this._lastTimestamp = 0;
     this._timePassed = 0;
-    this._recalculateCanvas = false;
+    this._recalculateCanvasIntend = false;
 
     // reference to
     this._referenceRequestAnimationFrame = null;
@@ -154,6 +154,11 @@ class Engine {
   }
 
   recalculateCanvas() {
+    this._recalculateCanvasIntend = true;
+    return this;
+  }
+
+  _recalculateCanvas() {
     if (this._autoSize) {
       const width = calc(this._autoSize.referenceWidth);
       const height = calc(this._autoSize.referenceHeight);
@@ -179,7 +184,6 @@ class Engine {
     this._output.ratio = this._output.width / this._output.height;
 
     this.resize();
-    return this;
   }
 
   resize() {
@@ -207,6 +211,16 @@ class Engine {
         mainLoop.bind(this)
       );
 
+      let drawFrame = false;
+      if (
+        this._recalculateCanvasIntend &&
+        (!this._reduceFramerate || !this._isOddFrame)
+      ) {
+        this._recalculateCanvas();
+        this._recalculateCanvasIntend = false;
+        drawFrame = true;
+      }
+
       if (!this._realLastTimestamp) {
         this._realLastTimestamp = timestamp;
       }
@@ -220,6 +234,7 @@ class Engine {
           this._scene = this._newScene;
           this._newScene = null;
           this._isSceneInitialized = false;
+          this._lastTimestamp = this._scene.currentTime();
         }
       }
 
@@ -241,11 +256,12 @@ class Engine {
 
           this._normalizeContext(this._output.context);
           if (this._isSceneInitialized) {
-            if (this._timePassed !== 0) {
-              const drawFrame = !this._scene.isFrameToSkip(this._output, this._timePassed);
-              if (this._recalculateCanvas && drawFrame) {
-                this.recalculateCanvas();
-                this._recalculateCanvas = false;
+            if (this._timePassed !== 0 || drawFrame) {
+              if (!drawFrame) {
+                drawFrame = !this._scene.isFrameToSkip(
+                  this._output,
+                  this._timePassed
+                );
               }
 
               const nowAutoSize = this._now();
@@ -303,7 +319,7 @@ class Engine {
                           this._autoSize.currentScale /
                             this._autoSize.scaleFactor
                         );
-                        this._recalculateCanvas = true;
+                        this._recalculateCanvasIntend = true;
                       }
                     } else if (
                       delta > 0 &&
@@ -319,7 +335,7 @@ class Engine {
                           this._autoSize.currentScale *
                             this._autoSize.scaleFactor
                         );
-                        this._recalculateCanvas = true;
+                        this._recalculateCanvasIntend = true;
                       }
                     }
                   }

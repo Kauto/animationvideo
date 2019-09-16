@@ -424,17 +424,18 @@ const objectScene = new SceneDefault({
     const ctx = output.context;
     const loadedHeight =
       typeof progress === "number"
-        ? Math.max(1, progress * output.h)
-        : output.h;
-
-    // clean the screen
+        ? Math.max(1, progress * output.height)
+        : output.height;
     ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = 1;
-    ctx.clearRect(0, 0, output.w, output.h);
-
-    ctx.fillStyle = "#aac";
-    ctx.fillRect(0, output.h / 2 - loadedHeight / 2, output.w, loadedHeight);
-
+    ctx.clearRect(0, 0, output.width, output.height);
+    ctx.fillStyle = "#aaa";
+    ctx.fillRect(
+      0,
+      output.height / 2 - loadedHeight / 2,
+      output.width,
+      loadedHeight
+    );
     ctx.font = "20px Georgia";
     ctx.fillStyle = "#fff";
     ctx.textAlign = "left";
@@ -448,7 +449,7 @@ const objectScene = new SceneDefault({
     ctx.fillText(
       text,
       10 + Math.random() * 3,
-      output.h - 10 + Math.random() * 3
+      output.height - 10 + Math.random() * 3
     );
   },
 
@@ -1157,6 +1158,7 @@ new Engine({
             frameHeight: 0, // height of the sprite that will be cut out from an image
             norm: false, // resize the image, so it hits the corner of the canvas
             normCover: false, // resize the image, so it's completly covering the canvas
+            normToScreen: false, // it will be norm-ed to the visible, zoomed out screen, not to the full -1 to 1 canvas
             animation: undefined
           })
         ]

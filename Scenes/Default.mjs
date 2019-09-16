@@ -119,11 +119,11 @@ class Scene {
     const ctx = output.context;
     const loadedHeight =
       typeof progress === "number"
-        ? Math.max(1, progress * output.h)
-        : output.h;
+        ? Math.max(1, progress * output.height)
+        : output.height;
     ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = 1;
-    ctx.clearRect(0, 0, output.w, output.h);
+    ctx.clearRect(0, 0, output.width, output.height);
     ctx.fillStyle = "#aaa";
     ctx.fillRect(
       0,

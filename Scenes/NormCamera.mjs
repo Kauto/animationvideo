@@ -24,9 +24,9 @@ export default class SceneNormCamera extends SceneNorm {
       this._configuration.click = () => {};
     }
     this.toCam = {
-      x: 0,
-      y: 0,
-      zoom: 1
+      x: this.camConfig.currentX || 0,
+      y: this.camConfig.currentY || 0,
+      zoom: this.camConfig.currentZoom || 1
     };
 
     this._mousePos = [];
@@ -394,7 +394,7 @@ export default class SceneNormCamera extends SceneNorm {
       this.toCam.zoom * Math.max(Math.min(zoomX, zoomY), Number.MIN_VALUE);
   }
 
-  clampView = function() {
+  clampView() {
     const invert = this._getViewportByCam(this.toCam).invert();
     const [x1, y1] = invert.transformPoint(0, 0);
     const [x2, y2] = invert.transformPoint(
