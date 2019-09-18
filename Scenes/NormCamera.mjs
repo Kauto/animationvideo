@@ -125,7 +125,7 @@ export default class SceneNormCamera extends SceneNorm {
     for (const eventName of ["touchmove", "mousemove"]) {
       element.addEventListener(eventName, this._mouseMove.bind(this), true);
     }
-    element.addEventListener("mousewheel", this._mouseWheel.bind(this), true);
+    element.addEventListener("wheel", this._mouseWheel.bind(this), true);
     element.addEventListener("contextmenu", this._eventPrevent, true);
   }
 
@@ -142,9 +142,7 @@ export default class SceneNormCamera extends SceneNorm {
     for (const eventName of ["touchmove", "mousemove"]) {
       element.removeEventListener(eventName, this._mouseMove, true);
     }
-    for (const eventName of ["mousewheel", "wheel"]) {
-      element.removeEventListener(eventName, this._mouseWheel, true);
-    }
+    element.removeEventListener("wheel", this._mouseWheel, true);
     element.removeEventListener("contextmenu", this._eventPrevent, true);
   }
 

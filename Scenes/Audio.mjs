@@ -3,55 +3,51 @@ import Scene from "./Default.mjs";
 export default class SceneAudio extends Scene {
   constructor(configurationClassOrObject) {
     super(configurationClassOrObject);
-    this.audioStartTime = null;
-    this.audioPosition = null;
-    this.enableAndroidHack = false;
-    this.audioElement = this._configuration.audioElement;
+    this._audioStartTime = null;
+    this._audioPosition = null;
+    this._enableAndroidHack = false;
+    this._audioElement = this._configuration.audioElement;
   }
 
   currentTime() {
     let currentTime = super.currentTime();
-    if (this.audioElement) {
+    if (this._audioElement) {
+      const currentAudioTime = (this._audioElement.ended
+        ? this._audioElement.duration
+        : this._audioElement.currentTime) * 1000;
       // Android workaround
-      if (this.enableAndroidHack) {
-        if (this.audioStartTime === null) {
-          this.audioStartTime = currentTime;
-          this.audioPosition = this.audioElement.currentTime;
-          return this.audioElement.currentTime * 1000;
+      if (this._enableAndroidHack) {
+        if (this._audioStartTime === null) {
+          this._audioStartTime = currentTime;
+          this._audioPosition = currentAudioTime;
+          return currentAudioTime;
         } else {
-          if (this.audioElement.controller.playbackState === "playing") {
-            if (this.audioElement.currentTime === this.audioPosition) {
+          if (this._audioElement.controller.playbackState === "playing") {
+            if (currentAudioTime=== this._audioPosition) {
               return (
-                this.audioPosition * 1000 +
-                Math.min(260, currentTime - this.audioStartTime)
+                this._audioPosition +
+                Math.min(260, currentTime - this._audioStartTime)
               );
             } else if (
-              this.audioElement.currentTime - this.audioPosition < 0.5 &&
-              this.audioElement.currentTime > this.audioPosition &&
-              currentTime - this.audioStartTime < 350
+              currentAudioTime - this._audioPosition < 500 &&
+              currentAudioTime > this._audioPosition &&
+              currentTime - this._audioStartTime < 350
             ) {
-              this.audioStartTime =
-                this.audioStartTime +
-                (this.audioElement.currentTime - this.audioPosition) * 1000;
-              this.audioPosition = this.audioElement.currentTime;
+              this._audioStartTime =
+                this._audioStartTime +
+                (currentAudioTime - this._audioPosition);
+              this._audioPosition = currentAudioTime;
               return (
-                this.audioPosition * 1000 + currentTime - this.audioStartTime
+                this._audioPosition + currentTime - this._audioStartTime
               );
             }
           }
-          this.audioStartTime = currentTime;
-          this.audioPosition =
-            (this.audioElement.ended
-              ? this.audioElement.duration
-              : this.audioElement.currentTime) * 1000;
-          return this.audioPosition * 1000;
+          this._audioStartTime = currentTime;
+          this._audioPosition = currentAudioTime;
+          return this._audioPosition;
         }
       } else {
-        return (
-          (this.audioElement.ended
-            ? this.audioElement.duration
-            : this.audioElement.currentTime) * 1000
-        );
+        return currentAudioTime;
       }
     } else {
       return currentTime;
@@ -68,18 +64,18 @@ export default class SceneAudio extends Scene {
 
   callInit(...arg) {
     // init audio
-    if (this.audioElement) {
-      var canPlayType = this.audioElement.canPlayType("audio/mp3");
+    if (this._audioElement) {
+      var canPlayType = this._audioElement.canPlayType("audio/mp3");
       if (canPlayType.match(/maybe|probably/i)) {
         //this.audioshift = 1500;
       }
       // Android hack
       if (typeof MediaController === "function") {
-        this.audioElement.controller = new MediaController();
-        this.enableAndroidHack = true;
+        this._audioElement.controller = new MediaController();
+        this._enableAndroidHack = true;
       }
-      this.audioElement.preload = "auto";
-      this.audioElement.load();
+      this._audioElement.preload = "auto";
+      this._audioElement.load();
     }
 
     return super.callInit(...arg);
@@ -88,19 +84,19 @@ export default class SceneAudio extends Scene {
   callLoading(output) {
     let loaded = super.callLoading(output);
 
-    if (loaded && this.audioElement) {
+    if (loaded && this._audioElement) {
       if (
-        !(this.audioElement.readyState >= this.audioElement.HAVE_ENOUGH_DATA)
+        !(this._audioElement.readyState >= this._audioElement.HAVE_ENOUGH_DATA)
       ) {
         this.loadingScreen(output, "Waiting for Audio");
         return false;
       } else {
-        let playPromise = this.audioElement.play();
+        let playPromise = this._audioElement.play();
         if (playPromise) {
           playPromise.catch(e => {});
         }
-        if (!this._configuration.endTime) {
-          this._configuration.endTime = this.audioElement.duration * 1000;
+        if (!this._configuration.endTime && this._audioElement.duration > 0) {
+          this._configuration.endTime = this._audioElement.duration * 1000;
         }
         this.loadingScreen(output, "Click to play");
       }

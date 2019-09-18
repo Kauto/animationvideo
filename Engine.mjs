@@ -129,8 +129,8 @@ class Engine {
   }
 
   playAudioOfScene() {
-    if (this._isSceneInitialized && this._scene && this._scene.audioElement) {
-      this._scene.audioElement.play();
+    if (this._isSceneInitialized && this._scene && this._scene.getConfiguration().audioElement) {
+      this._scene.getConfiguration().audioElement.play();
     }
   }
 
@@ -346,6 +346,7 @@ class Engine {
             this._isSceneInitialized = this._scene.callLoading(this._output);
             if (this._isSceneInitialized) {
               this._scene.reset(this._output);
+              this._lastTimestamp = this._scene.currentTime();
               if (this._autoSize) {
                 this._autoSize.currentWaitedTime = 0;
               }

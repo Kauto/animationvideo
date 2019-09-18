@@ -507,12 +507,6 @@
           this.layerCount.forEach(
             ({ element }) => (element.text = this.layerMove.count())
           );
-          this.layerStart.forEach(
-            ({ element }) => (element.text = this.layerMove.start)
-          );
-          this.layerNext.forEach(
-            ({ element }) => (element.text = this.layerMove.nextFree)
-          );
           this.newThings = [];
         }
 
@@ -589,60 +583,6 @@
             new SP.Text({
               x: -0.9,
               y: -0.3,
-              scaleX: 0.005,
-              scaleY: 0.005,
-              color: "#000",
-              text: "0"
-            })
-          ]);
-          this.layerStart = layerManager.addLayer();
-          this.layerStart.addElements([
-            new SP.Text({
-              x: -0.905,
-              y: -0.155,
-              scaleX: 0.005,
-              scaleY: 0.005,
-              color: "#fff",
-              text: "0"
-            }),
-            new SP.Text({
-              x: -0.895,
-              y: -0.145,
-              scaleX: 0.005,
-              scaleY: 0.005,
-              color: "#fff",
-              text: "0"
-            }),
-            new SP.Text({
-              x: -0.9,
-              y: -0.15,
-              scaleX: 0.005,
-              scaleY: 0.005,
-              color: "#000",
-              text: "0"
-            })
-          ]);
-          this.layerNext = layerManager.addLayer();
-          this.layerNext.addElements([
-            new SP.Text({
-              x: -0.905,
-              y: -0.005,
-              scaleX: 0.005,
-              scaleY: 0.005,
-              color: "#fff",
-              text: "0"
-            }),
-            new SP.Text({
-              x: -0.895,
-              y: 0.005,
-              scaleX: 0.005,
-              scaleY: 0.005,
-              color: "#fff",
-              text: "0"
-            }),
-            new SP.Text({
-              x: -0.9,
-              y: 0,
               scaleX: 0.005,
               scaleY: 0.005,
               color: "#000",
@@ -745,6 +685,15 @@
                 //moveZ: -0.02,
               })
             ]);
+            layerManager.addLayer().addElements([new SP.Path({
+              path: 'M-.5,0a.5,.5,0,1,1,1,0a.5,.5,0,1,1,-1,0',
+              color: '#0F0'
+            }),
+            new SP.Path({
+              path: 'M-.5,0A.5,.5,0,1,1,.5,0A.5,.5,0,1,1,-.5,0',
+              color: '#0F0'
+            })
+            ]);
             this.layers.player = layerManager.addLayer();
             this.sprite.ship = this.layers.player.addElement(
               SP.Text({
@@ -831,15 +780,6 @@
                 })
               })
             );
-            layerManager.addLayer().addElements([new SP.Path({
-              path: 'M-.5,0a.5,.5,0,1,1,1,0a.5,.5,0,1,1,-1,0',
-              color: '#0F0'
-            }),
-            new SP.Path({
-              path: 'M-.5,0A.5,.5,0,1,1,.5,0A.5,.5,0,1,1,-.5,0',
-              color: '#0F0'
-            })
-            ])
           }
         }
       )
@@ -1087,6 +1027,7 @@
           this.spriteMarker.y = y1;
           this.spriteMarker.width = x2 - x1;
           this.spriteMarker.height = y2 - y1;
+          this.hideAfterTotalTimePassed = this.totalTimePassed;
         },
         region({ x1, y1, x2, y2 }){
           this.spriteMarker.enabled = false;
@@ -1104,11 +1045,20 @@
               ]
             })
           )
+          this.hideAfterTotalTimePassed = this.totalTimePassed + 3000
         },
         images() {
           return { imageFile: "https://placekitten.com/400/400" };
         },
+        isFrameToSkip({scene, totalTimePassed}) {
+          return !scene.hasCamChanged() && this.hideAfterTotalTimePassed < totalTimePassed;
+        },
+        update({totalTimePassed}) {
+          this.totalTimePassed = totalTimePassed;
+        },
         reset({ layerManager }) {
+          this.totalTimePassed = 0;
+          this.hideAfterTotalTimePassed = 0;
           layerManager.addLayer().addElement(
             SP.Rect({ clear: true })
           );
