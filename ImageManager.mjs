@@ -18,7 +18,8 @@ class ImageManager {
             self.resolve = null;
           }
         };
-        self.Images[i].crossOrigin = "Anonymous";
+        // crossOrigin makes more trouble in the browser and seems to cause slow downs
+        // self.Images[i].crossOrigin = "Anonymous";
         if (Images[i].substr(0, 4) === "<svg") {
           const DOMURL = window.URL || window.webkitURL || window;
           const svg = new window.Blob([Images[i]], { type: "image/svg+xml" });
