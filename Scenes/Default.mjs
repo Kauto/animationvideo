@@ -23,7 +23,7 @@ class Scene {
     this.tickChunk = ifNull(calc(this._configuration.tickChunk), 100 / 6);
     this.maxSkippedTickChunk = ifNull(
       calc(this._configuration.maxSkippedTickChunk),
-      3
+      120
     );
     this.tickChunkTolerance = ifNull(
       calc(this._configuration.tickChunkTolerance),
@@ -36,10 +36,7 @@ class Scene {
   }
 
   clampTime(timePassed) {
-    let maxTime = 2000;
-    if (this.tickChunk) {
-      maxTime = this.tickChunk * this.maxSkippedTickChunk;
-    }
+    const maxTime = this.tickChunk ? this.tickChunk * this.maxSkippedTickChunk : 2000;
     if (timePassed > maxTime) {
       return maxTime;
     }

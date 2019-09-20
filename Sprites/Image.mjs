@@ -28,7 +28,7 @@ class Image extends Circle {
   }
 
   resize() {
-    this.normScale = undefined;
+    this._normScale = undefined;
   }
 
   // Draw-Funktion
@@ -36,8 +36,8 @@ class Image extends Circle {
     if (this.enabled && this.image) {
       const frameWidth = this.frameWidth || this.image.width,
         frameHeight = this.frameHeight || this.image.height;
-      if (!this.normScale) {
-        this.normScale = this.normToScreen ? (this.normCover
+      if (!this._normScale) {
+        this._normScale = this.normToScreen ? (this.normCover
           ? Math.max(
               additionalModifier.fullScreen.width / frameWidth,
               additionalModifier.fullScreen.height / frameHeight
@@ -59,8 +59,8 @@ class Image extends Circle {
             )
           : 1);
       }
-      const sX = frameWidth * this.normScale * this.scaleX,
-        sY = frameHeight * this.normScale * this.scaleY;
+      const sX = frameWidth * this._normScale * this.scaleX,
+        sY = frameHeight * this._normScale * this.scaleY;
       context.globalCompositeOperation = this.compositeOperation;
       context.globalAlpha = this.alpha * additionalModifier.alpha;
       if (this.rotation == 0) {

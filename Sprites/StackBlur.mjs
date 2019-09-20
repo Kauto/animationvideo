@@ -6,8 +6,8 @@ export default class StackBlur extends FastBlur {
   constructor(givenParameter) {
     super(givenParameter);
 
-    this.currentGridSize = false;
-    this.currentRadiusPart = undefined;
+    this._currentGridSize = false;
+    this._currentRadiusPart = undefined;
   }
 
   getParameterList() {
@@ -38,21 +38,21 @@ export default class StackBlur extends FastBlur {
   }
 
   additionalBlur(targetW, targetH, additionalModifier) {
-    this.imageData = this.tctx.getImageData(0, 0, targetW, targetH);
-    imageDataRGBA(this.imageData, 0, 0, targetW, targetH, additionalModifier.radius);
-    this.tctx.putImageData(this.imageData, 0, 0);
+    const imageData = this._tctx.getImageData(0, 0, targetW, targetH);
+    imageDataRGBA(imageData, 0, 0, targetW, targetH, additionalModifier.radius);
+    this._tctx.putImageData(imageData, 0, 0);
   }
 
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {
-      if (this.radius === undefined || this.currentRadiusPart !== this.radiusPart) {
+      if (this.radius === undefined || this._currentRadiusPart !== this.radiusPart) {
         this.radius = Math.round(
           (additionalModifier.widthInPixel + additionalModifier.heightInPixel) /
             2 /
             this.radiusPart
         );
-        this.currentRadiusPart = this.radiusPart;
+        this._currentRadiusPart = this.radiusPart;
       }
       const radius = Math.round(this.radius);
       if (radius) {

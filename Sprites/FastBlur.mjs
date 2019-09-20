@@ -6,7 +6,7 @@ export default class FastBlur extends Circle {
   constructor(givenParameter) {
     super(givenParameter);
 
-    this.currentGridSize = false;
+    this._currentGridSize = false;
   }
 
   getParameterList() {
@@ -34,18 +34,18 @@ export default class FastBlur extends Circle {
   generateTempCanvas(context, additionalModifier) {
     const w = additionalModifier.widthInPixel || context.canvas.width,
       h = additionalModifier.heightInPixel || context.canvas.height;
-    this.temp_canvas = document.createElement("canvas");
+    this._temp_canvas = document.createElement("canvas");
     if (this.gridSize) {
-      this.currentGridSize = this.gridSize;
-      this.temp_canvas.width = Math.round(this.currentGridSize);
-      this.temp_canvas.height = Math.round(this.currentGridSize);
+      this._currentGridSize = this.gridSize;
+      this._temp_canvas.width = Math.round(this._currentGridSize);
+      this._temp_canvas.height = Math.round(this._currentGridSize);
     } else {
-      this.temp_canvas.width = Math.ceil(w / this.scaleX);
-      this.temp_canvas.height = Math.ceil(h / this.scaleY);
+      this._temp_canvas.width = Math.ceil(w / this.scaleX);
+      this._temp_canvas.height = Math.ceil(h / this.scaleY);
     }
-    this.tctx = this.temp_canvas.getContext("2d");
-    this.tctx.globalCompositeOperation = "source-over";
-    this.tctx.globalAlpha = 1;
+    this._tctx = this._temp_canvas.getContext("2d");
+    this._tctx.globalCompositeOperation = "source-over";
+    this._tctx.globalAlpha = 1;
   }
 
   normalizeFullScreen(additionalModifier) {
@@ -64,11 +64,11 @@ export default class FastBlur extends Circle {
   }
 
   resize(context, additionalModifier) {
-    if (this.temp_canvas && this.currentGridSize !== this.gridSize) {
-      const oldTempCanvas = this.temp_canvas;
+    if (this._temp_canvas && this._currentGridSize !== this.gridSize) {
+      const oldTempCanvas = this._temp_canvas;
       this.generateTempCanvas(context, additionalModifier);
-      this.tctx.globalCompositeOperation = "copy";
-      this.tctx.drawImage(
+      this._tctx.globalCompositeOperation = "copy";
+      this._tctx.drawImage(
         oldTempCanvas,
         0,
         0,
@@ -76,10 +76,10 @@ export default class FastBlur extends Circle {
         oldTempCanvas.height,
         0,
         0,
-        this.temp_canvas.width,
-        this.temp_canvas.height
+        this._temp_canvas.width,
+        this._temp_canvas.height
       );
-      this.tctx.globalCompositeOperation = "source-over";
+      this._tctx.globalCompositeOperation = "source-over";
     }
     this.normalizeFullScreen(additionalModifier);
   }
@@ -87,24 +87,24 @@ export default class FastBlur extends Circle {
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {
-      if (!this.temp_canvas) {
+      if (!this._temp_canvas) {
         this.generateTempCanvas(context, additionalModifier);
         this.normalizeFullScreen(additionalModifier);
       }
-      if (this.gridSize && this.currentGridSize !== this.gridSize) {
+      if (this.gridSize && this._currentGridSize !== this.gridSize) {
         this.resize(context, additionalModifier);
       }
 
       const a = this.alpha * additionalModifier.alpha,
         w = this.width,
         h = this.height,
-        targetW = this.temp_canvas.width,
-        targetH = this.temp_canvas.height;
+        targetW = this._temp_canvas.width,
+        targetH = this._temp_canvas.height;
 
       if (a > 0 && targetW && targetH) {
-        this.tctx.globalCompositeOperation = "copy";
-        this.tctx.globalAlpha = 1;
-        this.tctx.drawImage(
+        this._tctx.globalCompositeOperation = "copy";
+        this._tctx.globalAlpha = 1;
+        this._tctx.drawImage(
           context.canvas,
           0,
           0,
@@ -117,11 +117,11 @@ export default class FastBlur extends Circle {
         );
 
         if (this.darker > 0) {
-          this.tctx.globalCompositeOperation = this.clear
+          this._tctx.globalCompositeOperation = this.clear
             ? "source-atop"
             : "source-over"; // "source-atop"; source-atop works with transparent background but source-over is much faster
-          this.tctx.fillStyle = "rgba(0,0,0," + this.darker + ")";
-          this.tctx.fillRect(0, 0, targetW, targetH);
+          this._tctx.fillStyle = "rgba(0,0,0," + this.darker + ")";
+          this._tctx.fillRect(0, 0, targetW, targetH);
         }
 
         this.additionalBlur && this.additionalBlur(targetW, targetH, additionalModifier);
@@ -134,7 +134,7 @@ export default class FastBlur extends Circle {
         context.globalAlpha = a;
         context.imageSmoothingEnabled = !this.pixel;
         context.drawImage(
-          this.temp_canvas,
+          this._temp_canvas,
           0,
           0,
           targetW,

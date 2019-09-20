@@ -59,14 +59,14 @@ export default class SceneNormCamera extends SceneNorm {
 
   callInit(output, parameter, engine) {
     if (this.camConfig.registerEvents) {
-      this.registerCamEvents(output.canvas);
+      this._registerCamEvents(output.canvas);
     }
     return super.callInit(output, parameter, engine);
   }
 
   destroy(output) {
     if (this.camConfig.registerEvents) {
-      this.destroyCamEvents(output.canvas);
+      this._destroyCamEvents(output.canvas);
     }
     return super.destroy(output);
   }
@@ -81,7 +81,6 @@ export default class SceneNormCamera extends SceneNorm {
   }
 
   fixedUpdate(output, timePassed, lastCall) {
-    const ret = super.fixedUpdate(output, timePassed, lastCall);
     if (this.camConfig.tween && this.hasCamChanged()) {
       this.cam.x += (this.toCam.x - this.cam.x) / this.camConfig.tween;
       this.cam.y += (this.toCam.y - this.cam.y) / this.camConfig.tween;
@@ -95,7 +94,7 @@ export default class SceneNormCamera extends SceneNorm {
         }
       }
     }
-    return ret;
+    return super.fixedUpdate(output, timePassed, lastCall);
   }
 
   move(output, timePassed) {
@@ -112,7 +111,7 @@ export default class SceneNormCamera extends SceneNorm {
     return ret;
   }
 
-  registerCamEvents(element) {
+  _registerCamEvents(element) {
     for (const eventName of ["touchstart", "mousedown"]) {
       element.addEventListener(eventName, this._mouseDown.bind(this), true);
     }
@@ -129,7 +128,7 @@ export default class SceneNormCamera extends SceneNorm {
     element.addEventListener("contextmenu", this._eventPrevent, true);
   }
 
-  destroyCamEvents(element) {
+  _destroyCamEvents(element) {
     for (const eventName of ["touchstart", "mousedown"]) {
       element.removeEventListener(eventName, this._mouseDown, true);
     }
@@ -251,8 +250,8 @@ export default class SceneNormCamera extends SceneNorm {
     if (this._mousePos[i]) this._mousePos[i]._isDown = false;
   }
   _mouseMove(e) {
-    const i = this._getMouseButton(e);
     if (this.camConfig.preventDefault) e.preventDefault();
+    const i = this._getMouseButton(e);
     if (
       !this._mousePos[i] ||
       !this._mousePos[i]._isDown ||

@@ -5,7 +5,7 @@ import Group from "./Group.mjs";
 export default class Canvas extends Group {
   constructor(givenParameter) {
     super(givenParameter);
-    this.currentGridSize = false;
+    this._currentGridSize = false;
   }
 
   getParameterList() {
@@ -30,18 +30,18 @@ export default class Canvas extends Group {
   generateTempCanvas(context, additionalModifier) {
     let w = additionalModifier.widthInPixel || context.canvas.width,
       h = additionalModifier.heightInPixel || context.canvas.height;
-    this.temp_canvas = document.createElement("canvas");
+    this._temp_canvas = document.createElement("canvas");
     if (this.gridSize) {
-      this.currentGridSize = this.gridSize;
-      this.temp_canvas.width = Math.round(this.currentGridSize);
-      this.temp_canvas.height = Math.round(this.currentGridSize);
+      this._currentGridSize = this.gridSize;
+      this._temp_canvas.width = Math.round(this._currentGridSize);
+      this._temp_canvas.height = Math.round(this._currentGridSize);
     } else {
-      this.temp_canvas.width = Math.round(w / this.scaleX);
-      this.temp_canvas.height = Math.round(h / this.scaleY);
+      this._temp_canvas.width = Math.round(w / this.scaleX);
+      this._temp_canvas.height = Math.round(h / this.scaleY);
     }
-    this.tctx = this.temp_canvas.getContext("2d");
-    this.tctx.globalCompositeOperation = "source-over";
-    this.tctx.globalAlpha = 1;
+    this._tctx = this._temp_canvas.getContext("2d");
+    this._tctx.globalCompositeOperation = "source-over";
+    this._tctx.globalAlpha = 1;
   }
 
   normalizeFullScreen(additionalModifier) {
@@ -60,11 +60,11 @@ export default class Canvas extends Group {
   }
 
   resize(context, additionalModifier) {
-    if (this.temp_canvas && this.currentGridSize !== this.gridSize) {
-      const oldTempCanvas = this.temp_canvas;
+    if (this._temp_canvas && this._currentGridSize !== this.gridSize) {
+      const oldTempCanvas = this._temp_canvas;
       this.generateTempCanvas(context, additionalModifier);
-      this.tctx.globalCompositeOperation = "copy";
-      this.tctx.drawImage(
+      this._tctx.globalCompositeOperation = "copy";
+      this._tctx.drawImage(
         oldTempCanvas,
         0,
         0,
@@ -72,10 +72,10 @@ export default class Canvas extends Group {
         oldTempCanvas.height,
         0,
         0,
-        this.temp_canvas.width,
-        this.temp_canvas.height
+        this._temp_canvas.width,
+        this._temp_canvas.height
       );
-      this.tctx.globalCompositeOperation = "source-over";
+      this._tctx.globalCompositeOperation = "source-over";
     }
     this.normalizeFullScreen(additionalModifier);
   }
@@ -83,11 +83,11 @@ export default class Canvas extends Group {
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {
-      if (!this.temp_canvas) {
+      if (!this._temp_canvas) {
         this.generateTempCanvas(context, additionalModifier);
         this.normalizeFullScreen(additionalModifier);
       }
-      if (this.gridSize && this.currentGridSize !== this.gridSize) {
+      if (this.gridSize && this._currentGridSize !== this.gridSize) {
         this.resize(context, additionalModifier);
       }
 
@@ -95,17 +95,17 @@ export default class Canvas extends Group {
         h = this.height,
         wh = w / 2,
         hh = h / 2,
-        tw = this.temp_canvas.width,
-        th = this.temp_canvas.height;
+        tw = this._temp_canvas.width,
+        th = this._temp_canvas.height;
 
-      this.tctx.textBaseline = "middle";
-      this.tctx.textAlign = "center";
-      this.tctx.globalAlpha = 1;
-      this.tctx.globalCompositeOperation = "source-over";
+      this._tctx.textBaseline = "middle";
+      this._tctx.textAlign = "center";
+      this._tctx.globalAlpha = 1;
+      this._tctx.globalCompositeOperation = "source-over";
 
       // draw all sprites
       for (let i in this.sprite) {
-        this.sprite[i].draw(this.tctx, {
+        this.sprite[i].draw(this._tctx, {
           alpha: 1,
           x: 0,
           y: 0,
@@ -131,11 +131,11 @@ export default class Canvas extends Group {
       context.scale(this.scaleX, this.scaleY);
       context.rotate(this.rotation);
       context.drawImage(
-        this.temp_canvas,
+        this._temp_canvas,
         0,
         0,
-        this.temp_canvas.width,
-        this.temp_canvas.height,
+        this._temp_canvas.width,
+        this._temp_canvas.height,
         -wh,
         -hh,
         w,

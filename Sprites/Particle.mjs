@@ -17,25 +17,25 @@ class Particle extends Circle {
       cg = g >> gradientResolution,
       cb = b >> gradientResolution;
 
-    if (!Particle.Gradient) {
-      Particle.Gradient = new Array(256 >> gradientResolution);
-      for (rIndex = 0; rIndex < Particle.Gradient.length; rIndex++) {
-        Particle.Gradient[rIndex] = new Array(256 >> gradientResolution);
-        for (gIndex = 0; gIndex < Particle.Gradient[rIndex].length; gIndex++) {
-          Particle.Gradient[rIndex][gIndex] = new Array(
+    if (!Particle._Gradient) {
+      Particle._Gradient = new Array(256 >> gradientResolution);
+      for (rIndex = 0; rIndex < Particle._Gradient.length; rIndex++) {
+        Particle._Gradient[rIndex] = new Array(256 >> gradientResolution);
+        for (gIndex = 0; gIndex < Particle._Gradient[rIndex].length; gIndex++) {
+          Particle._Gradient[rIndex][gIndex] = new Array(
             256 >> gradientResolution
           );
         }
       }
     }
-    if (!Particle.Gradient[cr][cg][cb]) {
-      Particle.Gradient[cr][cg][cb] = Particle.generateGradientImage(
+    if (!Particle._Gradient[cr][cg][cb]) {
+      Particle._Gradient[cr][cg][cb] = Particle.generateGradientImage(
         cr,
         cg,
         cb
       );
     }
-    return Particle.Gradient[cr][cg][cb];
+    return Particle._Gradient[cr][cg][cb];
   }
 
   static generateGradientImage(cr, cg, cb) {

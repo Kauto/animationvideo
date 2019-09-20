@@ -8,8 +8,8 @@ export default class Callback extends Circle {
     super(givenParameter);
 
     // set start value to count
-    this.timePassed = 0;
-    this.deltaTime = 0;
+    this._timePassed = 0;
+    this._deltaTime = 0;
   }
 
   getParameterList() {
@@ -20,16 +20,16 @@ export default class Callback extends Circle {
 
   animate(timePassed) {
     if (this.enabled) {
-      this.timePassed += timePassed;
-      this.deltaTime += timePassed;
+      this._timePassed += timePassed;
+      this._deltaTime += timePassed;
     }
     return super.animate(timePassed);
   }
 
   draw(context, additionalParameter) {
     if (this.enabled) {
-      this.callback(context, this.timePassed, additionalParameter, this);
+      this.callback(context, this._timePassed, additionalParameter, this);
     }
-    this.deltaTime = 0;
+    this._deltaTime = 0;
   }
 }
