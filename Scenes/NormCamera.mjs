@@ -1,6 +1,8 @@
 import SceneNorm from "./Norm.mjs";
 import calc from "../func/calc.mjs";
 
+const clickTime = 300;
+
 export default class SceneNormCamera extends SceneNorm {
   constructor(...args) {
     super(...args);
@@ -204,7 +206,7 @@ export default class SceneNormCamera extends SceneNorm {
     }
     const [mx, my] = this._getMousePosition(e);
     if (
-      Date.now() - this._mousePos[i]._timestamp < 150 &&
+      Date.now() - this._mousePos[i]._timestamp < clickTime &&
       Math.abs(this._mousePos[i].x - mx) < 5 &&
       Math.abs(this._mousePos[i].y - my) < 5 &&
       !i // i === 0
@@ -316,7 +318,7 @@ export default class SceneNormCamera extends SceneNorm {
       this.camConfig.alternative &&
       i === 0 &&
       this._configuration.regionMove &&
-      Date.now() - this._mousePos[i]._timestamp >= 150 &&
+      Date.now() - this._mousePos[i]._timestamp >= clickTime &&
       (!e.touches || e.touches.length === 1)
     ) {
       const [x, y] = this.transformPoint(...this._getMousePosition(e));

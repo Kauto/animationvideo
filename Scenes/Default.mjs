@@ -44,10 +44,7 @@ class Scene {
   }
 
   shiftTime(timePassed) {
-    if (!this._configuration.fixedUpdate) {
-      return 0;
-    }
-    return -(timePassed % this.tickChunk);
+    return this.tickChunk ? -(timePassed % this.tickChunk) : 0;
   }
 
   callInit(output, parameter, engine) {
@@ -172,14 +169,15 @@ class Scene {
   }
 
   isFrameToSkip(output, timePassed) {
-    return this._configuration.isFrameToSkip && this._configuration.isFrameToSkip({
-      engine: this.engine,
-      scene: this,
-      layerManager: this.layerManager,
-      output,
-      timePassed,
-      totalTimePassed: this.totalTimePassed
-    });
+    return this._configuration.isFrameToSkip ?
+      this._configuration.isFrameToSkip({
+        engine: this.engine,
+        scene: this,
+        layerManager: this.layerManager,
+        output,
+        timePassed,
+        totalTimePassed: this.totalTimePassed
+      }) : timePassed === 0
   }
 
   move(output, timePassed) {
