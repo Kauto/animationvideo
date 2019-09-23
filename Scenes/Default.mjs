@@ -113,12 +113,14 @@ class Scene {
     return this._configuration;
   }
 
-  loadingScreen({ output, progress }) {
+  loadingScreen({ output, timePassed, totalTimePassed, progress }) {
     if (this._configuration.loading) {
       return this._configuration.loading({
         engine: this._engine,
         scene: this,
         output,
+        timePassed,
+        totalTimePassed,
         progress
       });
     }

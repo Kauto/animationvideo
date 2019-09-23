@@ -419,7 +419,7 @@ const objectScene = new SceneDefault({
 
   // "loading" is an optional function that replaces the loading animation
   // can be empty to disable any loading animation. F.e. loading() {}
-  loading({ engine, scene, output, progress }) {
+  loading({ engine, scene, output, timePassed, totalTimePassed, progress }) {
     // replace the loading screen
     const ctx = output.context;
     const loadedHeight =
@@ -440,14 +440,11 @@ const objectScene = new SceneDefault({
     ctx.fillStyle = "#fff";
     ctx.textAlign = "left";
     ctx.textBaseline = "bottom";
-    let text = progress;
-
-    // isNumber
-    if (!isNaN(parseFloat(progress)) && !isNaN(progress - 0)) {
-      text = "Loading " + Math.round(100 * progress) + "%";
-    }
+    
     ctx.fillText(
-      text,
+      isNaN(parseFloat(progress))
+        ? progress
+        : "Loading " + Math.round(100 * progress) + "%",
       10 + Math.random() * 3,
       output.height - 10 + Math.random() * 3
     );
