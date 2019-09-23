@@ -223,6 +223,9 @@ class Engine {
       if (!this._realLastTimestamp) {
         this._realLastTimestamp = timestamp;
       }
+      if (!this._initializedStartTime) {
+        this._initializedStartTime = timestamp;
+      }
 
       if (this._newScene !== null) {
         let parameterForNewScene = this._scene
@@ -234,6 +237,7 @@ class Engine {
           this._newScene = null;
           this._isSceneInitialized = false;
           this._lastTimestamp = this._scene.currentTime();
+          this._initializedStartTime = timestamp;
         }
       }
 
@@ -342,8 +346,8 @@ class Engine {
           } else {
             this._isSceneInitialized = this._scene.callLoading({
               output: this._output, 
-              timePassed: this._realLastTimestamp - timestamp, 
-              totalTimePassed: timestamp
+              timePassed: timestamp - this._realLastTimestamp, 
+              totalTimePassed: timestamp - this._initializedStartTime
             });
             if (this._isSceneInitialized) {
               this._scene.reset(this._output);
@@ -357,6 +361,8 @@ class Engine {
       }
       this._realLastTimestamp = timestamp;
     }
+
+    this._realLastTimestamp = this._initializedStartTime = false;
 
     // First call ever
     this._referenceRequestAnimationFrame = window.requestAnimationFrame(
