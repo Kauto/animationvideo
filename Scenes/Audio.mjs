@@ -12,9 +12,10 @@ export default class SceneAudio extends Scene {
   currentTime() {
     let currentTime = super.currentTime();
     if (this._audioElement) {
-      const currentAudioTime = (this._audioElement.ended
-        ? this._audioElement.duration
-        : this._audioElement.currentTime) * 1000;
+      const currentAudioTime =
+        (this._audioElement.ended
+          ? this._audioElement.duration
+          : this._audioElement.currentTime) * 1000;
       // Android workaround
       if (this._enableAndroidHack) {
         if (this._audioStartTime === null) {
@@ -23,7 +24,7 @@ export default class SceneAudio extends Scene {
           return currentAudioTime;
         } else {
           if (this._audioElement.controller.playbackState === "playing") {
-            if (currentAudioTime=== this._audioPosition) {
+            if (currentAudioTime === this._audioPosition) {
               return (
                 this._audioPosition +
                 Math.min(260, currentTime - this._audioStartTime)
@@ -34,12 +35,9 @@ export default class SceneAudio extends Scene {
               currentTime - this._audioStartTime < 350
             ) {
               this._audioStartTime =
-                this._audioStartTime +
-                (currentAudioTime - this._audioPosition);
+                this._audioStartTime + (currentAudioTime - this._audioPosition);
               this._audioPosition = currentAudioTime;
-              return (
-                this._audioPosition + currentTime - this._audioStartTime
-              );
+              return this._audioPosition + currentTime - this._audioStartTime;
             }
           }
           this._audioStartTime = currentTime;
@@ -62,13 +60,9 @@ export default class SceneAudio extends Scene {
     return 0;
   }
 
-  callInit(...arg) {
+  callInit(args) {
     // init audio
     if (this._audioElement) {
-      var canPlayType = this._audioElement.canPlayType("audio/mp3");
-      if (canPlayType.match(/maybe|probably/i)) {
-        //this.audioshift = 1500;
-      }
       // Android hack
       if (typeof MediaController === "function") {
         this._audioElement.controller = new MediaController();
@@ -78,17 +72,18 @@ export default class SceneAudio extends Scene {
       this._audioElement.load();
     }
 
-    return super.callInit(...arg);
+    return super.callInit(args);
   }
 
-  callLoading(output) {
-    let loaded = super.callLoading(output);
+  callLoading(args) {
+    let loaded = super.callLoading(args);
 
     if (loaded && this._audioElement) {
       if (
         !(this._audioElement.readyState >= this._audioElement.HAVE_ENOUGH_DATA)
       ) {
-        this.loadingScreen(output, "Waiting for Audio");
+        args.progress = "Waiting for Audio";
+        this.loadingScreen(args);
         return false;
       } else {
         let playPromise = this._audioElement.play();
@@ -98,7 +93,9 @@ export default class SceneAudio extends Scene {
         if (!this._configuration.endTime && this._audioElement.duration > 0) {
           this._configuration.endTime = this._audioElement.duration * 1000;
         }
-        this.loadingScreen(output, "Click to play");
+
+        args.progress = "Click to play";
+        this.loadingScreen(args);
       }
     }
 

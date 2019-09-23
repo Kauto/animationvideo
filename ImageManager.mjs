@@ -1,7 +1,7 @@
 class ImageManager {
   static add(Images, Callbacks) {
     const self = this || ImageManager;
-    for (let i in Images) {
+    for (const i in Images) {
       if (!self.Images[i]) {
         self.Images[i] = new window.Image();
         self.Images[i].onload = function() {

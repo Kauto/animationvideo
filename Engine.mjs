@@ -340,7 +340,11 @@ class Engine {
               }
             }
           } else {
-            this._isSceneInitialized = this._scene.callLoading(this._output);
+            this._isSceneInitialized = this._scene.callLoading({
+              output: this._output, 
+              timePassed: this._realLastTimestamp - timestamp, 
+              totalTimePassed: timestamp
+            });
             if (this._isSceneInitialized) {
               this._scene.reset(this._output);
               this._lastTimestamp = this._scene.currentTime();

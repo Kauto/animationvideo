@@ -31,15 +31,26 @@ export default class SceneNormCamera extends SceneNorm {
       zoom: this.camConfig.currentZoom || 1
     };
 
+    this._clampLimits = {
+      _x1: -1,
+      _y1: -1,
+      _x2: 1,
+      _y2: 1,
+      _w: 2,
+      _h: 2
+    };
+
     this._mousePos = [];
   }
 
   camEnable() {
     this.camConfig.enabled = true;
+    return this;
   }
 
   camDisable() {
     this.camConfig.enabled = false;
+    return this;
   }
 
   camReset() {
@@ -48,15 +59,30 @@ export default class SceneNormCamera extends SceneNorm {
       y: 0,
       zoom: 1
     };
+    return this;
   }
 
   camTween(tween) {
     this.camConfig.tween = tween;
+    return this;
   }
 
   camAlternative(bool) {
     this._mousePos = [];
     this.camConfig.alternative = bool;
+    return this;
+  }
+
+  setClampLimit(x1, y1, x2, y2) {
+    this._clampLimits = {
+      _x1: x1,
+      _y1: y1,
+      _x2: x2,
+      _y2: y2,
+      _w: x2 - x1,
+      _h: y2 - y1
+    };
+    return this;
   }
 
   callInit(output, parameter, engine) {
@@ -91,8 +117,8 @@ export default class SceneNormCamera extends SceneNorm {
         if (this.camConfig.callResize) {
           this.resize(output);
         } else {
-          this.transform = null;
-          this.transformInvert = null;
+          this._transform = null;
+          this._transformInvert = null;
         }
       }
     }
@@ -106,8 +132,8 @@ export default class SceneNormCamera extends SceneNorm {
       if (this.camConfig.callResize) {
         this.resize(output);
       } else {
-        this.transform = null;
-        this.transformInvert = null;
+        this._transform = null;
+        this._transformInvert = null;
       }
     }
     return ret;
@@ -197,8 +223,12 @@ export default class SceneNormCamera extends SceneNorm {
     if (this.camConfig.preventDefault) e.preventDefault();
     const i = this._getMouseButton(e);
     const down = this._mousePos[i]._isDown;
-    const numCurrentFingers = (e.changedTouches && e.changedTouches.length) || 1;
-    const numOfFingers = Math.max(this._mousePos[i]._numOfFingers, numCurrentFingers);
+    const numCurrentFingers =
+      (e.changedTouches && e.changedTouches.length) || 1;
+    const numOfFingers = Math.max(
+      this._mousePos[i]._numOfFingers,
+      numCurrentFingers
+    );
     this._mousePos[i]._isDown = false;
     this._mousePos[i]._numOfFingers -= numCurrentFingers;
     if (!down || numOfFingers > 1) {
@@ -254,6 +284,7 @@ export default class SceneNormCamera extends SceneNorm {
   _mouseMove(e) {
     if (this.camConfig.preventDefault) e.preventDefault();
     const i = this._getMouseButton(e);
+    const [mx, my] = this._getMousePosition(e);
     if (
       !this._mousePos[i] ||
       !this._mousePos[i]._isDown ||
@@ -289,9 +320,7 @@ export default class SceneNormCamera extends SceneNorm {
               this._mousePos[i].x,
               this._mousePos[i].y
             );
-            const [nx, ny] = viewMatrix.transformPoint(
-              ...this._getMousePosition(e)
-            );
+            const [nx, ny] = viewMatrix.transformPoint(mx, my);
             this.toCam.x = this._mousePos[i]._cx + ox - nx;
             this.toCam.y = this._mousePos[i]._cy + oy - ny;
           }
@@ -305,9 +334,7 @@ export default class SceneNormCamera extends SceneNorm {
             this._mousePos[i].x,
             this._mousePos[i].y
           );
-          const [nx, ny] = viewMatrix.transformPoint(
-            ...this._getMousePosition(e)
-          );
+          const [nx, ny] = viewMatrix.transformPoint(mx, my);
           this.toCam.x = this._mousePos[i]._cx + ox - nx;
           this.toCam.y = this._mousePos[i]._cy + oy - ny;
           this.clampView();
@@ -318,10 +345,14 @@ export default class SceneNormCamera extends SceneNorm {
       this.camConfig.alternative &&
       i === 0 &&
       this._configuration.regionMove &&
-      Date.now() - this._mousePos[i]._timestamp >= clickTime &&
+      !(
+        Date.now() - this._mousePos[i]._timestamp < clickTime &&
+        Math.abs(this._mousePos[i].x - mx) < 5 &&
+        Math.abs(this._mousePos[i].y - my) < 5
+      ) &&
       (!e.touches || e.touches.length === 1)
     ) {
-      const [x, y] = this.transformPoint(...this._getMousePosition(e));
+      const [x, y] = this.transformPoint(mx, my);
       const [ox, oy] = this.transformPoint(
         this._mousePos[i].x,
         this._mousePos[i].y
@@ -366,6 +397,7 @@ export default class SceneNormCamera extends SceneNorm {
       this.camConfig.zoomMax,
       this.toCam.zoom * this.camConfig.zoomFactor
     );
+    return this;
   }
   zoomOut() {
     this.toCam.zoom = Math.max(
@@ -373,13 +405,14 @@ export default class SceneNormCamera extends SceneNorm {
       this.toCam.zoom / this.camConfig.zoomFactor
     );
     this.clampView();
+    return this;
   }
   zoomTo(x1, y1, x2, y2) {
     const invert = this._getViewportByCam(this.toCam).invert();
     const [sx1, sy1] = invert.transformPoint(0, 0);
     const [sx2, sy2] = invert.transformPoint(
-      this.engine.getWidth(),
-      this.engine.getHeight()
+      this._engine.getWidth(),
+      this._engine.getHeight()
     );
     const sw = sx2 - sx1;
     const sh = sy2 - sy1;
@@ -393,58 +426,60 @@ export default class SceneNormCamera extends SceneNorm {
     this.toCam.y = my;
     this.toCam.zoom =
       this.toCam.zoom * Math.max(Math.min(zoomX, zoomY), Number.MIN_VALUE);
+    return this;
   }
 
   clampView() {
     const invert = this._getViewportByCam(this.toCam).invert();
     const [x1, y1] = invert.transformPoint(0, 0);
     const [x2, y2] = invert.transformPoint(
-      this.engine.getWidth(),
-      this.engine.getHeight()
+      this._engine.getWidth(),
+      this._engine.getHeight()
     );
 
     // check for x
     // is there a zoom in?
-    if (x2 - x1 <= 2) {
-      if (x1 < -1) {
-        if (x2 <= 1) {
-          this.toCam.x += -1 - x1;
+    if (x2 - x1 <= this._clampLimits._w) {
+      if (x1 < this._clampLimits._x1) {
+        if (x2 <= this._clampLimits._x2) {
+          this.toCam.x += this._clampLimits._x1 - x1;
         }
       } else {
-        if (x2 > 1) {
-          this.toCam.x += 1 - x2;
+        if (x2 > this._clampLimits._x2) {
+          this.toCam.x += this._clampLimits._x2 - x2;
         }
       }
     } else {
-      if (x1 > -1) {
-        this.toCam.x += -1 - x1;
+      if (x1 > this._clampLimits._x1) {
+        this.toCam.x += this._clampLimits._x1 - x1;
       } else {
-        if (x2 < 1) {
-          this.toCam.x += 1 - x2;
+        if (x2 < this._clampLimits._x2) {
+          this.toCam.x += this._clampLimits._x2 - x2;
         }
       }
     }
 
     // check for y
     // zoom in?
-    if (y2 - y1 <= 2) {
-      if (y1 < -1) {
-        if (y2 <= 1) {
-          this.toCam.y += -1 - y1;
+    if (y2 - y1 <= this._clampLimits._h) {
+      if (y1 < this._clampLimits._y1) {
+        if (y2 <= this._clampLimits._y2) {
+          this.toCam.y += this._clampLimits._y1 - y1;
         }
       } else {
-        if (y2 > 1) {
-          this.toCam.y += 1 - y2;
+        if (y2 > this._clampLimits._y2) {
+          this.toCam.y += this._clampLimits._y2 - y2;
         }
       }
     } else {
-      if (y1 > -1) {
-        this.toCam.y += -1 - y1;
+      if (y1 > this._clampLimits._y1) {
+        this.toCam.y += this._clampLimits._y1 - y1;
       } else {
-        if (y2 < 1) {
-          this.toCam.y += 1 - y2;
+        if (y2 < this._clampLimits._y2) {
+          this.toCam.y += this._clampLimits._y2 - y2;
         }
       }
     }
-  };
+    return this;
+  }
 }

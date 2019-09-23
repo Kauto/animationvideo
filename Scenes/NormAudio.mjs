@@ -3,28 +3,28 @@ import SceneAudio from "./Audio.mjs";
 export default class SceneNormAudio extends SceneAudio {
   constructor(...args) {
     super(...args);
-    this.transform = null;
-    this.transformInvert = null;
+    this._transform = null;
+    this._transformInvert = null;
   }
 
   _getViewport() {
-    if (!this.engine) return new Transform();
+    if (!this._engine) return new Transform();
 
-    if (!this.transform) {
-      const hw = this.engine.getWidth() / 2;
-      const hh = this.engine.getHeight() / 2;
-      const scale = this.engine.getRatio() > 1 ? hw : hh;
+    if (!this._transform) {
+      const hw = this._engine.getWidth() / 2;
+      const hh = this._engine.getHeight() / 2;
+      const scale = this._engine.getRatio() > 1 ? hw : hh;
 
-      this.transform = new Transform().translate(hw, hh).scale(scale, scale);
-      this.transformInvert = null;
+      this._transform = new Transform().translate(hw, hh).scale(scale, scale);
+      this._transformInvert = null;
     }
-    return this.transform;
+    return this._transform;
   }
 
   resize(output) {
-    this.transform = null;
-    this.transformInvert = null;
-    this.additionalModifier = {
+    this._transform = null;
+    this._transformInvert = null;
+    this._additionalModifier = {
       alpha: 1,
       x: -1,
       y: -1,
@@ -36,26 +36,27 @@ export default class SceneNormAudio extends SceneAudio {
     };
     const [x1, y1] = this.transformPoint(0, 0, 1);
     const [x2, y2] = this.transformPoint(output.width, output.height, 1);
-    this.additionalModifier.visibleScreen = {
+    this._additionalModifier.fullScreen = this._additionalModifier.visibleScreen = {
       x: x1,
       y: y1,
       width: x2 - x1,
       height: y2 - y1
     };
-    this.layerManager.forEach(({ layer, element, isFunction, index }) => {
+
+    this._layerManager.forEach(({ layer, element, isFunction, index }) => {
       if (!isFunction) {
-        element.resize(output, this.additionalModifier);
+        element.resize(output, this._additionalModifier);
       }
     });
   }
 
-  transformPoint(x, y, scale = this.additionalModifier.scaleCanvas) {
-    if (!this.transformInvert) {
-      this.transformInvert = this._getViewport()
+  transformPoint(x, y, scale = this._additionalModifier.scaleCanvas) {
+    if (!this._transformInvert) {
+      this._transformInvert = this._getViewport()
         .clone()
         .invert();
     }
-    return this.transformInvert.transformPoint(x * scale, y * scale);
+    return this._transformInvert.transformPoint(x * scale, y * scale);
   }
 
   draw(output) {
