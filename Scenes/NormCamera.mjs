@@ -114,6 +114,7 @@ export default class SceneNormCamera extends SceneNorm {
       this.cam.y += (this.toCam.y - this.cam.y) / this.camConfig.tween;
       this.cam.zoom += (this.toCam.zoom - this.cam.zoom) / this.camConfig.tween;
       if (lastCall) {
+        this._additionalModifier.cam = this.cam;
         if (this.camConfig.callResize) {
           this.resize(output);
         } else {

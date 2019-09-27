@@ -55,15 +55,16 @@ export default class SceneNorm extends Scene {
       width: x2 - x1,
       height: y2 - y1
     };
-    const transform = this._getViewportByCam({ x: 0, y: 0, zoom: 1 }).invert();
-    const [sx1, sy1] = transform.transformPoint(0, 0, 1);
-    const [sx2, sy2] = transform.transformPoint(output.width, output.height, 1);
+    const transformInvert = this._getViewportByCam({ x: 0, y: 0, zoom: 1 }).invert();
+    const [sx1, sy1] = transformInvert.transformPoint(0, 0, 1);
+    const [sx2, sy2] = transformInvert.transformPoint(output.width, output.height, 1);
     this._additionalModifier.fullScreen = {
       x: sx1,
       y: sy1,
       width: sx2 - sx1,
       height: sy2 - sy1
     };
+    this._additionalModifier.cam = this.cam;
     this._layerManager.forEach(({ layer, element, isFunction, index }) => {
       if (!isFunction) {
         element.resize(output, this._additionalModifier);

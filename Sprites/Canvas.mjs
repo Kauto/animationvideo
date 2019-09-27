@@ -102,25 +102,43 @@ export default class Canvas extends Group {
       this._tctx.textAlign = "center";
       this._tctx.globalAlpha = 1;
       this._tctx.globalCompositeOperation = "source-over";
-
+      this._tctx.save();
       // draw all sprites
-      for (let i in this.sprite) {
-        this.sprite[i].draw(this._tctx, {
-          alpha: 1,
-          x: 0,
-          y: 0,
-          width: tw,
-          height: th,
-          widthInPixel: tw,
-          heightInPixel: th,
-          visibleScreen: {
-            x: 0,
-            y: 0,
-            width: tw,
-            height: th
-          }
-        });
+      const cam = additionalModifier.cam;
+      if (this.norm && cam) {
+        const hw = this._engine.getWidth() / 2;
+        const hh = this._engine.getHeight() / 2;
+        const scale = math.max(hw, hh);
+        this._tctx.translate(hw, hh);
+        this._tctx.scale(scale, scale);
+        this._tctx.scale(cam.zoom, cam.zoom);
+        this._tctx.translate(-cam.x, -cam.y);
       }
+      for (let i in this.sprite) {
+        this.sprite[i].draw(
+          this._tctx,
+          this.norm
+            ? Object.assign({}, additionalModifier, {
+                alpha: 1
+              })
+            : {
+                alpha: 1,
+                x: 0,
+                y: 0,
+                width: tw,
+                height: th,
+                widthInPixel: tw,
+                heightInPixel: th,
+                visibleScreen: {
+                  x: 0,
+                  y: 0,
+                  width: tw,
+                  height: th
+                }
+              }
+        );
+      }
+      this._tctx.restore();
 
       this.additionalBlur && this.additionalBlur(tw, th, additionalModifier);
 

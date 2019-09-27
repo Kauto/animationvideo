@@ -120,7 +120,7 @@ class Engine {
     // not needed because undefined is falsy
     // this._isOddFrame = true
 
-    this.switchScene(options.scene);
+    this.switchScene(options.scene, options.sceneParameter || {});
   }
 
   handleVisibilityChange() {
@@ -192,9 +192,10 @@ class Engine {
     return this;
   }
 
-  switchScene(scene) {
+  switchScene(scene, sceneParameter) {
     if (scene) {
       this._newScene = scene;
+      this._sceneParameter = sceneParameter;
     }
     return this;
   }
@@ -202,8 +203,8 @@ class Engine {
   _now() {
     return window.performance ? performance.now() : Date.now();
   }
-  run(initParameter) {
-    initParameter = initParameter || {};
+  run(runParameter) {
+    runParameter = runParameter || {};
 
     function mainLoop(timestamp) {
       this._referenceRequestAnimationFrame = window.requestAnimationFrame(
@@ -228,11 +229,15 @@ class Engine {
       }
 
       if (this._newScene !== null) {
-        let parameterForNewScene = this._scene
+        let destroyParameterForNewScene = this._scene
           ? this._scene.destroy(this._output)
-          : initParameter;
-        if (parameterForNewScene) {
-          this._newScene.callInit(this._output, parameterForNewScene, this);
+          : {};
+        if (destroyParameterForNewScene) {
+          this._newScene.callInit(this._output, {
+            run: runParameter,
+            scene: this._sceneParameter,
+            destroy: destroyParameterForNewScene
+          }, this);
           this._scene = this._newScene;
           this._newScene = null;
           this._isSceneInitialized = false;

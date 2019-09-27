@@ -1,4 +1,10 @@
 class ImageManager {
+  constructor() {
+    this.Images = {};
+    this.count = 0;
+    this.loaded = 0;
+  }
+
   static add(Images, Callbacks) {
     const self = this || ImageManager;
     for (const i in Images) {
