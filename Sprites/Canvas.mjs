@@ -106,10 +106,8 @@ export default class Canvas extends Group {
       // draw all sprites
       const cam = additionalModifier.cam;
       if (this.norm && cam) {
-        const hw = this._engine.getWidth() / 2;
-        const hh = this._engine.getHeight() / 2;
-        const scale = math.max(hw, hh);
-        this._tctx.translate(hw, hh);
+        const scale = Math.max(tw, th)/2;
+        this._tctx.translate(tw/2, th/2);
         this._tctx.scale(scale, scale);
         this._tctx.scale(cam.zoom, cam.zoom);
         this._tctx.translate(-cam.x, -cam.y);
@@ -119,7 +117,9 @@ export default class Canvas extends Group {
           this._tctx,
           this.norm
             ? Object.assign({}, additionalModifier, {
-                alpha: 1
+                alpha: 1,
+                widthInPixel: tw,
+                heightInPixel: th
               })
             : {
                 alpha: 1,

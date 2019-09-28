@@ -38,7 +38,7 @@ export default class ChangeTo {
     for (let k in changeValues) {
       const orgValue = changeValues[k];
       const value = k === "rotationInDegree" ? orgValue * degToRad : orgValue;
-      const isColor = k === "color";
+      const isColor = k === "color" || k === "borderColor";
       const isPath = k === "path";
       const isFunction = typeof value === "function";
       const isBezier = !isColor && Array.isArray(value);
