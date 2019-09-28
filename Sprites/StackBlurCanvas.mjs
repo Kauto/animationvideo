@@ -1,6 +1,6 @@
 import CanvasSprite from "./Canvas.mjs";
 import * as stackblur from "stackblur-canvas";
-const {imageDataRGBA} = stackblur.default || stackblur 
+const { imageDataRGBA } = stackblur.default || stackblur;
 
 export default class StackBlurCanvas extends CanvasSprite {
   constructor(givenParameter) {
@@ -12,7 +12,8 @@ export default class StackBlurCanvas extends CanvasSprite {
   getParameterList() {
     return Object.assign({}, super.getParameterList(), {
       radius: undefined,
-      radiusPart: undefined
+      radiusPart: undefined,
+      radiusCamScale: true
     });
   }
 
@@ -52,7 +53,12 @@ export default class StackBlurCanvas extends CanvasSprite {
         );
         this._currentRadiusPart = this.radiusPart;
       }
-      additionalModifier.radius = Math.round(this.radius);
+      additionalModifier.radius = Math.round(
+        this.radius *
+          (this.radiusCamScale && additionalModifier.cam
+            ? additionalModifier.cam.zoom
+            : 1)
+      );
       super.draw(context, additionalModifier);
     }
   }

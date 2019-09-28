@@ -397,7 +397,11 @@ const objectScene = new SceneDefault({
   //   }
   // - scene is the scene object this object is running in
   // - parameter are the parameter that are given from the
-  //   last scene or the start parameter
+  //   last scene or the start parameter. The setup is always {
+  //     run: ..., // the parameter given with the run command of the engine
+  //     scene: ..., // the parameter given with the scene switch
+  //     destroy: ..., // the parameter given from the last scene as return from the destroy function
+  //   }
   // - imageManager is the object that loads the images
   async init({ engine, output, scene, parameter, imageManager }) {
     // optional: wait till all images are loaded
@@ -1664,7 +1668,8 @@ new Engine({
             // Special settings for Stackblur
             onCanvas: false, // will override all other settings and applies the blur directly on the underlying canvas. This is a big performence gain but you will lose some possible effects
             radius: undefined, // the radius of the blur. The more the blurier.
-            radiusPart: undefined // if radiusPart is set it will define radius as a part of the screen. Smaller values give more blur. radius = max(canvasWidth/canvasHeight) / radiusPart
+            radiusPart: undefined, // if radiusPart is set it will define radius as a part of the screen. Smaller values give more blur. radius = max(canvasWidth/canvasHeight) / radiusPart
+            radiusCamScale: true // scale the radius with the zoom factor of the cam in NormCamera-Scene
           })
         ]
       ];
@@ -1708,7 +1713,8 @@ new Engine({
             animation: undefined // the animation
             // --- Special settings for Stackblur
             radius: undefined, // the radius of the blur. The more the blurier.
-            radiusPart: undefined // if radiusPart is set it will define radius as a part of the screen. Smaller values give more blur. radius = max(canvasWidth/canvasHeight) / radiusPart
+            radiusPart: undefined, // if radiusPart is set it will define radius as a part of the screen. Smaller values give more blur. radius = max(canvasWidth/canvasHeight) / radiusPart
+            radiusCamScale: true // scale the radius with the zoom factor of the cam in NormCamera-Scene
           })
         ]
       ];

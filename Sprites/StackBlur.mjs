@@ -1,6 +1,6 @@
 import FastBlur from "./FastBlur.mjs";
 import * as stackblur from "stackblur-canvas";
-const {imageDataRGBA} = stackblur.default || stackblur
+const { imageDataRGBA } = stackblur.default || stackblur;
 
 export default class StackBlur extends FastBlur {
   constructor(givenParameter) {
@@ -15,7 +15,8 @@ export default class StackBlur extends FastBlur {
       // work directly on the main canvas
       onCanvas: false,
       radius: undefined,
-      radiusPart: undefined
+      radiusPart: undefined,
+      radiusCamScale: true
     });
   }
 
@@ -46,7 +47,10 @@ export default class StackBlur extends FastBlur {
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {
-      if (this.radius === undefined || this._currentRadiusPart !== this.radiusPart) {
+      if (
+        this.radius === undefined ||
+        this._currentRadiusPart !== this.radiusPart
+      ) {
         this.radius = Math.round(
           (additionalModifier.widthInPixel + additionalModifier.heightInPixel) /
             2 /
@@ -54,7 +58,9 @@ export default class StackBlur extends FastBlur {
         );
         this._currentRadiusPart = this.radiusPart;
       }
-      const radius = Math.round(this.radius);
+      const radius = Math.round(
+        this.radius * (this.radiusCamScale && additionalModifier.cam ? additionalModifier.cam.zoom : 1)
+      );
       if (radius) {
         if (this.onCanvas) {
           if (this.width === undefined || this.height === undefined) {
