@@ -76,6 +76,8 @@ export default class Path extends Group {
             });
             this.path2D.closePath();
           });
+        } else if(this.path2D instanceof Path2D) {
+          this.path2D = this.path;
         } else {
           this.path2D = new Path2D(this.path);
         }
