@@ -293,6 +293,7 @@ export default class SceneNormCamera extends SceneNorm {
     ) {
       return;
     }
+    const scale = this._additionalModifier.scaleCanvas;
     if (this.camConfig.enabled) {
       if (e.touches && e.touches.length >= 2) {
         const t = e.touches;
@@ -318,10 +319,10 @@ export default class SceneNormCamera extends SceneNorm {
           if (this.camConfig.alternative) {
             const viewMatrix = this._getViewportByCam(this.toCam).invert();
             const [ox, oy] = viewMatrix.transformPoint(
-              this._mousePos[i].x,
-              this._mousePos[i].y
+              this._mousePos[i].x * scale,
+              this._mousePos[i].y * scale
             );
-            const [nx, ny] = viewMatrix.transformPoint(mx, my);
+            const [nx, ny] = viewMatrix.transformPoint(mx * scale, my * scale);
             this.toCam.x = this._mousePos[i]._cx + ox - nx;
             this.toCam.y = this._mousePos[i]._cy + oy - ny;
           }
@@ -332,10 +333,10 @@ export default class SceneNormCamera extends SceneNorm {
         if (!this.camConfig.alternative || i === 2) {
           const viewMatrix = this._getViewportByCam(this.toCam).invert();
           const [ox, oy] = viewMatrix.transformPoint(
-            this._mousePos[i].x,
-            this._mousePos[i].y
+            this._mousePos[i].x * scale,
+            this._mousePos[i].y * scale
           );
-          const [nx, ny] = viewMatrix.transformPoint(mx, my);
+          const [nx, ny] = viewMatrix.transformPoint(mx * scale, my * scale);
           this.toCam.x = this._mousePos[i]._cx + ox - nx;
           this.toCam.y = this._mousePos[i]._cy + oy - ny;
           this.clampView();
@@ -375,16 +376,17 @@ export default class SceneNormCamera extends SceneNorm {
   _mouseWheel(e) {
     if (this.camConfig.preventDefault) e.preventDefault();
     if (this.camConfig.enabled) {
+      const scale = this._additionalModifier.scaleCanvas;
       const [mx, my] = this._getMousePosition(e);
       const [ox, oy] = this._getViewportByCam(this.toCam)
         .invert()
-        .transformPoint(mx, my);
+        .transformPoint(mx * scale, my * scale);
       const wheelData = e.wheelDelta || e.deltaY * -1;
       if (wheelData / 120 > 0) {
         this.zoomIn();
         const [nx, ny] = this._getViewportByCam(this.toCam)
           .invert()
-          .transformPoint(mx, my);
+          .transformPoint(mx * scale, my * scale);
         this.toCam.x -= nx - ox;
         this.toCam.y -= ny - oy;
         this.clampView();
@@ -409,11 +411,12 @@ export default class SceneNormCamera extends SceneNorm {
     return this;
   }
   zoomTo(x1, y1, x2, y2) {
+    const scale = this._additionalModifier.scaleCanvas;
     const invert = this._getViewportByCam(this.toCam).invert();
     const [sx1, sy1] = invert.transformPoint(0, 0);
     const [sx2, sy2] = invert.transformPoint(
-      this._engine.getWidth(),
-      this._engine.getHeight()
+      this._engine.getWidth() * scale,
+      this._engine.getHeight() * scale
     );
     const sw = sx2 - sx1;
     const sh = sy2 - sy1;

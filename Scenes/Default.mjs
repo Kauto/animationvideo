@@ -77,6 +77,7 @@ class Scene {
       height: output.height,
       widthInPixel: output.width,
       heightInPixel: output.height,
+      scaleCanvas: 1,
       visibleScreen: {
         x: 0,
         y: 0,

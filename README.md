@@ -48,7 +48,6 @@ or in the **index.html**.
         - [Emitter](#emitter)
         - [Scroller](#scroller)
         - [StackBlur](#stackblur)
-        - [StackBlurCanvas](#stackblurcanvas)
     - [Animations](#animations)
         - [Sequence](#sequence)
             - [Short form for Sequence](#short-form-for-sequence)
@@ -1669,52 +1668,7 @@ new Engine({
             onCanvas: false, // will override all other settings and applies the blur directly on the underlying canvas. This is a big performence gain but you will lose some possible effects
             radius: undefined, // the radius of the blur. The more the blurier.
             radiusPart: undefined, // if radiusPart is set it will define radius as a part of the screen. Smaller values give more blur. radius = max(canvasWidth/canvasHeight) / radiusPart
-            radiusCamScale: true // scale the radius with the zoom factor of the cam in NormCamera-Scene
-          })
-        ]
-      ];
-    }
-  })
-}).run();
-```
-
-### StackBlurCanvas
-
-Uses the [Canvas-sprite](#canvas) but applies a blur on it. Internally it creates a new Canvas, renders sprites on top of it and blurs everything. For pre-rendering and feedback effects.
-
-```js
-import Engine from "animationvideo/Engine.mjs";
-import SceneDefault from "animationvideo/Scenes/Default.mjs";
-import SpriteStackBlurCanvas from "animationvideo/Sprites/StackBlurCanvas.mjs";
-
-new Engine({
-  canvas: document.querySelector("canvas"),
-  scene: new SceneDefault({
-    reset() {
-      return [
-        [
-          new SpriteStackBlurCanvas({
-            // --- settings from Canvas
-            // the sprites that will be rendered inside
-            // f.e. [ new Rect({...}), new Image({...})]
-            sprite: [],
-            enabled: true,
-            x: undefined, // Position - default upper left corner
-            y: undefined,
-            width: undefined,
-            height: undefined,
-            norm: false, // is true by default if x, y, width and height are undefined. Set the size of the canvas to the original canvas size
-            scaleX: 1, // the scalled internal size of the canvas. F.e. if scaleX and scaleY is 2 then the the internal
-            scaleY: 1, // canvas has half of the size of the original canvas
-            gridSize: undefined, // if defined overrides scaleX and scaleY. The internal width and height of the canvas.
-            rotation: 0, // rotation in radian. Use rotationInDegree to give values in degree
-            alpha: 1, // transparency
-            compositeOperation: "source-over",
-            animation: undefined // the animation
-            // --- Special settings for Stackblur
-            radius: undefined, // the radius of the blur. The more the blurier.
-            radiusPart: undefined, // if radiusPart is set it will define radius as a part of the screen. Smaller values give more blur. radius = max(canvasWidth/canvasHeight) / radiusPart
-            radiusCamScale: true // scale the radius with the zoom factor of the cam in NormCamera-Scene
+            radiusScale: true // scale the radius with the zoom factor of the cam in NormCamera-Scene and the scene autoSize Factor
           })
         ]
       ];
@@ -1900,6 +1854,7 @@ new Engine({
 
 - more readme
 - more tests
+- render to more than one canvas
 
 # License
 

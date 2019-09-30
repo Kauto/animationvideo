@@ -8,6 +8,8 @@ const gradientSizeHalf = gradientSize >> 1;
 class Particle extends Circle {
   constructor(givenParameter) {
     super(givenParameter);
+    this._currentScaleX = undefined;
+    this._currentPixelSmoothing = false;
   }
 
   static getGradientImage(r, g, b) {
@@ -92,6 +94,10 @@ class Particle extends Circle {
     return canvas;
   }
 
+  resize(context, additionalModifier) {
+    this._currentScaleX = undefined;
+  }
+
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {
@@ -99,13 +105,17 @@ class Particle extends Circle {
       if (!this.color || !this.color.color) {
         this.color = Color(this.color).rgb();
       }
+      if (this._currentScaleX !== this.scaleX) {
+        this._currentScaleX = this.scaleX;
+        this._currentPixelSmoothing =
+          (this.scaleX * additionalModifier.widthInPixel) /
+            additionalModifier.width >
+          gradientSize;
+      }
       const color = this.color.color;
       context.globalCompositeOperation = this.compositeOperation;
       context.globalAlpha = this.alpha * additionalModifier.alpha;
-      context.imageSmoothingEnabled =
-        (this.scaleX * additionalModifier.widthInPixel) /
-          additionalModifier.width >
-        gradientSize;
+      context.imageSmoothingEnabled = this._currentPixelSmoothing;
       context.drawImage(
         Particle.getGradientImage(color[0], color[1], color[2]),
         0,

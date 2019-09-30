@@ -78,6 +78,7 @@ export default class Canvas extends Group {
       this._tctx.globalCompositeOperation = "source-over";
     }
     this.normalizeFullScreen(additionalModifier);
+    super.resize(context, additionalModifier);
   }
 
   // draw-methode

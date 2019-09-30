@@ -16,7 +16,7 @@ export default class StackBlur extends FastBlur {
       onCanvas: false,
       radius: undefined,
       radiusPart: undefined,
-      radiusCamScale: true
+      radiusScale: true
     });
   }
 
@@ -59,7 +59,7 @@ export default class StackBlur extends FastBlur {
         this._currentRadiusPart = this.radiusPart;
       }
       const radius = Math.round(
-        this.radius * (this.radiusCamScale && additionalModifier.cam ? additionalModifier.cam.zoom : 1)
+        this.radius * (this.radiusScale && ((additionalModifier.cam ? additionalModifier.cam.zoom : 1) / additionalModifier.scaleCanvas))
       );
       if (radius) {
         if (this.onCanvas) {
