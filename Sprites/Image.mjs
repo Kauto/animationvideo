@@ -27,7 +27,7 @@ class Image extends Circle {
     });
   }
 
-  resize() {
+  resize(output, additionalModifier) {
     this._normScale = undefined;
   }
 

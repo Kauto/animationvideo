@@ -45,7 +45,7 @@ export default class SceneNorm extends Scene {
       height: 2,
       widthInPixel: output.width,
       heightInPixel: output.height,
-      scaleCanvas: output.width / output.canvas.clientWidth
+      scaleCanvas: output.width / output.canvas[0].clientWidth
     };
     const [x1, y1] = this.transformPoint(0, 0, 1);
     const [x2, y2] = this.transformPoint(output.width, output.height, 1);
@@ -81,12 +81,13 @@ export default class SceneNorm extends Scene {
     return this._transformInvert.transformPoint(x * scale, y * scale);
   }
 
-  draw(output) {
-    output.context.save();
+  draw(output, canvasId) {
+    const ctx = output.context[canvasId];
+    ctx.save();
 
-    output.context.setTransform(...this._getViewport().m);
+    ctx.setTransform(...this._getViewport().m);
 
-    super.draw(output);
-    output.context.restore();
+    super.draw(output, canvasId);
+    ctx.restore();
   }
 }

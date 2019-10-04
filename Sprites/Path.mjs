@@ -76,7 +76,7 @@ export default class Path extends Group {
             });
             this.path2D.closePath();
           });
-        } else if(this.path2D instanceof Path2D) {
+        } else if(this.path instanceof Path2D) {
           this.path2D = this.path;
         } else {
           this.path2D = new Path2D(this.path);
@@ -89,10 +89,10 @@ export default class Path extends Group {
 
       if (this.fixed) {
         if (scaleX == 0) {
-          scaleX = 0.0000000001;
+          scaleX = Number.EPSILON;
         }
         if (scaleY == 0) {
-          scaleY = 0.0000000001;
+          scaleY = Number.EPSILON;
         }
       }
 

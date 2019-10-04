@@ -42,10 +42,11 @@
           //   clear: true
           // })
           ({ output }) => {
-            output.context.globalCompositeOperation = "source-over";
-            output.context.globalAlpha = 1;
-            output.context.fillStyle = "#334";
-            output.context.fillRect(0, 0, scene.width, scene.height);
+            const ctx = output.context[0];
+            ctx.globalCompositeOperation = "source-over";
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = "#334";
+            ctx.fillRect(0, 0, scene.width, scene.height);
           }
         ];
         layer.push(l);
@@ -488,15 +489,15 @@
           this.scene = scene;
           this.newThings = [];
 
-          output.canvas.addEventListener(
+          output.canvas[0].addEventListener(
             "mousemove",
             this.eventMouseMove.bind(this)
           );
-          output.canvas.addEventListener(
+          output.canvas[0].addEventListener(
             "mousedown",
             this.eventMouseDown.bind(this)
           );
-          output.canvas.addEventListener(
+          output.canvas[0].addEventListener(
             "mouseup",
             this.eventMouseUp.bind(this)
           );
@@ -511,9 +512,9 @@
         }
 
         destroy({ output }) {
-          output.canvas.removeEventListener("mousemove", this.eventMouseMove);
-          output.canvas.removeEventListener("mousedown", this.eventMouseDown);
-          output.canvas.removeEventListener("mouseup", this.eventMouseUp);
+          output.canvas[0].removeEventListener("mousemove", this.eventMouseMove);
+          output.canvas[0].removeEventListener("mousedown", this.eventMouseDown);
+          output.canvas[0].removeEventListener("mouseup", this.eventMouseUp);
         }
 
         reset({ layerManager }) {
@@ -962,8 +963,7 @@
               })
             ],
             [
-              SP.StackBlurCanvas({
-                radius: 1,
+              SP.Canvas({
                 sprite: [
                   SP.StarField({
                     moveX: 0,
@@ -988,6 +988,10 @@
                       }, 200, Easing.quadOut),
                       ANI.End()
                     ]
+                  }),
+                  SP.StackBlur({
+                    onCanvas: true,
+                    radius: 1
                   })
                 ]
               })

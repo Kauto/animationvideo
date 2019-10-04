@@ -94,7 +94,7 @@ class Particle extends Circle {
     return canvas;
   }
 
-  resize(context, additionalModifier) {
+  resize(output, additionalModifier) {
     this._currentScaleX = undefined;
   }
 

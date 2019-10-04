@@ -125,7 +125,7 @@ class Scene {
         progress
       });
     }
-    const ctx = output.context;
+    const ctx = output.context[0];
     const loadedHeight =
       typeof progress === "number"
         ? Math.max(1, progress * output.height)
@@ -259,7 +259,8 @@ class Scene {
     });
   }
 
-  draw(output) {
+  draw(output, canvasId) {
+    const context = output.context[canvasId]
     this._layerManager.forEach(({ layer, element, isFunction, index }) => {
       if (isFunction) {
         if (
@@ -269,15 +270,16 @@ class Scene {
             layerManager: this._layerManager,
             layer,
             output,
+            context,
             totalTimePassed: this._totalTimePassed
           })
         ) {
           layer.deleteById(index);
         }
       } else {
-        element.draw(output.context, this._additionalModifier);
+        element.draw(context, this._additionalModifier);
       }
-    });
+    }, canvasId);
   }
 
   reset(output) {

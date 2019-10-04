@@ -28,8 +28,8 @@ class Engine {
     );
 
     this._output = {
-      canvas: null,
-      context: null,
+      canvas: [],
+      context: [],
       width: 0,
       height: 0,
       ratio: 1
@@ -50,7 +50,9 @@ class Engine {
     this._referenceRequestAnimationFrame = null;
 
     // data about the output canvas
-    this._output.canvas = options.canvas;
+    this._output.canvas = Array.isArray(options.canvas)
+      ? options.canvas
+      : [options.canvas];
 
     if (options.autoSize) {
       const defaultAutoSizeSettings = {
@@ -58,8 +60,8 @@ class Engine {
         scaleLimitMin: 1,
         scaleLimitMax: 8,
         scaleFactor: 1.1,
-        referenceWidth: () => this._output.canvas.clientWidth,
-        referenceHeight: () => this._output.canvas.clientHeight,
+        referenceWidth: () => this._output.canvas[0].clientWidth,
+        referenceHeight: () => this._output.canvas[0].clientHeight,
         currentScale: 1,
         waitTime: 800,
         currentWaitedTime: 0,
@@ -100,16 +102,18 @@ class Engine {
           false
         );
       }
-      this.recalculateCanvas();
+      this._recalculateCanvas();
     } else {
-      this._output.width = this._output.canvas.width;
-      this._output.height = this._output.canvas.height;
+      this._output.width = this._output.canvas[0].width;
+      this._output.height = this._output.canvas[0].height;
       this._output.ratio = this._output.width / this._output.height;
     }
-    this._output.context = options.canvas.getContext("2d");
+    this._output.canvas.forEach((canvas, index) => {
+      this._output.context[index] = canvas.getContext("2d");
+    });
 
     if (options.clickToPlayAudio) {
-      options.canvas.addEventListener(
+      this._output.canvas[0].addEventListener(
         "click",
         this.playAudioOfScene.bind(this),
         false
@@ -128,7 +132,11 @@ class Engine {
   }
 
   playAudioOfScene() {
-    if (this._isSceneInitialized && this._scene && this._scene.getConfiguration().audioElement) {
+    if (
+      this._isSceneInitialized &&
+      this._scene &&
+      this._scene.getConfiguration().audioElement
+    ) {
       this._scene.getConfiguration().audioElement.play();
     }
   }
@@ -164,22 +172,20 @@ class Engine {
       if (width <= 0 || height <= 0) {
         return;
       }
-      this._output.canvas.width = Math.round(
-        width / this._autoSize.currentScale
-      );
-      this._output.canvas.height = Math.round(
-        height / this._autoSize.currentScale
-      );
-      if (this._autoSize.setCanvasStyle) {
-        this._output.canvas.style.width = `${width}px`;
-        this._output.canvas.style.height = `${height}px`;
-      }
+      this._output.canvas.forEach(canvas => {
+        canvas.width = Math.round(width / this._autoSize.currentScale);
+        canvas.height = Math.round(height / this._autoSize.currentScale);
+        if (this._autoSize.setCanvasStyle) {
+          canvas.style.width = `${width}px`;
+          canvas.style.height = `${height}px`;
+        }
+      });
       this._autoSize.currentWaitedTime = 0;
       this._autoSize.currentOffsetTime = 0;
     }
 
-    this._output.width = this._output.canvas.width;
-    this._output.height = this._output.canvas.height;
+    this._output.width = this._output.canvas[0].width;
+    this._output.height = this._output.canvas[0].height;
     this._output.ratio = this._output.width / this._output.height;
 
     this.resize();
@@ -233,11 +239,15 @@ class Engine {
           ? this._scene.destroy(this._output)
           : {};
         if (destroyParameterForNewScene) {
-          this._newScene.callInit(this._output, {
-            run: runParameter,
-            scene: this._sceneParameter,
-            destroy: destroyParameterForNewScene
-          }, this);
+          this._newScene.callInit(
+            this._output,
+            {
+              run: runParameter,
+              scene: this._sceneParameter,
+              destroy: destroyParameterForNewScene
+            },
+            this
+          );
           this._scene = this._newScene;
           this._newScene = null;
           this._isSceneInitialized = false;
@@ -246,7 +256,7 @@ class Engine {
         }
       }
 
-      if (this._scene && this._output.canvas.width) {
+      if (this._scene) {
         if (this._reduceFramerate) {
           this._isOddFrame = !this._isOddFrame;
         }
@@ -266,10 +276,7 @@ class Engine {
           if (this._isSceneInitialized) {
             const moveFrame = timePassed !== 0;
             if (!drawFrame) {
-              drawFrame = !this._scene.isFrameToSkip(
-                this._output,
-                timePassed
-              );
+              drawFrame = !this._scene.isFrameToSkip(this._output, timePassed);
             }
 
             const nowAutoSize = this._now();
@@ -277,16 +284,16 @@ class Engine {
               this._scene.move(this._output, timePassed);
             }
 
-            if (drawFrame) {
-              this._scene.draw(this._output);
+            if (drawFrame && this._output.canvas[0].width) {
+              for (let index = 0, length = this._output.canvas.length; index < length; index++) {
+                this._scene.draw(this._output, index);
+              }
             }
 
             if (this._autoSize && this._autoSize.enabled) {
               const deltaTimestamp = timestamp - this._realLastTimestamp;
 
-              if (
-                this._autoSize.currentWaitedTime < this._autoSize.waitTime
-              ) {
+              if (this._autoSize.currentWaitedTime < this._autoSize.waitTime) {
                 this._autoSize.currentWaitedTime += deltaTimestamp;
               } else if (drawFrame && moveFrame) {
                 const targetTime =
@@ -323,8 +330,7 @@ class Engine {
                     ) {
                       this._autoSize.currentScale = Math.max(
                         this._autoSize.scaleLimitMin,
-                        this._autoSize.currentScale /
-                          this._autoSize.scaleFactor
+                        this._autoSize.currentScale / this._autoSize.scaleFactor
                       );
                       this._recalculateCanvasIntend = true;
                     }
@@ -339,8 +345,7 @@ class Engine {
                     ) {
                       this._autoSize.currentScale = Math.min(
                         this._autoSize.scaleLimitMax,
-                        this._autoSize.currentScale *
-                          this._autoSize.scaleFactor
+                        this._autoSize.currentScale * this._autoSize.scaleFactor
                       );
                       this._recalculateCanvasIntend = true;
                     }
@@ -350,8 +355,8 @@ class Engine {
             }
           } else {
             this._isSceneInitialized = this._scene.callLoading({
-              output: this._output, 
-              timePassed: timestamp - this._realLastTimestamp, 
+              output: this._output,
+              timePassed: timestamp - this._realLastTimestamp,
               totalTimePassed: timestamp - this._initializedStartTime
             });
             if (this._isSceneInitialized) {
@@ -397,7 +402,7 @@ class Engine {
       this.handleVisibilityChange.bind(this),
       false
     );
-    this._output.canvas.removeEventListener(
+    this._output.canvas[0].removeEventListener(
       "click",
       this.playAudioOfScene.bind(this),
       false

@@ -31,9 +31,9 @@ export default class FastBlur extends Circle {
     });
   }
 
-  generateTempCanvas(context, additionalModifier) {
-    const w = additionalModifier.widthInPixel || context.canvas.width,
-      h = additionalModifier.heightInPixel || context.canvas.height;
+  generateTempCanvas(additionalModifier) {
+    const w = additionalModifier.widthInPixel
+    const h = additionalModifier.heightInPixel
     this._temp_canvas = document.createElement("canvas");
     if (this.gridSize) {
       this._currentGridSize = this.gridSize;
@@ -63,10 +63,10 @@ export default class FastBlur extends Circle {
     }
   }
 
-  resize(context, additionalModifier) {
+  resize(output, additionalModifier) {
     if (this._temp_canvas && this._currentGridSize !== this.gridSize) {
       const oldTempCanvas = this._temp_canvas;
-      this.generateTempCanvas(context, additionalModifier);
+      this.generateTempCanvas(additionalModifier);
       this._tctx.globalCompositeOperation = "copy";
       this._tctx.drawImage(
         oldTempCanvas,
@@ -88,7 +88,7 @@ export default class FastBlur extends Circle {
   draw(context, additionalModifier) {
     if (this.enabled) {
       if (!this._temp_canvas) {
-        this.generateTempCanvas(context, additionalModifier);
+        this.generateTempCanvas(additionalModifier);
         this.normalizeFullScreen(additionalModifier);
       }
       if (this.gridSize && this._currentGridSize !== this.gridSize) {

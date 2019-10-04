@@ -5,29 +5,29 @@ class LayerManager {
     this._layers = [];
   }
 
-  addLayer() {
-    this._layers[this._layers.length] = new Layer();
+  addLayer(canvasIds) {
+    this._layers[this._layers.length] = new Layer(canvasIds);
     return this._layers[this._layers.length - 1];
   }
 
-  addLayers(numberOfLayer = 1) {
-    let newLayers = Array.from({ length: numberOfLayer }, v => new Layer());
+  addLayers(numberOfLayer = 1, canvasIds) {
+    let newLayers = Array.from({ length: numberOfLayer }, v => new Layer(canvasIds));
     this._layers = this._layers.concat(newLayers);
     return newLayers;
   }
 
-  addLayerForId() {
-    this._layers[this._layers.length] = new Layer();
+  addLayerForId(canvasIds) {
+    this._layers[this._layers.length] = new Layer(canvasIds);
     return this._layers.length - 1;
   }
 
-  addLayersForIds(numberOfLayer = 1) {
+  addLayersForIds(numberOfLayer = 1, canvasIds) {
     const result = Array.from(
       { length: numberOfLayer },
       (v, k) => k + this._layers.length
     );
     this._layers = this._layers.concat(
-      Array.from({ length: numberOfLayer }, v => new Layer())
+      Array.from({ length: numberOfLayer }, v => new Layer(canvasIds))
     );
     return result;
   }
@@ -36,11 +36,13 @@ class LayerManager {
     return this._layers[layerId];
   }
 
-  forEach(callback) {
+  forEach(callback, canvasId) {
     let i;
     const l = this._layers.length;
     for (i = 0; i < l; i++) {
-      this._layers[i].forEach(callback);
+      if (this._layers[i].isCanvasId(canvasId)) {
+        this._layers[i].forEach(callback);
+      }
     }
   }
 

@@ -42,9 +42,9 @@ export default class Group extends Circle {
     }
   }
 
-  resize(context, additionalModifier) {
+  resize(output, additionalModifier) {
     for (let i in this.sprite) {
-      this.sprite[i].resize(context, additionalModifier);
+      this.sprite[i].resize(output, additionalModifier);
     }
   }
 

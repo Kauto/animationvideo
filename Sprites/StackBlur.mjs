@@ -31,8 +31,8 @@ export default class StackBlur extends FastBlur {
     }
   }
 
-  resize(context, additionalModifier) {
-    super.resize(context, additionalModifier);
+  resize(output, additionalModifier) {
+    super.resize(output, additionalModifier);
     if (this.radiusPart) {
       this.radius = undefined;
     }

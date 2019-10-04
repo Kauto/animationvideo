@@ -87,14 +87,14 @@ export default class SceneNormCamera extends SceneNorm {
 
   callInit(output, parameter, engine) {
     if (this.camConfig.registerEvents) {
-      this._registerCamEvents(output.canvas);
+      this._registerCamEvents(output.canvas[0]);
     }
     return super.callInit(output, parameter, engine);
   }
 
   destroy(output) {
     if (this.camConfig.registerEvents) {
-      this._destroyCamEvents(output.canvas);
+      this._destroyCamEvents(output.canvas[0]);
     }
     return super.destroy(output);
   }

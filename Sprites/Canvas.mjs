@@ -27,9 +27,9 @@ export default class Canvas extends Group {
     });
   }
 
-  generateTempCanvas(context, additionalModifier) {
-    let w = additionalModifier.widthInPixel || context.canvas.width,
-      h = additionalModifier.heightInPixel || context.canvas.height;
+  generateTempCanvas(additionalModifier) {
+    const w = additionalModifier.widthInPixel;
+    const h = additionalModifier.heightInPixel;
     this._temp_canvas = document.createElement("canvas");
     if (this.gridSize) {
       this._currentGridSize = this.gridSize;
@@ -59,10 +59,10 @@ export default class Canvas extends Group {
     }
   }
 
-  resize(context, additionalModifier) {
+  resize(output, additionalModifier) {
     if (this._temp_canvas && this._currentGridSize !== this.gridSize) {
       const oldTempCanvas = this._temp_canvas;
-      this.generateTempCanvas(context, additionalModifier);
+      this.generateTempCanvas(additionalModifier);
       this._tctx.globalCompositeOperation = "copy";
       this._tctx.drawImage(
         oldTempCanvas,
@@ -78,18 +78,18 @@ export default class Canvas extends Group {
       this._tctx.globalCompositeOperation = "source-over";
     }
     this.normalizeFullScreen(additionalModifier);
-    super.resize(context, additionalModifier);
+    super.resize(output, additionalModifier);
   }
 
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {
       if (!this._temp_canvas) {
-        this.generateTempCanvas(context, additionalModifier);
+        this.generateTempCanvas(additionalModifier);
         this.normalizeFullScreen(additionalModifier);
       }
       if (this.gridSize && this._currentGridSize !== this.gridSize) {
-        this.resize(context, additionalModifier);
+        this.resize(additionalModifier);
       }
 
       const w = this.width,
@@ -107,8 +107,8 @@ export default class Canvas extends Group {
       // draw all sprites
       const cam = additionalModifier.cam;
       if (this.norm && cam) {
-        const scale = Math.max(tw, th)/2;
-        this._tctx.translate(tw/2, th/2);
+        const scale = Math.max(tw, th) / 2;
+        this._tctx.translate(tw / 2, th / 2);
         this._tctx.scale(scale, scale);
         this._tctx.scale(cam.zoom, cam.zoom);
         this._tctx.translate(-cam.x, -cam.y);

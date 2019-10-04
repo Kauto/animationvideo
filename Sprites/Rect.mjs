@@ -44,7 +44,7 @@ export default class Rect extends Circle {
     }
   }
 
-  resize(context, additionalModifier) {
+  resize(output, additionalModifier) {
     this.normalizeFullScreen(additionalModifier);
   }
 

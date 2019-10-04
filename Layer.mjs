@@ -1,9 +1,10 @@
 class Layer {
-  constructor() {
+  constructor(canvasIds) {
     this._layer = [];
     this._isFunction = [];
     this._start = 0;
     this._nextFree = 0;
+    this._canvasIds = canvasIds === undefined ? [] : (Array.isArray(canvasIds) ? canvasIds : [canvasIds]);
   }
 
   addElement(element) {
@@ -85,6 +86,10 @@ class Layer {
     }
   }
 
+  isCanvasId(canvasId) {
+    return (canvasId === undefined) || !this._canvasIds.length || this._canvasIds.includes(canvasId)
+  }
+  
   forEach(callback) {
     let index, element;
     const l = this._layer.length;
