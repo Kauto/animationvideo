@@ -16,6 +16,7 @@ export default class Rect extends Circle {
       width: undefined,
       height: undefined,
       borderColor: undefined,
+      color: undefined,
       lineWidth: 1,
       clear: false,
       norm: (value, givenParameter, setParameter) =>
@@ -69,7 +70,7 @@ export default class Rect extends Circle {
       if (this.rotation === 0) {
         if (this.clear) {
           context.clearRect(this.x, this.y, this.width, this.height);
-        } else {
+        } else if (this.color) {
           context.fillStyle = this.color;
           context.fillRect(this.x, this.y, this.width, this.height);
         }
@@ -88,7 +89,7 @@ export default class Rect extends Circle {
         context.rotate(this.rotation);
         if (this.clear) {
           context.clearRect(-hw, -hh, this.width, this.height);
-        } else {
+        } else if (this.color) {
           context.fillStyle = this.color;
           context.fillRect(-hw, -hh, this.width, this.height);
         }

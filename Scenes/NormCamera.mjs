@@ -219,6 +219,10 @@ export default class SceneNormCamera extends SceneNorm {
       _distance: undefined,
       _timestamp: Date.now()
     });
+    if (this._configuration.mouseDown) {
+      const [x, y] = this.transformPoint(mx, my);
+      this._configuration.mouseDown({ event: e, x, y, scene: this, imageManager: this._imageManager });
+    }
   }
   _mouseUp(e) {
     if (this.camConfig.preventDefault) e.preventDefault();
@@ -247,15 +251,15 @@ export default class SceneNormCamera extends SceneNorm {
         if (this._mousePos[i].doubleClickTimer) {
           clearTimeout(this._mousePos[i].doubleClickTimer);
           this._mousePos[i].doubleClickTimer = undefined;
-          this._configuration.doubleClick({ event: e, x, y, scene: this });
+          this._configuration.doubleClick({ event: e, x, y, scene: this, imageManager: this._imageManager });
         } else {
           this._mousePos[i].doubleClickTimer = setTimeout(() => {
             this._mousePos[i].doubleClickTimer = undefined;
-            this._configuration.click({ event: e, x, y, scene: this });
+            this._configuration.click({ event: e, x, y, scene: this, imageManager: this._imageManager });
           }, this.camConfig.doubleClickDetectInterval);
         }
       } else {
-        this._configuration.click({ event: e, x, y, scene: this });
+        this._configuration.click({ event: e, x, y, scene: this, imageManager: this._imageManager });
       }
     } else if (this.camConfig.alternative && !i /* i === 0 */) {
       const [x, y] = this.transformPoint(mx, my);
@@ -277,15 +281,26 @@ export default class SceneNormCamera extends SceneNorm {
           scene: this
         });
     }
+    if (this._configuration.mouseUp) {
+      const [x, y] = this.transformPoint(mx, my);
+      this._configuration.mouseUp({ event: e, x, y, scene: this, imageManager: this._imageManager });
+    }
   }
   _mouseOut(e) {
     const i = this._getMouseButton(e);
     if (this._mousePos[i]) this._mousePos[i]._isDown = false;
+    if (this._configuration.mouseOut) {
+      this._configuration.mouseOut({ event: e, scene: this, imageManager: this._imageManager });
+    }
   }
   _mouseMove(e) {
     if (this.camConfig.preventDefault) e.preventDefault();
     const i = this._getMouseButton(e);
     const [mx, my] = this._getMousePosition(e);
+    if (this._configuration.mouseMove) {
+      const [x, y] = this.transformPoint(mx, my);
+      this._configuration.mouseMove({ event: e, x, y, scene: this, imageManager: this._imageManager });
+    }
     if (
       !this._mousePos[i] ||
       !this._mousePos[i]._isDown ||
@@ -328,6 +343,7 @@ export default class SceneNormCamera extends SceneNorm {
           }
           this.clampView();
         }
+        return;
       } else {
         this._mousePos[i]._distance = undefined;
         if (!this.camConfig.alternative || i === 2) {

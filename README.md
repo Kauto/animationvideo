@@ -1050,30 +1050,30 @@ new Engine({
     },
     // click event
     // x, y is in Norm-space
-    click({ event, scene, x, y }) {
+    click({ event, scene, x, y, imageManager }) {
       scene.zoomTo(x - 0.2, y - 0.2, x + 0.2, y + 0.2);
     },
     // double click event
     // x, y is in Norm-space
-    doubleClick({ event, scene, x, y }) {
+    doubleClick({ event, scene, x, y, imageManager }) {
       scene.zoomTo(-1, -1, 1, 1);
     },
-    // event while marking a region
+    // event while marking a region - only with alternative camera controls
     // x1,y1 will be the upper left corner, x2,y2 the bottom right corner in Norm Space
     // fromX, fromY is the start position of the region
     // toX, toY is the current position of the region
-    regionMove({ event, scene, x1, y1, x2, y2, fromX, fromY, toX, toY }) {
+    regionMove({ event, scene, x1, y1, x2, y2, fromX, fromY, toX, toY, imageManager }) {
       this.spriteMarker.enabled = true;
       this.spriteMarker.x = x1;
       this.spriteMarker.y = y1;
       this.spriteMarker.width = x2 - x1;
       this.spriteMarker.height = y2 - y1;
     },
-    // event after marking a region
+    // event after marking a region - only with alternative camera controls
     // x1,y1 will be the upper left corner, x2,y2 the bottom right corner in Norm Space
     // fromX, fromY is the start position of the region
     // toX, toY is the current position of the region
-    region({ event, scene, x1, y1, x2, y2, fromX, fromY, toX, toY }) {
+    region({ event, scene, x1, y1, x2, y2, fromX, fromY, toX, toY, imageManager }) {
       this.spriteMarker.enabled = false;
       this.layerOverlay.addElement(
         new Rect({
@@ -1087,6 +1087,15 @@ new Engine({
         })
       );
     },
+    // event when moving the mouse/finger over the canvas
+    mouseMove({ event, scene, x, y, imageManager }) {},
+    // event when start clicking the mouse/touching the finger over the canvas
+    mouseDown({ event, scene, x, y, imageManager }) {},
+    // event when end clicking the mouse/touching the finger over the canvas
+    mouseUp({ event, scene, x, y, imageManager }) {},
+    // event when moving the mouse out of the canvas
+    mouseOut({ event, scene, imageManager }) {},
+
     images() {
       return { imageFile: "https://placekitten.com/400/400" };
     },

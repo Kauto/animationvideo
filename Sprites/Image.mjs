@@ -20,6 +20,8 @@ class Image extends Circle {
       frameY: 0,
       frameWidth: 0,
       frameHeight: 0,
+      width: undefined,
+      height: undefined,
       // autoscale to max
       norm: false,
       normCover: false,
@@ -59,8 +61,8 @@ class Image extends Circle {
             )
           : 1);
       }
-      const sX = frameWidth * this._normScale * this.scaleX,
-        sY = frameHeight * this._normScale * this.scaleY;
+      const sX = (this.width ? this.width : frameWidth) * this._normScale * this.scaleX,
+        sY = (this.height ? this.height : frameHeight) * this._normScale * this.scaleY;
       context.globalCompositeOperation = this.compositeOperation;
       context.globalAlpha = this.alpha * additionalModifier.alpha;
       if (this.rotation == 0) {

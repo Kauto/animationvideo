@@ -19,6 +19,7 @@ class Scene {
     this._engine = null;
     this._initDone = false;
     this._additionalModifier = undefined;
+    this._imageManager = ImageManager;
 
     this._tickChunk = ifNull(calc(this._configuration.tickChunk), 100 / 6);
     this._maxSkippedTickChunk = ifNull(
@@ -54,7 +55,7 @@ class Scene {
     this.resize(output);
     const images = calc(this._configuration.images);
     if (images) {
-      ImageManager.add(images);
+      this._imageManager.add(images);
     }
     Promise.resolve(
       this._configuration.init &&
@@ -63,7 +64,7 @@ class Scene {
           output,
           scene: this,
           parameter,
-          imageManager: ImageManager
+          imageManager: this._imageManager
         })
     ).then(res => (this._initDone = true));
   }
@@ -104,7 +105,8 @@ class Scene {
       this._configuration.destroy({
         engine: this._engine,
         scene: this,
-        output
+        output,
+        imageManager: this._imageManager
       });
     this._initDone = false;
     return parameter;
@@ -122,7 +124,8 @@ class Scene {
         output,
         timePassed,
         totalTimePassed,
-        progress
+        progress,
+        imageManager: this._imageManager
       });
     }
     const ctx = output.context[0];
@@ -155,11 +158,11 @@ class Scene {
   }
 
   callLoading(args) {
-    if (ImageManager.isLoaded() && this._initDone) {
+    if (this._imageManager.isLoaded() && this._initDone) {
       return true;
     }
-    args.progress = ImageManager.getCount()
-      ? ImageManager.getLoaded() / ImageManager.getCount()
+    args.progress = this._imageManager.getCount()
+      ? this._imageManager.getLoaded() / this._imageManager.getCount()
       : "Loading...";
 
     this.loadingScreen(args);
@@ -271,7 +274,8 @@ class Scene {
             layer,
             output,
             context,
-            totalTimePassed: this._totalTimePassed
+            totalTimePassed: this._totalTimePassed,
+            imageManager: this._imageManager
           })
         ) {
           layer.deleteById(index);
