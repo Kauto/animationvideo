@@ -293,7 +293,7 @@ class Scene {
           engine: this._engine,
           scene: this,
           layerManager: this._layerManager,
-          output
+          output: output||this._engine.getOutput()
         })
       : new LayerManager();
 

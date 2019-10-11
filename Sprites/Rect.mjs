@@ -20,13 +20,13 @@ export default class Rect extends Circle {
       lineWidth: 1,
       clear: false,
       norm: (value, givenParameter, setParameter) =>
-      ifNull(
-        calc(value),
-        setParameter.x === undefined &&
-          setParameter.y === undefined &&
-          setParameter.width === undefined &&
-          setParameter.height === undefined
-      )
+        ifNull(
+          calc(value),
+          setParameter.x === undefined &&
+            setParameter.y === undefined &&
+            setParameter.width === undefined &&
+            setParameter.height === undefined
+        )
     });
   }
 
@@ -46,24 +46,13 @@ export default class Rect extends Circle {
   }
 
   resize(output, additionalModifier) {
-    this.normalizeFullScreen(additionalModifier);
+    // this.normalizeFullScreen(additionalModifier);
   }
 
   // Draw-Funktion
   draw(context, additionalModifier) {
     if (this.enabled) {
-      if (this.width === undefined) {
-        this.width = additionalModifier.width;
-      }
-      if (this.height === undefined) {
-        this.height = additionalModifier.height;
-      }
-      if (this.x === undefined) {
-        this.x = additionalModifier.x;
-      }
-      if (this.y === undefined) {
-        this.y = additionalModifier.y;
-      }
+      this.normalizeFullScreen(additionalModifier);
 
       context.globalCompositeOperation = this.compositeOperation;
       context.globalAlpha = this.alpha * additionalModifier.alpha;

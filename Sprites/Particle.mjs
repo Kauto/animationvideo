@@ -20,15 +20,8 @@ class Particle extends Circle {
       cb = b >> gradientResolution;
 
     if (!Particle._Gradient) {
-      Particle._Gradient = new Array(256 >> gradientResolution);
-      for (rIndex = 0; rIndex < Particle._Gradient.length; rIndex++) {
-        Particle._Gradient[rIndex] = new Array(256 >> gradientResolution);
-        for (gIndex = 0; gIndex < Particle._Gradient[rIndex].length; gIndex++) {
-          Particle._Gradient[rIndex][gIndex] = new Array(
-            256 >> gradientResolution
-          );
-        }
-      }
+      const length = 256 >> gradientResolution;
+      Particle._Gradient = Array.from({length}, a=>Array.from({length}, a=>Array.from({length})))
     }
     if (!Particle._Gradient[cr][cg][cb]) {
       Particle._Gradient[cr][cg][cb] = Particle.generateGradientImage(

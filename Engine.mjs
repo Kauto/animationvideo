@@ -160,6 +160,10 @@ class Engine {
     return this._output.ratio;
   }
 
+  getOutput() {
+    return this._output;
+  }
+
   recalculateCanvas() {
     this._recalculateCanvasIntend = true;
     return this;
