@@ -35,12 +35,16 @@ class Engine {
       ratio: 1
     };
 
+    // list of binded events
+    this._events = []
+
     // the current _scene-object
     this._scene = null;
     // is a _scene ready for action?
     this._isSceneInitialized = false;
     // new _scene to initialize
-    this._newScene = null;
+    // this._newScene = undefined;
+    // this._promiseSceneDestroying = undefined;
 
     // time measurement
     this._lastTimestamp = 0;
@@ -84,23 +88,18 @@ class Engine {
         this._autoSize = defaultAutoSizeSettings;
       }
       if (this._autoSize.registerResizeEvents) {
-        window.addEventListener(
-          "resize",
-          this.recalculateCanvas.bind(this),
-          false
-        );
-        window.addEventListener(
-          "orientationchange",
-          this.recalculateCanvas.bind(this),
-          false
-        );
+        this._events = ['resize','orientationchange'].map(e=>({
+          _node: window,
+          _event: e,
+          _function:  this.recalculateCanvas.bind(this)
+        }))
       }
       if (this._autoSize.registerVisibilityEvents) {
-        document.addEventListener(
-          "visibilitychange",
-          this.handleVisibilityChange.bind(this),
-          false
-        );
+        this._events.push({
+          _node: document,
+          _event: 'visibilitychange',
+          _function:  this.handleVisibilityChange.bind(this)
+        })
       }
       this._recalculateCanvas();
     } else {
@@ -113,16 +112,20 @@ class Engine {
     });
 
     if (options.clickToPlayAudio) {
-      this._output.canvas[0].addEventListener(
-        "click",
-        this.playAudioOfScene.bind(this),
-        false
-      );
+      this._events.push({
+        _node: this._output.canvas[0],
+        _event: 'click',
+        _function: this.playAudioOfScene.bind(this)
+      })
     }
 
     this._reduceFramerate = options.reduceFramerate;
     // not needed because undefined is falsy
     // this._isOddFrame = true
+
+    this._events.forEach(v => {
+      v._node.addEventListener(v._event, v._function)
+    })
 
     this.switchScene(options.scene, options.sceneParameter || {});
   }
@@ -238,11 +241,11 @@ class Engine {
         this._initializedStartTime = timestamp;
       }
 
-      if (this._newScene !== null) {
-        let destroyParameterForNewScene = this._scene
-          ? this._scene.destroy(this._output)
-          : {};
-        if (destroyParameterForNewScene) {
+      if (this._newScene && !this._promiseSceneDestroying) {
+        this._promiseSceneDestroying = Promise.resolve(
+          this._scene ? this._scene.destroy(this._output) : {}
+        );
+        this._promiseSceneDestroying.then(destroyParameterForNewScene => {
           this._newScene.callInit(
             this._output,
             {
@@ -253,11 +256,12 @@ class Engine {
             this
           );
           this._scene = this._newScene;
-          this._newScene = null;
+          this._newScene = undefined;
+          this._promiseSceneDestroying = undefined;
           this._isSceneInitialized = false;
           this._lastTimestamp = this._scene.currentTime();
           this._initializedStartTime = timestamp;
-        }
+        });
       }
 
       if (this._scene) {
@@ -289,7 +293,11 @@ class Engine {
             }
 
             if (drawFrame && this._output.canvas[0].width) {
-              for (let index = 0, length = this._output.canvas.length; index < length; index++) {
+              for (
+                let index = 0, length = this._output.canvas.length;
+                index < length;
+                index++
+              ) {
                 this._scene.draw(this._output, index);
               }
             }
@@ -364,7 +372,7 @@ class Engine {
               totalTimePassed: timestamp - this._initializedStartTime
             });
             if (this._isSceneInitialized) {
-              this._scene.reset(this._output);
+              this._scene.reset();
               this._lastTimestamp = this._scene.currentTime();
               if (this._autoSize) {
                 this._autoSize.currentWaitedTime = 0;
@@ -391,26 +399,11 @@ class Engine {
       window.cancelAnimationFrame(this._referenceRequestAnimationFrame);
     this._referenceRequestAnimationFrame = null;
     this._scene && this._scene.destroy(this._output);
-    window.removeEventListener(
-      "resize",
-      this.recalculateCanvas.bind(this),
-      false
-    );
-    window.removeEventListener(
-      "orientationchange",
-      this.recalculateCanvas.bind(this),
-      false
-    );
-    document.removeEventListener(
-      "visibilitychange",
-      this.handleVisibilityChange.bind(this),
-      false
-    );
-    this._output.canvas[0].removeEventListener(
-      "click",
-      this.playAudioOfScene.bind(this),
-      false
-    );
+    this._events.forEach(v => {
+      v._node.removeEventListener(v._event, v._function)
+    })
+    this._events = []
+
     return this;
   }
 }

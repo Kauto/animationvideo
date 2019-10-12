@@ -204,7 +204,7 @@ class Scene {
     if (timePassed < 0) {
       // Back to the beginning
       timePassed = this._totalTimePassed;
-      this.reset(output);
+      this.reset();
       this._totalTimePassed = timePassed;
     } else if (
       this._configuration.endTime &&
@@ -286,14 +286,14 @@ class Scene {
     }, canvasId);
   }
 
-  reset(output) {
+  reset() {
     this._totalTimePassed = 0;
     let result = this._configuration.reset
       ? this._configuration.reset({
           engine: this._engine,
           scene: this,
           layerManager: this._layerManager,
-          output: output||this._engine.getOutput()
+          output: this._engine.getOutput()
         })
       : new LayerManager();
 

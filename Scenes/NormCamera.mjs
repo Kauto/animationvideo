@@ -6,6 +6,7 @@ const clickTime = 300;
 export default class SceneNormCamera extends SceneNorm {
   constructor(...args) {
     super(...args);
+    this._events = [];
     this.camConfig = Object.assign(
       {},
       {
@@ -94,7 +95,7 @@ export default class SceneNormCamera extends SceneNorm {
 
   destroy(output) {
     if (this.camConfig.registerEvents) {
-      this._destroyCamEvents(output.canvas[0]);
+      this._destroyCamEvents();
     }
     return super.destroy(output);
   }
@@ -136,42 +137,38 @@ export default class SceneNormCamera extends SceneNorm {
         this._transform = null;
         this._transformInvert = null;
       }
-    }
+    } 
     return ret;
   }
 
   _registerCamEvents(element) {
-    for (const eventName of ["touchstart", "mousedown"]) {
-      element.addEventListener(eventName, this._mouseDown.bind(this), true);
-    }
-    for (const eventName of ["touchend", "mouseup"]) {
-      element.addEventListener(eventName, this._mouseUp.bind(this), true);
-    }
-    for (const eventName of ["touchendoutside", "mouseout"]) {
-      element.addEventListener(eventName, this._mouseOut.bind(this), true);
-    }
-    for (const eventName of ["touchmove", "mousemove"]) {
-      element.addEventListener(eventName, this._mouseMove.bind(this), true);
-    }
-    element.addEventListener("wheel", this._mouseWheel.bind(this), true);
-    element.addEventListener("contextmenu", this._eventPrevent, true);
+    this._events = [
+      [["touchstart", "mousedown"], this._mouseDown],
+      [["touchend", "mouseup"], this._mouseUp],
+      [["touchendoutside", "mouseout"], this._mouseOut],
+      [["touchmove", "mousemove"], this._mouseMove],
+      [["wheel"], this._mouseWheel],
+      [["contextmenu"], this._eventPrevent]
+    ]
+      .map(([events, func]) =>
+        events.map(e => ({
+          _node: element,
+          _event: e,
+          _function: func.bind(this)
+        }))
+      )
+      .flat(1);
+
+    this._events.forEach(v => {
+      v._node.addEventListener(v._event, v._function, true);
+    });
   }
 
-  _destroyCamEvents(element) {
-    for (const eventName of ["touchstart", "mousedown"]) {
-      element.removeEventListener(eventName, this._mouseDown, true);
-    }
-    for (const eventName of ["touchend", "mouseup"]) {
-      element.removeEventListener(eventName, this._mouseUp, true);
-    }
-    for (const eventName of ["touchendoutside", "mouseout"]) {
-      element.removeEventListener(eventName, this._mouseOut, true);
-    }
-    for (const eventName of ["touchmove", "mousemove"]) {
-      element.removeEventListener(eventName, this._mouseMove, true);
-    }
-    element.removeEventListener("wheel", this._mouseWheel, true);
-    element.removeEventListener("contextmenu", this._eventPrevent, true);
+  _destroyCamEvents() {
+    this._events.forEach(v => {
+      v._node.removeEventListener(v._event, v._function, true);
+    });
+    this._events = [];
   }
 
   _eventPrevent(e) {
@@ -226,6 +223,7 @@ export default class SceneNormCamera extends SceneNorm {
         x,
         y,
         scene: this,
+        engine: this._engine,
         imageManager: this._imageManager
       });
     }
@@ -254,6 +252,7 @@ export default class SceneNormCamera extends SceneNorm {
         x,
         y,
         scene: this,
+        engine: this._engine,
         imageManager: this._imageManager
       });
     }
@@ -278,6 +277,7 @@ export default class SceneNormCamera extends SceneNorm {
             x,
             y,
             scene: this,
+            engine: this._engine,
             imageManager: this._imageManager
           });
         } else {
@@ -288,6 +288,7 @@ export default class SceneNormCamera extends SceneNorm {
               x,
               y,
               scene: this,
+              engine: this._engine,
               imageManager: this._imageManager
             });
           }, this.camConfig.doubleClickDetectInterval);
@@ -298,6 +299,7 @@ export default class SceneNormCamera extends SceneNorm {
           x,
           y,
           scene: this,
+          engine: this._engine,
           imageManager: this._imageManager
         });
       }
@@ -329,6 +331,7 @@ export default class SceneNormCamera extends SceneNorm {
       this._configuration.mouseOut({
         event: e,
         scene: this,
+        engine: this._engine,
         imageManager: this._imageManager
       });
     }
@@ -344,6 +347,7 @@ export default class SceneNormCamera extends SceneNorm {
         x,
         y,
         scene: this,
+        engine: this._engine,
         imageManager: this._imageManager
       });
     }
