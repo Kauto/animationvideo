@@ -117,7 +117,7 @@ export default class SceneNormCamera extends SceneNorm {
       if (lastCall) {
         this._additionalModifier.cam = this.cam;
         if (this.camConfig.callResize) {
-          this.resize(output);
+          super.resize(output);
         } else {
           this._transform = null;
           this._transformInvert = null;
@@ -132,13 +132,18 @@ export default class SceneNormCamera extends SceneNorm {
     if (!this.camConfig.tween && this.hasCamChanged()) {
       this.cam = Object.assign({}, this.toCam);
       if (this.camConfig.callResize) {
-        this.resize(output);
+        super.resize(output);
       } else {
         this._transform = null;
         this._transformInvert = null;
       }
-    } 
+    }
     return ret;
+  }
+
+  resize(output) {
+    super.resize(output);
+    this.clampView();
   }
 
   _registerCamEvents(element) {

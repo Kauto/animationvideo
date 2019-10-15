@@ -446,6 +446,7 @@
           );
           this.newThings.push(
             SP.Rect({
+              position: SP.Rect.LEFT_TOP,
               x: this.mx - 0.1,
               y: this.my - 0.1,
               width: 0.2,
@@ -1037,6 +1038,7 @@
           this.spriteMarker.enabled = false;
           this.layerOverlay.addElement(
             SP.Rect({
+              position: SP.Rect.LEFT_TOP,
               x: x1,
               y: y1,
               width: x2-x1,
@@ -1054,8 +1056,8 @@
         images() {
           return { imageFile: "https://placekitten.com/400/400" };
         },
-        isFrameToSkip({scene, totalTimePassed}) {
-          return !scene.hasCamChanged() && this.hideAfterTotalTimePassed < totalTimePassed;
+        isDrawFrame({scene, totalTimePassed}) {
+          return scene.hasCamChanged() || this.hideAfterTotalTimePassed >= totalTimePassed;
         },
         update({totalTimePassed}) {
           this.totalTimePassed = totalTimePassed;

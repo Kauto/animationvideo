@@ -36,7 +36,7 @@ class Engine {
     };
 
     // list of binded events
-    this._events = []
+    this._events = [];
 
     // the current _scene-object
     this._scene = null;
@@ -62,18 +62,18 @@ class Engine {
       const defaultAutoSizeSettings = {
         enabled: true,
         scaleLimitMin: 1,
-        scaleLimitMax: 8,
-        scaleFactor: 1.1,
+        scaleLimitMax: 3,
+        scaleFactor: 1.05,
         referenceWidth: () => this._output.canvas[0].clientWidth,
         referenceHeight: () => this._output.canvas[0].clientHeight,
         currentScale: 1,
-        waitTime: 800,
-        currentWaitedTime: 0,
+        waitTime: 300,
+        currentWaitedTime: -500,
         currentOffsetTime: 0,
         offsetTimeLimitUp: 300,
         offsetTimeLimitDown: 300,
-        offsetTimeTarget: 1000 / 60,
-        offsetTimeDelta: 3,
+        offsetTimeTarget: 150 / 6,
+        offsetTimeDelta: 11,
         registerResizeEvents: true,
         registerVisibilityEvents: true,
         setCanvasStyle: false
@@ -88,18 +88,18 @@ class Engine {
         this._autoSize = defaultAutoSizeSettings;
       }
       if (this._autoSize.registerResizeEvents) {
-        this._events = ['resize','orientationchange'].map(e=>({
+        this._events = ["resize", "orientationchange"].map(e => ({
           _node: window,
           _event: e,
-          _function:  this.recalculateCanvas.bind(this)
-        }))
+          _function: this.recalculateCanvas.bind(this)
+        }));
       }
       if (this._autoSize.registerVisibilityEvents) {
         this._events.push({
           _node: document,
-          _event: 'visibilitychange',
-          _function:  this.handleVisibilityChange.bind(this)
-        })
+          _event: "visibilitychange",
+          _function: this.handleVisibilityChange.bind(this)
+        });
       }
       this._recalculateCanvas();
     } else {
@@ -110,13 +110,15 @@ class Engine {
     this._output.canvas.forEach((canvas, index) => {
       this._output.context[index] = canvas.getContext("2d");
     });
+    this._canvasCount = this._output.canvas.length;
+    this._drawFrame = Array.from({ length: this._canvasCount }, v => 0);
 
     if (options.clickToPlayAudio) {
       this._events.push({
         _node: this._output.canvas[0],
-        _event: 'click',
+        _event: "click",
         _function: this.playAudioOfScene.bind(this)
-      })
+      });
     }
 
     this._reduceFramerate = options.reduceFramerate;
@@ -124,8 +126,8 @@ class Engine {
     // this._isOddFrame = true
 
     this._events.forEach(v => {
-      v._node.addEventListener(v._event, v._function)
-    })
+      v._node.addEventListener(v._event, v._function);
+    });
 
     this.switchScene(options.scene, options.sceneParameter || {});
   }
@@ -224,14 +226,19 @@ class Engine {
         mainLoop.bind(this)
       );
 
-      let drawFrame = false;
       if (
         this._recalculateCanvasIntend &&
         (!this._reduceFramerate || !this._isOddFrame)
       ) {
         this._recalculateCanvas();
         this._recalculateCanvasIntend = false;
-        drawFrame = true;
+        for (let i = 0; i < this._canvasCount; i++) {
+          this._drawFrame[i] = Math.max(this._drawFrame[i] - 1, 1);
+        }
+      } else {
+        for (let i = 0; i < this._canvasCount; i++) {
+          this._drawFrame[i] = Math.max(this._drawFrame[i] - 1, 0);
+        }
       }
 
       if (!this._realLastTimestamp) {
@@ -283,8 +290,15 @@ class Engine {
           this._normalizeContext(this._output.context);
           if (this._isSceneInitialized) {
             const moveFrame = timePassed !== 0;
-            if (!drawFrame) {
-              drawFrame = !this._scene.isFrameToSkip(this._output, timePassed);
+            const drawFrame = this._scene.isDrawFrame(this._output, timePassed);
+            if (Array.isArray(drawFrame)) {
+              for (let i = 0; i < this._canvasCount; i++) {
+                this._drawFrame[i] = Math.max(this._drawFrame[i], drawFrame[i]);
+              }
+            } else {
+              for (let i = 0; i < this._canvasCount; i++) {
+                this._drawFrame[i] = Math.max(this._drawFrame[i], drawFrame);
+              }
             }
 
             const nowAutoSize = this._now();
@@ -292,13 +306,9 @@ class Engine {
               this._scene.move(this._output, timePassed);
             }
 
-            if (drawFrame && this._output.canvas[0].width) {
-              for (
-                let index = 0, length = this._output.canvas.length;
-                index < length;
-                index++
-              ) {
-                this._scene.draw(this._output, index);
+            if (this._output.canvas[0].width) {
+              for (let index = 0; index < this._canvasCount; index++) {
+                this._drawFrame[index] && this._scene.draw(this._output, index);
               }
             }
 
@@ -307,7 +317,7 @@ class Engine {
 
               if (this._autoSize.currentWaitedTime < this._autoSize.waitTime) {
                 this._autoSize.currentWaitedTime += deltaTimestamp;
-              } else if (drawFrame && moveFrame) {
+              } else if (moveFrame) {
                 const targetTime =
                   this._autoSize.offsetTimeTarget *
                   (this._reduceFramerate ? 2 : 1);
@@ -400,9 +410,9 @@ class Engine {
     this._referenceRequestAnimationFrame = null;
     this._scene && this._scene.destroy(this._output);
     this._events.forEach(v => {
-      v._node.removeEventListener(v._event, v._function)
-    })
-    this._events = []
+      v._node.removeEventListener(v._event, v._function);
+    });
+    this._events = [];
 
     return this;
   }

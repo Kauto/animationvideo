@@ -49,16 +49,16 @@ export default class FastBlur extends Circle {
   }
 
   normalizeFullScreen(additionalModifier) {
-    if (this.x === undefined || this.norm) {
+    if (this.norm || this.x === undefined) {
       this.x = additionalModifier.visibleScreen.x;
     }
-    if (this.y === undefined || this.norm) {
+    if (this.norm || this.y === undefined) {
       this.y = additionalModifier.visibleScreen.y;
     }
-    if (this.width === undefined || this.norm) {
+    if (this.norm || this.width === undefined) {
       this.width = additionalModifier.visibleScreen.width;
     }
-    if (this.height === undefined || this.norm) {
+    if (this.norm || this.height === undefined) {
       this.height = additionalModifier.visibleScreen.height;
     }
   }

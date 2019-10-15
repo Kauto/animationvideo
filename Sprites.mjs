@@ -31,6 +31,8 @@ const
 
 Image.LEFT_TOP = _Image.LEFT_TOP
 Image.CENTER = _Image.CENTER
+Rect.LEFT_TOP = _Rect.LEFT_TOP
+Rect.CENTER = _Rect.CENTER
 Text.LEFT_TOP = _Text.LEFT_TOP
 Text.CENTER = _Text.CENTER
 

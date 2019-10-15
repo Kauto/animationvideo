@@ -388,8 +388,8 @@ const objectScene = new SceneDefault({
   // - engine is the engine object this scene is running in
   // - output is a object with canvas information
   //   output = {
-  //     canvas: null,  // the canvas object
-  //     context: null, // the context2d of the canvas
+  //     canvas: [],    // the canvas objects
+  //     context: [],   // the context2d of the canvases
   //     width: 0,      // the width of the canvas
   //     height: 0,     // the height of the canvas
   //     ratio: 1       // the ratio between width and height
@@ -422,9 +422,9 @@ const objectScene = new SceneDefault({
 
   // "loading" is an optional function that replaces the loading animation
   // can be empty to disable any loading animation. F.e. loading() {}
-  loading({ engine, scene, output, timePassed, totalTimePassed, progress }) {
+  loading({ engine, scene, output, timePassed, totalTimePassed, progress, imageManager }) {
     // replace the loading screen
-    const ctx = output.context;
+    const ctx = output.context[0];
     const loadedHeight =
       typeof progress === "number"
         ? Math.max(1, progress * output.height)
@@ -461,7 +461,7 @@ const objectScene = new SceneDefault({
 
   // The function "end" will be triggered if the animation is running
   // for "endTime" ms.
-  end({ engine, scene, output, timePassed, totalTimePassed }) {
+  end({ engine, scene, output, timePassed, totalTimePassed, imageManager }) {
     // f.e. switch scene at the end of a cutscene
   }
 
@@ -480,9 +480,11 @@ const objectScene = new SceneDefault({
   // can be a function or a fixed value
   tickChunkTolerance: 0.1,
 
-  // "isFrameToSkip" is a optional function that will determine if a scene should be drawn
+  // "isDrawFrame" is a optional function that will determine if a scene should be drawn
   // If this function returns true it will still call "update" and "fixedUpdate" but
   // it will not draw the sprites
+  // You can also return a frame count. F.e. return 2 will render the next 2 frames.
+  // You can return an array too, to give seperate values to different canvas.
   // - engine is the engine object this scene is running in
   // - scene is the scene object this object is running in
   // - layerManager is the object that manages all objects that are in the scene
@@ -497,9 +499,10 @@ const objectScene = new SceneDefault({
   // - timePassed is the time in ms that has passed since the last frame
   // - totalTimePassed is the time in ms that has passed since the start of the
   //   animation
-  isFrameToSkip({ engine, scene, layerManager, output, timePassed, totalTimePassed }) {
+  // - imageManager is the object that loads the images
+  isDrawFrame({ engine, scene, layerManager, output, timePassed, totalTimePassed, imageManager }) {
     // calculation for the draw logic. f.e.
-    // return totalTimePassed>=10000 && !scene.hasCamChanged();
+    // return totalTimePassed<=10000 || scene.hasCamChanged();
   }
 
   // "fixedUpdate" is a optional function that will be
@@ -518,7 +521,8 @@ const objectScene = new SceneDefault({
   // - timePassed is the time in ms that has passed since the last frame
   // - totalTimePassed is the time in ms that has passed since the start of the
   //   animation
-  fixedUpdate({ engine, scene, layerManager, output, timePassed, totalTimePassed }) {
+  // - imageManager is the object that loads the images
+  fixedUpdate({ engine, scene, layerManager, output, timePassed, totalTimePassed, imageManager }) {
     // do collision
     // logic or handle events f.e.
     // if (keydown) layerManager.getById(0).addElements(this.createExplosion());
@@ -540,7 +544,8 @@ const objectScene = new SceneDefault({
   // - timePassed is the time in ms that has passed since the last frame
   // - totalTimePassed is the time in ms that has passed since the start of the
   //   animation
-  update({ engine, scene, layerManager, output, timePassed, totalTimePassed }) {
+  // - imageManager is the object that loads the images
+  update({ engine, scene, layerManager, output, timePassed, totalTimePassed, imageManager }) {
     // set text of a object - f.e. the score
     // layerManager.getById(0).getById(0).text = this.score;
 
@@ -550,7 +555,7 @@ const objectScene = new SceneDefault({
 
   // "reset" sets the layers of the scene
   // will be called after the initialization and if there is a seek backwards
-  reset({ engine, scene, layerManager, output }) {
+  reset({ engine, scene, layerManager, output, imageManager }) {
     // - you can directly work with the layerManager
     // layerManager.clear();
     // layerManager.addLayer().addElements([ SPRITES ]);
@@ -1514,6 +1519,9 @@ new Engine({
             y: undefined,
             width: undefined,
             height: undefined,
+            canvasWidth: undefined, // internal size of the canvas - can not be changed afterwards
+            canvasHeight: undefined, // internal size of the canvas - can not be changed afterwards
+            isDrawFrame: true, // true - draw all sprites always, false - draw only once, function is allowed too and called by frame
             norm: false, // is true by default if x, y, width and height are undefined. Set the size of the canvas to the original canvas size
             scaleX: 1, // the scalled internal size of the canvas. F.e. if scaleX and scaleY is 2 then the the internal
             scaleY: 1, // canvas has half of the size of the original canvas

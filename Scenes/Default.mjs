@@ -178,22 +178,24 @@ class Scene {
         output,
         timePassed,
         totalTimePassed: this._totalTimePassed,
+        imageManager: this._imageManager,
         lastCall
       });
     }
   }
 
-  isFrameToSkip(output, timePassed) {
-    return this._configuration.isFrameToSkip
-      ? this._configuration.isFrameToSkip({
+  isDrawFrame(output, timePassed) {
+    return this._configuration.isDrawFrame
+      ? this._configuration.isDrawFrame({
           engine: this._engine,
           scene: this,
           layerManager: this._layerManager,
           output,
           timePassed,
-          totalTimePassed: this._totalTimePassed
+          totalTimePassed: this._totalTimePassed,
+          imageManager: this._imageManager
         })
-      : timePassed === 0;
+      : timePassed !== 0;
   }
 
   move(output, timePassed) {
@@ -220,7 +222,8 @@ class Scene {
           scene: this,
           output,
           timePassed,
-          totalTimePassed: this._totalTimePassed
+          totalTimePassed: this._totalTimePassed,
+          imageManager: this._imageManager
         });
     }
 
@@ -249,7 +252,8 @@ class Scene {
         layerManager: this._layerManager,
         output,
         timePassed,
-        totalTimePassed: this._totalTimePassed
+        totalTimePassed: this._totalTimePassed,
+        imageManager: this._imageManager
       });
     }
 
@@ -293,7 +297,8 @@ class Scene {
           engine: this._engine,
           scene: this,
           layerManager: this._layerManager,
-          output: this._engine.getOutput()
+          output: this._engine.getOutput(),
+          imageManager: this._imageManager
         })
       : new LayerManager();
 
