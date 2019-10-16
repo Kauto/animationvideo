@@ -196,6 +196,10 @@ export default class SceneNormCamera extends SceneNorm {
         touches.reduce((sum, v) => sum + v.pageY, 0) / length - rect.top
       ];
     }
+    if (e.offsetX === undefined) {
+      const rect = e.target.getBoundingClientRect();
+      return [e.clientX - rect.left, e.clientY - rect.top];
+    }
     return [e.offsetX, e.offsetY];
   }
 

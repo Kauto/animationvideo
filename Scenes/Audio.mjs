@@ -60,7 +60,7 @@ export default class SceneAudio extends Scene {
     return 0;
   }
 
-  callInit(args) {
+  callInit(output, parameter, engine) {
     // init audio
     if (this._audioElement) {
       // Android hack
@@ -72,7 +72,7 @@ export default class SceneAudio extends Scene {
       this._audioElement.load();
     }
 
-    return super.callInit(args);
+    return super.callInit(output, parameter, engine);
   }
 
   callLoading(args) {

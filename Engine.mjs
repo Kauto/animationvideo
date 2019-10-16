@@ -63,17 +63,17 @@ class Engine {
         enabled: true,
         scaleLimitMin: 1,
         scaleLimitMax: 3,
-        scaleFactor: 1.05,
+        scaleFactor: 1.07,
         referenceWidth: () => this._output.canvas[0].clientWidth,
         referenceHeight: () => this._output.canvas[0].clientHeight,
         currentScale: 1,
-        waitTime: 300,
-        currentWaitedTime: -500,
+        waitTime: 100,
+        currentWaitedTime: 0,
         currentOffsetTime: 0,
         offsetTimeLimitUp: 300,
         offsetTimeLimitDown: 300,
-        offsetTimeTarget: 150 / 6,
-        offsetTimeDelta: 11,
+        offsetTimeTarget: 25,
+        offsetTimeDelta: 10,
         registerResizeEvents: true,
         registerVisibilityEvents: true,
         setCanvasStyle: false
@@ -287,7 +287,6 @@ class Engine {
           timePassed = timePassed + shiftTime;
           this._lastTimestamp = now + shiftTime;
 
-          this._normalizeContext(this._output.context);
           if (this._isSceneInitialized) {
             const moveFrame = timePassed !== 0;
             const drawFrame = this._scene.isDrawFrame(this._output, timePassed);
@@ -308,7 +307,10 @@ class Engine {
 
             if (this._output.canvas[0].width) {
               for (let index = 0; index < this._canvasCount; index++) {
-                this._drawFrame[index] && this._scene.draw(this._output, index);
+                if (this._drawFrame[index]) {
+                  this._normalizeContext(this._output.context[index]);
+                  this._scene.draw(this._output, index);
+                }
               }
             }
 
@@ -376,6 +378,9 @@ class Engine {
               }
             }
           } else {
+            for (let i = 0; i < this._canvasCount; i++) {
+              this._normalizeContext(this._output.context[i]);
+            }
             this._isSceneInitialized = this._scene.callLoading({
               output: this._output,
               timePassed: timestamp - this._realLastTimestamp,

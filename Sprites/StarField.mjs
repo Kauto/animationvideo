@@ -29,7 +29,8 @@ export default class StarField extends Rect {
       moveY: 0.,
       moveZ: 0.,
       lineWidth: undefined,
-      highScale: true
+      highScale: true,
+      color: '#FFF' // here default color is white
     });
   }
 
