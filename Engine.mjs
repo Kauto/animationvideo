@@ -288,7 +288,8 @@ class Engine {
           this._lastTimestamp = now + shiftTime;
 
           if (this._isSceneInitialized) {
-            const moveFrame = timePassed !== 0;
+            const moveFrame = timePassed !== 0 || this._moveOnce;
+            this._moveOnce = false
             const drawFrame = this._scene.isDrawFrame(this._output, timePassed);
             if (Array.isArray(drawFrame)) {
               for (let i = 0; i < this._canvasCount; i++) {
@@ -389,6 +390,7 @@ class Engine {
             if (this._isSceneInitialized) {
               this._scene.reset();
               this._lastTimestamp = this._scene.currentTime();
+              this._moveOnce = true;
               if (this._autoSize) {
                 this._autoSize.currentWaitedTime = 0;
               }
