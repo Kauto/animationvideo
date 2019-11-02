@@ -1,9 +1,10 @@
 import calc from '../func/calc.mjs';
+import ifNull from "../func/ifnull.mjs";
 
 export default class WaitDisabled {
 
   constructor(duration) {
-    this.duration = calc(duration);
+    this.duration = ifNull(calc(duration), 0);
   }
 
   run(sprite, time) {
