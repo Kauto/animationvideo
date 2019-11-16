@@ -124,8 +124,8 @@ export default class ChangeTo {
 
     // return time left
     if (this.duration <= time) {
-      let l = this.changeValues.length,
-        data;
+      let l = this.changeValues.length;
+      let data;
 
       // prevent round errors by applying end-data
       while (l--) {
@@ -133,9 +133,9 @@ export default class ChangeTo {
         sprite[data.name] = data.to;
       }
     } else {
-      let l = this.changeValues.length,
-        progress = this.ease(time / this.duration),
-        data;
+      let l = this.changeValues.length;
+      let data;
+      const progress = this.ease(time / this.duration);
 
       while (l--) {
         data = this.changeValues[l];

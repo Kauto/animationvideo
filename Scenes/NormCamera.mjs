@@ -162,7 +162,15 @@ export default class SceneNormCamera extends SceneNorm {
           _function: func.bind(this)
         }))
       )
-      .flat(1);
+      // workaround for .flat(1) for edge
+      .reduce((acc, cur) => {
+        if (Array.isArray(cur)) {
+          acc.push.apply(acc, cur);
+        } else {
+          acc.push(cur);
+        }
+        return acc;
+      }, [])
 
     this._events.forEach(v => {
       v._node.addEventListener(v._event, v._function, true);
