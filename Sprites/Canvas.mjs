@@ -9,8 +9,8 @@ export default class Canvas extends Group {
     this._drawFrame = 2;
   }
 
-  getParameterList() {
-    return Object.assign({}, super.getParameterList(), {
+  _getParameterList() {
+    return Object.assign({}, super._getParameterList(), {
       // x,y,width,height without default to enable norm
       x: undefined,
       y: undefined,

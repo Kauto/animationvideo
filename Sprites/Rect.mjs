@@ -9,8 +9,8 @@ class Rect extends Circle {
     super(givenParameters);
   }
 
-  getParameterList() {
-    return Object.assign({}, super.getParameterList(), {
+  _getParameterList() {
+    return Object.assign({}, super._getParameterList(), {
       x: undefined,
       y: undefined,
       width: undefined,

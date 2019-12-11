@@ -9,8 +9,8 @@ class Image extends Circle {
     super(givenParameter);
   }
 
-  getParameterList() {
-    return Object.assign({}, super.getParameterList(), {
+  _getParameterList() {
+    return Object.assign({}, super._getParameterList(), {
       // set image
       image: v => ImageManager.getImage(calc(v)),
       // relative position

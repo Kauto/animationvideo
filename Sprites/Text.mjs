@@ -5,8 +5,8 @@ class Text extends Circle {
     super(givenParameters);
   }
 
-  getParameterList() {
-    return Object.assign({}, super.getParameterList(), {
+  _getParameterList() {
+    return Object.assign({}, super._getParameterList(), {
       text: undefined,
       font: '2em monospace',
       position: Text.CENTER,

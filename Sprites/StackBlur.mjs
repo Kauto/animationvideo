@@ -10,8 +10,8 @@ export default class StackBlur extends FastBlur {
     this._currentRadiusPart = undefined;
   }
 
-  getParameterList() {
-    return Object.assign({}, super.getParameterList(), {
+  _getParameterList() {
+    return Object.assign({}, super._getParameterList(), {
       // work directly on the main canvas
       onCanvas: false,
       radius: undefined,

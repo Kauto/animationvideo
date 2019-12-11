@@ -5,8 +5,8 @@ export default class Group extends Circle {
     super(givenParameter);
   }
 
-  getParameterList() {
-    return Object.assign({}, super.getParameterList(), {
+  _getParameterList() {
+    return Object.assign({}, super._getParameterList(), {
       sprite: []
     });
   }

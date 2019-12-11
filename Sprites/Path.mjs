@@ -28,8 +28,8 @@ export default class Path extends Group {
     }
   }
 
-  getParameterList() {
-    return Object.assign({}, super.getParameterList(), {
+  _getParameterList() {
+    return Object.assign({}, super._getParameterList(), {
       // set path
       path: undefined,
       color: undefined,

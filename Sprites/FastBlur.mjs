@@ -9,8 +9,8 @@ export default class FastBlur extends Circle {
     this._currentGridSize = false;
   }
 
-  getParameterList() {
-    return Object.assign({}, super.getParameterList(), {
+  _getParameterList() {
+    return Object.assign({}, super._getParameterList(), {
       // x,y,width,height without default to enable norm
       x: undefined,
       y: undefined,

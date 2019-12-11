@@ -8,32 +8,33 @@ const degToRad = 0.017453292519943295; //Math.PI / 180;
 // Draw a Circle
 export default class Circle {
   constructor(givenParameter) {
-    const parameterList = this.getParameterList();
+    this._parseParameterList(this, this._getParameterList(), givenParameter);
+  }
+
+  _parseParameterList(obj, parameterList, givenParameter) {
     Object.keys(parameterList).forEach(name => {
       const d = parameterList[name];
-      this[name] =
+      obj[name] =
         typeof d === "function"
-          ? d(givenParameter[name], givenParameter, this)
+          ? d(givenParameter[name], givenParameter, obj)
           : ifNull(calc(givenParameter[name]), d);
     });
   }
 
-  getBaseParameterList () {
+  _getBaseParameterList() {
     return {
       // animation
       animation: (value, givenParameter) => {
         let result = calc(value);
-        return Array.isArray(result)
-          ? new Sequence(result)
-          : result;
+        return Array.isArray(result) ? new Sequence(result) : result;
       },
       // if it's rendering or not
       enabled: true
-    }
+    };
   }
 
-  getParameterList() {
-    return Object.assign({}, this.getBaseParameterList(), {
+  _getParameterList() {
+    return Object.assign({}, this._getBaseParameterList(), {
       // position
       x: 0,
       y: 0,
@@ -49,25 +50,13 @@ export default class Circle {
       },
       // scalling
       scaleX: (value, givenParameter) => {
-        return ifNull(
-          calc(value),
-          ifNull(
-            calc(givenParameter.scale),
-            1.
-          )
-        );
+        return ifNull(calc(value), ifNull(calc(givenParameter.scale), 1));
       },
       scaleY: (value, givenParameter) => {
-        return ifNull(
-          calc(value),
-          ifNull(
-            calc(givenParameter.scale),
-            1.
-          )
-        );
+        return ifNull(calc(value), ifNull(calc(givenParameter.scale), 1));
       },
       // alpha
-      alpha: 1.,
+      alpha: 1,
       // blending
       compositeOperation: "source-over",
       // color

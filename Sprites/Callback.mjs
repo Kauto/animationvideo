@@ -12,8 +12,8 @@ export default class Callback extends Circle {
     this._deltaTime = 0;
   }
 
-  getParameterList() {
-    return Object.assign({}, this.getBaseParameterList(), {
+  _getParameterList() {
+    return Object.assign({}, this._getBaseParameterList(), {
       callback: v => (typeof v === undefined ? () => {} : v)
     });
   }
