@@ -22,8 +22,6 @@ export default class StarField extends Rect {
 
   _getParameterList() {
     return Object.assign({}, super._getParameterList(), {
-      x: 0,
-      y: 0,
       // set image
       count: 40,
       // relative position
@@ -161,8 +159,6 @@ export default class StarField extends Rect {
       context.globalCompositeOperation = this.compositeOperation;
       context.globalAlpha = this.alpha * additionalModifier.alpha;
 
-      context.save();
-      context.translate(this.x, this.y);
       if (this.moveY == 0 && this.moveZ == 0 && this.moveX < 0) {
         context.fillStyle = this.color;
         let i = this.count;
@@ -208,7 +204,6 @@ export default class StarField extends Rect {
           }
         }
       }
-      context.restore();
     }
   }
 }
