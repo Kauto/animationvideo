@@ -22,6 +22,8 @@ export default class StarField extends Rect {
 
   _getParameterList() {
     return Object.assign({}, super._getParameterList(), {
+      x: 0,
+      y: 0,
       // set image
       count: 40,
       // relative position
