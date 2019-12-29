@@ -106,6 +106,7 @@ class Scene {
         engine: this._engine,
         scene: this,
         output,
+        layerManager: this._layerManager,
         imageManager: this._imageManager
       });
     this._initDone = false;
