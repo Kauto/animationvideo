@@ -4,7 +4,12 @@ class Layer {
     this._isFunction = [];
     this._start = 0;
     this._nextFree = 0;
-    this._canvasIds = canvasIds === undefined ? [] : (Array.isArray(canvasIds) ? canvasIds : [canvasIds]);
+    this._canvasIds =
+      canvasIds === undefined
+        ? []
+        : Array.isArray(canvasIds)
+        ? canvasIds
+        : [canvasIds];
   }
 
   addElement(element) {
@@ -87,9 +92,13 @@ class Layer {
   }
 
   isCanvasId(canvasId) {
-    return (canvasId === undefined) || !this._canvasIds.length || this._canvasIds.includes(canvasId)
+    return (
+      canvasId === undefined ||
+      !this._canvasIds.length ||
+      this._canvasIds.includes(canvasId)
+    );
   }
-  
+
   forEach(callback) {
     let index, element;
     const l = this._layer.length;
@@ -104,6 +113,13 @@ class Layer {
         });
       }
     }
+  }
+
+  play(label = "", timelapsed = 0) {
+    this.forEach(
+      ({ element, isFunction }) =>
+        !isFunction && element.play(label, timelapsed)
+    );
   }
 
   count() {
