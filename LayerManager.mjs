@@ -46,6 +46,13 @@ class LayerManager {
     }
   }
 
+  play(label = "", timelapsed = 0) {
+    this.forEach(
+      ({ element, isFunction }) =>
+        !isFunction && element.play(label, timelapsed)
+    );
+  }
+
   count() {
     return this._layers.length;
   }
