@@ -98,8 +98,12 @@ class Scene {
     return parameter;
   }
 
-  getConfiguration() {
+  get configuration() {
     return this._configuration;
+  }
+
+  get timing() {
+    return this._timing;
   }
 
   loadingScreen({ output, timePassed, totalTimePassed, progress }) {

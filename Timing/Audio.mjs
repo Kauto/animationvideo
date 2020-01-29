@@ -1,5 +1,3 @@
-import calc from "../func/calc.mjs";
-import ifNull from "../func/ifnull.mjs";
 import TimingDefault from "./Default.mjs";
 
 export default class TimingAuto extends TimingDefault {
@@ -10,6 +8,10 @@ export default class TimingAuto extends TimingDefault {
     this._audioPosition = null;
     this._enableAndroidHack = false;
     this._audioElement = this._configuration.audioElement;
+  }
+
+  get audioElement() {
+    return this._audioElement
   }
 
   init() {

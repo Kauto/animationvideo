@@ -142,9 +142,9 @@ class Engine {
     if (
       this._isSceneInitialized &&
       this._scene &&
-      this._scene.getConfiguration().audioElement
+      this._scene.timing.audioElement
     ) {
-      this._scene.getConfiguration().audioElement.play();
+      this._scene.timing.audioElement.play();
     }
   }
 
