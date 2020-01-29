@@ -4,8 +4,14 @@ import ImageManager from './ImageManager.mjs';
 import Sprites from './Sprites.mjs';
 import Animations from './Animations.mjs';
 import Easing from 'eases';
+import Default from './Timing/Default.mjs';
+import Audio from './Timing/Audio.mjs';
 
-var Engine = (...args) => new _Engine(...args);
+const Engine = (...args) => new _Engine(...args);
+const Timing = {
+  Default,
+  Audio
+}
 
 export {
   Engine,
@@ -13,5 +19,6 @@ export {
   ImageManager,
   Sprites,
   Animations,
-  Easing
+  Easing,
+  Timing
 };

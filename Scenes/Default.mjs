@@ -1,7 +1,7 @@
 import ImageManager from "../ImageManager.mjs";
 import LayerManager from "../LayerManager.mjs";
 import calc from "../func/calc.mjs";
-import ifNull from "../func/ifnull.mjs";
+import TimingDefault from '../Timing/Default.mjs';
 
 class Scene {
   constructor(configurationClassOrObject) {
@@ -14,40 +14,24 @@ class Scene {
     // Layer consists of Sprites
     this._layerManager = new LayerManager();
 
-    this._totalTimePassed = 0;
-
     this._engine = null;
     this._initDone = false;
     this._additionalModifier = undefined;
     this._imageManager = ImageManager;
 
-    this._tickChunk = ifNull(calc(this._configuration.tickChunk), 100 / 6);
-    this._maxSkippedTickChunk = ifNull(
-      calc(this._configuration.maxSkippedTickChunk),
-      120
-    );
-    this._tickChunkTolerance = ifNull(
-      calc(this._configuration.tickChunkTolerance),
-      0.1
-    );
+    this._timing = this._configuration.timing || new TimingDefault()
   }
 
   currentTime() {
-    return window.performance ? performance.now() : Date.now();
+    return this._timing.currentTime()
   }
 
   clampTime(timePassed) {
-    const maxTime = this._tickChunk
-      ? this._tickChunk * this._maxSkippedTickChunk
-      : 2000;
-    if (timePassed > maxTime) {
-      return maxTime;
-    }
-    return timePassed;
+    return this._timing.clampTime(timePassed) 
   }
 
   shiftTime(timePassed) {
-    return this._tickChunk ? -(timePassed % this._tickChunk) : 0;
+    return this._timing.shiftTime(timePassed)
   }
 
   callInit(output, parameter, engine) {
@@ -57,6 +41,7 @@ class Scene {
     if (images) {
       this._imageManager.add(images);
     }
+    this._timing.init();
     Promise.resolve(
       this._configuration.init &&
         this._configuration.init({
@@ -159,7 +144,13 @@ class Scene {
   }
 
   callLoading(args) {
-    if (this._imageManager.isLoaded() && this._initDone) {
+    const timingLoaded = this._timing.isLoaded()
+    if (this._imageManager.isLoaded() && this._initDone && timingLoaded) {
+      if (!this._configuration.endTime && timingLoaded !== true) {
+        this._configuration.endTime = timingLoaded;
+      }
+      args.progress = "Click to play";
+      this.loadingScreen(args);
       return true;
     }
     args.progress = this._imageManager.getCount()
@@ -178,7 +169,7 @@ class Scene {
         layerManager: this._layerManager,
         output,
         timePassed,
-        totalTimePassed: this._totalTimePassed,
+        totalTimePassed: this._timing.totalTimePassed,
         imageManager: this._imageManager,
         lastCall
       });
@@ -193,7 +184,7 @@ class Scene {
           layerManager: this._layerManager,
           output,
           timePassed,
-          totalTimePassed: this._totalTimePassed,
+          totalTimePassed: this._timing.totalTimePassed,
           imageManager: this._imageManager
         })
       : timePassed !== 0;
@@ -201,21 +192,21 @@ class Scene {
 
   move(output, timePassed) {
     // calc total time
-    this._totalTimePassed += timePassed;
+    this._timing.totalTimePassed += timePassed;
 
     // Jump back?
     if (timePassed < 0) {
       // Back to the beginning
-      timePassed = this._totalTimePassed;
+      timePassed = this._timing.totalTimePassed;
       this.reset();
-      this._totalTimePassed = timePassed;
+      this._timing.totalTimePassed = timePassed;
     } else if (
       this._configuration.endTime &&
-      this._configuration.endTime <= this._totalTimePassed
+      this._configuration.endTime <= this._timing.totalTimePassed
     ) {
       // set timepassed to match endtime
-      timePassed -= this._totalTimePassed - this._configuration.endTime;
-      this._totalTimePassed = this._configuration.endTime;
+      timePassed -= this._timing.totalTimePassed - this._configuration.endTime;
+      this._timing.totalTimePassed = this._configuration.endTime;
       // End Engine
       this._configuration.end &&
         this._configuration.end({
@@ -223,23 +214,17 @@ class Scene {
           scene: this,
           output,
           timePassed,
-          totalTimePassed: this._totalTimePassed,
+          totalTimePassed: this._timing.totalTimePassed,
           imageManager: this._imageManager
         });
     }
 
-    if (this._tickChunk) {
-      if (timePassed >= this._tickChunk - this._tickChunkTolerance) {
+    if (this._timing.isChunked()) {
+      if (this._timing.hasOneChunkedFrame(timePassed)) {
         // how many frames should be skipped. Maximum is a skip of 2 frames
-        const frames =
-          Math.min(
-            this._maxSkippedTickChunk,
-            Math.floor(
-              (timePassed + this._tickChunkTolerance) / this._tickChunk
-            )
-          ) - 1;
+        const frames = this._timing.calcFrames(timePassed) - 1;
         for (let calcFrame = 0; calcFrame <= frames; calcFrame++) {
-          this.fixedUpdate(output, this._tickChunk, calcFrame === frames);
+          this.fixedUpdate(output, this._timing.tickChunk, calcFrame === frames);
         }
       }
     } else {
@@ -253,7 +238,7 @@ class Scene {
         layerManager: this._layerManager,
         output,
         timePassed,
-        totalTimePassed: this._totalTimePassed,
+        totalTimePassed: this._timing.totalTimePassed,
         imageManager: this._imageManager
       });
     }
@@ -279,7 +264,7 @@ class Scene {
             layer,
             output,
             context,
-            totalTimePassed: this._totalTimePassed,
+            totalTimePassed: this._timing.totalTimePassed,
             imageManager: this._imageManager
           })
         ) {
@@ -292,7 +277,7 @@ class Scene {
   }
 
   reset() {
-    this._totalTimePassed = 0;
+    this._timing.totalTimePassed = 0;
     let result = this._configuration.reset
       ? this._configuration.reset({
           engine: this._engine,

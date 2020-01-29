@@ -791,8 +791,10 @@
       clickToPlayAudio: true,
       canvas: document.getElementById("canvasAudio"),
       // The Engine uses the scene "Audio"
-      scene: AnimationVideo.Scenes.Audio({
-        audioElement: document.getElementById('audio'),
+      scene: AnimationVideo.Scenes.Default({
+        timing: new AnimationVideo.Timing.Audio({
+          audioElement: document.getElementById('audio')
+        }),
         end() {
           window.alert('audio done');
         },

@@ -1,12 +1,46 @@
-import Scene from "./Default.mjs";
+import calc from "../func/calc.mjs";
+import ifNull from "../func/ifnull.mjs";
+import TimingDefault from "./Default.mjs";
 
-export default class SceneAudio extends Scene {
-  constructor(configurationClassOrObject) {
-    super(configurationClassOrObject);
+export default class TimingAuto extends TimingDefault {
+  constructor(configuration = {}) {
+    super(configuration);
+    this._maxSkippedTickChunk = Number.POSITIVE_INFINITY;
     this._audioStartTime = null;
     this._audioPosition = null;
     this._enableAndroidHack = false;
     this._audioElement = this._configuration.audioElement;
+  }
+
+  init() {
+    if (this._audioElement) {
+      // Android hack
+      if (typeof MediaController === "function") {
+        this._audioElement.controller = new MediaController();
+        this._enableAndroidHack = true;
+      }
+      this._audioElement.preload = "auto";
+      this._audioElement.load();
+    }
+  }
+
+  isLoaded() {
+    if (this._audioElement) {
+      if (
+        !(this._audioElement.readyState >= this._audioElement.HAVE_ENOUGH_DATA)
+      ) {
+        return false;
+      } else {
+        let playPromise = this._audioElement.play();
+        if (playPromise) {
+          playPromise.catch(e => {});
+        }
+        if (this._audioElement.duration > 0) {
+          return this._audioElement.duration * 1000;
+        }
+      }
+    }
+    return true;
   }
 
   currentTime() {
@@ -58,47 +92,5 @@ export default class SceneAudio extends Scene {
 
   shiftTime(timePassed) {
     return 0;
-  }
-
-  callInit(output, parameter, engine) {
-    // init audio
-    if (this._audioElement) {
-      // Android hack
-      if (typeof MediaController === "function") {
-        this._audioElement.controller = new MediaController();
-        this._enableAndroidHack = true;
-      }
-      this._audioElement.preload = "auto";
-      this._audioElement.load();
-    }
-
-    return super.callInit(output, parameter, engine);
-  }
-
-  callLoading(args) {
-    let loaded = super.callLoading(args);
-
-    if (loaded && this._audioElement) {
-      if (
-        !(this._audioElement.readyState >= this._audioElement.HAVE_ENOUGH_DATA)
-      ) {
-        args.progress = "Waiting for Audio";
-        this.loadingScreen(args);
-        return false;
-      } else {
-        let playPromise = this._audioElement.play();
-        if (playPromise) {
-          playPromise.catch(e => {});
-        }
-        if (!this._configuration.endTime && this._audioElement.duration > 0) {
-          this._configuration.endTime = this._audioElement.duration * 1000;
-        }
-
-        args.progress = "Click to play";
-        this.loadingScreen(args);
-      }
-    }
-
-    return loaded;
   }
 }

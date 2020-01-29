@@ -15,15 +15,16 @@ class Engine {
     }
     let options = Object.assign(
       {},
+      /*
       {
-        /* undefined is falsy - saves a few bytes
+         undefined is falsy - saves a few bytes
         scene: null,
         canvas: null,
         autoSize: false,
         clickToPlayAudio: false,
         reduceFramerate: false
-        */
       },
+      */
       givenOptions
     );
 
@@ -72,8 +73,9 @@ class Engine {
         currentOffsetTime: 0,
         offsetTimeLimitUp: 300,
         offsetTimeLimitDown: 300,
-        offsetTimeTarget: 25,
-        offsetTimeDelta: 10,
+        // undefined will be autodetect timing
+        // offsetTimeTarget: 25,
+        // offsetTimeDelta: 10,
         registerResizeEvents: true,
         registerVisibilityEvents: true,
         setCanvasStyle: false
@@ -200,6 +202,30 @@ class Engine {
     this.resize();
   }
 
+  async recalculateFPS() {
+    if (this._referenceRequestAnimationFrame) {
+      window.cancelAnimationFrame(this._referenceRequestAnimationFrame);
+      this._referenceRequestAnimationFrame = false;
+    }
+    await new Promise(resolve => requestAnimationFrame(resolve))
+    const start = this._now()
+    const count = 3;
+    for (let i = count; i--;) {
+      await new Promise(resolve => requestAnimationFrame(resolve))
+    }
+
+    const timeBetweenFrames = (this._now() - start) / count;
+    this._autoSize.offsetTimeTarget = timeBetweenFrames;
+    this._autoSize.offsetTimeDelta = timeBetweenFrames / 3;
+
+    if (this._referenceRequestAnimationFrame === false) {
+      this._realLastTimestamp = false;
+      this._referenceRequestAnimationFrame = window.requestAnimationFrame(
+        this._mainLoop.bind(this)
+      );
+    }
+  }
+
   resize() {
     if (this._scene && this._scene.resize) {
       this._scene.resize(this._output);
@@ -218,204 +244,216 @@ class Engine {
   _now() {
     return window.performance ? performance.now() : Date.now();
   }
-  run(runParameter) {
-    runParameter = runParameter || {};
 
-    function mainLoop(timestamp) {
-      this._referenceRequestAnimationFrame = window.requestAnimationFrame(
-        mainLoop.bind(this)
+  _mainLoop(timestamp) {
+    this._referenceRequestAnimationFrame = window.requestAnimationFrame(
+      this._mainLoop.bind(this)
+    );
+
+    if (
+      this._recalculateCanvasIntend &&
+      (!this._reduceFramerate || !this._isOddFrame)
+    ) {
+      this._recalculateCanvas();
+      this._recalculateCanvasIntend = false;
+      for (let i = 0; i < this._canvasCount; i++) {
+        this._drawFrame[i] = Math.max(this._drawFrame[i] - 1, 1);
+      }
+    } else {
+      for (let i = 0; i < this._canvasCount; i++) {
+        this._drawFrame[i] = Math.max(this._drawFrame[i] - 1, 0);
+      }
+    }
+
+    if (!this._realLastTimestamp) {
+      this._realLastTimestamp = timestamp;
+    }
+    if (!this._initializedStartTime) {
+      this._initializedStartTime = timestamp;
+    }
+
+    if (this._newScene && !this._promiseSceneDestroying) {
+      this._promiseSceneDestroying = Promise.resolve(
+        this._scene ? this._scene.destroy(this._output) : {}
       );
-
-      if (
-        this._recalculateCanvasIntend &&
-        (!this._reduceFramerate || !this._isOddFrame)
-      ) {
-        this._recalculateCanvas();
-        this._recalculateCanvasIntend = false;
-        for (let i = 0; i < this._canvasCount; i++) {
-          this._drawFrame[i] = Math.max(this._drawFrame[i] - 1, 1);
-        }
-      } else {
-        for (let i = 0; i < this._canvasCount; i++) {
-          this._drawFrame[i] = Math.max(this._drawFrame[i] - 1, 0);
-        }
-      }
-
-      if (!this._realLastTimestamp) {
-        this._realLastTimestamp = timestamp;
-      }
-      if (!this._initializedStartTime) {
-        this._initializedStartTime = timestamp;
-      }
-
-      if (this._newScene && !this._promiseSceneDestroying) {
-        this._promiseSceneDestroying = Promise.resolve(
-          this._scene ? this._scene.destroy(this._output) : {}
+      this._promiseSceneDestroying.then(destroyParameterForNewScene => {
+        this._newScene.callInit(
+          this._output,
+          {
+            run: this._runParameter,
+            scene: this._sceneParameter,
+            destroy: destroyParameterForNewScene
+          },
+          this
         );
-        this._promiseSceneDestroying.then(destroyParameterForNewScene => {
-          this._newScene.callInit(
-            this._output,
-            {
-              run: runParameter,
-              scene: this._sceneParameter,
-              destroy: destroyParameterForNewScene
-            },
-            this
-          );
-          this._scene = this._newScene;
-          this._newScene = undefined;
-          this._promiseSceneDestroying = undefined;
-          this._isSceneInitialized = false;
-          this._lastTimestamp = this._scene.currentTime();
-          this._initializedStartTime = timestamp;
-        });
+        this._scene = this._newScene;
+        this._newScene = undefined;
+        this._promiseSceneDestroying = undefined;
+        this._isSceneInitialized = false;
+        this._lastTimestamp = this._scene.currentTime();
+        this._initializedStartTime = timestamp;
+      });
+    }
+
+    if (this._scene) {
+      if (this._reduceFramerate) {
+        this._isOddFrame = !this._isOddFrame;
       }
 
-      if (this._scene) {
-        if (this._reduceFramerate) {
-          this._isOddFrame = !this._isOddFrame;
-        }
+      if (!this._reduceFramerate || this._isOddFrame) {
+        let now = this._scene.currentTime();
 
-        if (!this._reduceFramerate || this._isOddFrame) {
-          let now = this._scene.currentTime();
+        // modify time by scene
+        // first set a min/max
+        let timePassed = this._scene.clampTime(now - this._lastTimestamp);
+        // then maybe shift to fit a framerate
+        const shiftTime = this._scene.shiftTime(timePassed);
+        timePassed = timePassed + shiftTime;
+        this._lastTimestamp = now + shiftTime;
 
-          // modify time by scene
-          // first set a min/max
-          let timePassed = this._scene.clampTime(now - this._lastTimestamp);
-          // then maybe shift to fit a framerate
-          const shiftTime = this._scene.shiftTime(timePassed);
-          timePassed = timePassed + shiftTime;
-          this._lastTimestamp = now + shiftTime;
-
-          if (this._isSceneInitialized) {
-            const moveFrame = timePassed !== 0 || this._moveOnce;
-            this._moveOnce = false
-            const drawFrame = this._scene.isDrawFrame(this._output, timePassed);
-            if (Array.isArray(drawFrame)) {
-              for (let i = 0; i < this._canvasCount; i++) {
-                this._drawFrame[i] = Math.max(this._drawFrame[i], drawFrame[i]);
-              }
-            } else {
-              for (let i = 0; i < this._canvasCount; i++) {
-                this._drawFrame[i] = Math.max(this._drawFrame[i], drawFrame);
-              }
+        if (this._isSceneInitialized) {
+          const moveFrame = timePassed !== 0 || this._moveOnce;
+          this._moveOnce = false
+          const drawFrame = this._scene.isDrawFrame(this._output, timePassed);
+          if (Array.isArray(drawFrame)) {
+            for (let i = 0; i < this._canvasCount; i++) {
+              this._drawFrame[i] = Math.max(this._drawFrame[i], drawFrame[i]);
             }
-
-            const nowAutoSize = this._now();
-            if (moveFrame) {
-              this._scene.move(this._output, timePassed);
+          } else {
+            for (let i = 0; i < this._canvasCount; i++) {
+              this._drawFrame[i] = Math.max(this._drawFrame[i], drawFrame);
             }
+          }
 
-            if (this._output.canvas[0].width) {
-              for (let index = 0; index < this._canvasCount; index++) {
-                if (this._drawFrame[index]) {
-                  this._normalizeContext(this._output.context[index]);
-                  this._scene.draw(this._output, index);
-                }
+          const nowAutoSize = this._now();
+          if (moveFrame) {
+            this._scene.move(this._output, timePassed);
+          }
+
+          if (this._output.canvas[0].width) {
+            for (let index = 0; index < this._canvasCount; index++) {
+              if (this._drawFrame[index]) {
+                this._normalizeContext(this._output.context[index]);
+                this._scene.draw(this._output, index);
               }
             }
+          }
 
-            if (this._autoSize && this._autoSize.enabled) {
-              const deltaTimestamp = timestamp - this._realLastTimestamp;
+          if (this._autoSize && this._autoSize.enabled) {
+            const deltaTimestamp = timestamp - this._realLastTimestamp;
 
-              if (this._autoSize.currentWaitedTime < this._autoSize.waitTime) {
-                this._autoSize.currentWaitedTime += deltaTimestamp;
-              } else if (moveFrame) {
-                const targetTime =
-                  this._autoSize.offsetTimeTarget *
-                  (this._reduceFramerate ? 2 : 1);
-                const deltaFrame = this._now() - nowAutoSize;
-                const delta =
-                  (Math.abs(deltaTimestamp - targetTime) >
+            if (this._autoSize.currentWaitedTime < this._autoSize.waitTime) {
+              this._autoSize.currentWaitedTime += deltaTimestamp;
+            } else if (moveFrame) {
+              const targetTime =
+                this._autoSize.offsetTimeTarget *
+                (this._reduceFramerate ? 2 : 1);
+              const deltaFrame = this._now() - nowAutoSize;
+              const delta =
+                (Math.abs(deltaTimestamp - targetTime) >
                   Math.abs(deltaFrame - targetTime)
-                    ? deltaTimestamp
-                    : deltaFrame) - targetTime;
-                if (Math.abs(delta) <= this._autoSize.offsetTimeDelta) {
-                  this._autoSize.currentOffsetTime =
-                    this._autoSize.currentOffsetTime >= 0
-                      ? Math.max(
-                          0,
-                          this._autoSize.currentOffsetTime -
-                            this._autoSize.offsetTimeDelta
-                        )
-                      : Math.min(
-                          0,
-                          this._autoSize.currentOffsetTime +
-                            this._autoSize.offsetTimeDelta
-                        );
-                } else {
+                  ? deltaTimestamp
+                  : deltaFrame) - targetTime;
+              if (Math.abs(delta) <= this._autoSize.offsetTimeDelta) {
+                this._autoSize.currentOffsetTime =
+                  this._autoSize.currentOffsetTime >= 0
+                    ? Math.max(
+                      0,
+                      this._autoSize.currentOffsetTime -
+                      this._autoSize.offsetTimeDelta
+                    )
+                    : Math.min(
+                      0,
+                      this._autoSize.currentOffsetTime +
+                      this._autoSize.offsetTimeDelta
+                    );
+              } else {
+                if (
+                  delta < 0 &&
+                  this._autoSize.currentScale > this._autoSize.scaleLimitMin
+                ) {
+                  this._autoSize.currentOffsetTime += delta;
                   if (
-                    delta < 0 &&
-                    this._autoSize.currentScale > this._autoSize.scaleLimitMin
+                    this._autoSize.currentOffsetTime <=
+                    -this._autoSize.offsetTimeLimitDown
                   ) {
-                    this._autoSize.currentOffsetTime += delta;
-                    if (
-                      this._autoSize.currentOffsetTime <=
-                      -this._autoSize.offsetTimeLimitDown
-                    ) {
-                      this._autoSize.currentScale = Math.max(
-                        this._autoSize.scaleLimitMin,
-                        this._autoSize.currentScale / this._autoSize.scaleFactor
-                      );
-                      this._recalculateCanvasIntend = true;
-                    }
-                  } else if (
-                    delta > 0 &&
-                    this._autoSize.currentScale < this._autoSize.scaleLimitMax
+                    this._autoSize.currentScale = Math.max(
+                      this._autoSize.scaleLimitMin,
+                      this._autoSize.currentScale / this._autoSize.scaleFactor
+                    );
+                    this._recalculateCanvasIntend = true;
+                  }
+                } else if (
+                  delta > 0 &&
+                  this._autoSize.currentScale < this._autoSize.scaleLimitMax
+                ) {
+                  this._autoSize.currentOffsetTime += delta;
+                  if (
+                    this._autoSize.currentOffsetTime >=
+                    this._autoSize.offsetTimeLimitUp
                   ) {
-                    this._autoSize.currentOffsetTime += delta;
-                    if (
-                      this._autoSize.currentOffsetTime >=
-                      this._autoSize.offsetTimeLimitUp
-                    ) {
-                      this._autoSize.currentScale = Math.min(
-                        this._autoSize.scaleLimitMax,
-                        this._autoSize.currentScale * this._autoSize.scaleFactor
-                      );
-                      this._recalculateCanvasIntend = true;
-                    }
+                    this._autoSize.currentScale = Math.min(
+                      this._autoSize.scaleLimitMax,
+                      this._autoSize.currentScale * this._autoSize.scaleFactor
+                    );
+                    this._recalculateCanvasIntend = true;
                   }
                 }
               }
             }
-          } else {
-            for (let i = 0; i < this._canvasCount; i++) {
-              this._normalizeContext(this._output.context[i]);
-            }
-            this._isSceneInitialized = this._scene.callLoading({
-              output: this._output,
-              timePassed: timestamp - this._realLastTimestamp,
-              totalTimePassed: timestamp - this._initializedStartTime
-            });
-            if (this._isSceneInitialized) {
-              this._scene.reset();
-              this._lastTimestamp = this._scene.currentTime();
-              this._moveOnce = true;
-              if (this._autoSize) {
-                this._autoSize.currentWaitedTime = 0;
-              }
+          }
+        } else {
+          for (let i = 0; i < this._canvasCount; i++) {
+            this._normalizeContext(this._output.context[i]);
+          }
+          this._isSceneInitialized = this._scene.callLoading({
+            output: this._output,
+            timePassed: timestamp - this._realLastTimestamp,
+            totalTimePassed: timestamp - this._initializedStartTime
+          });
+          if (this._isSceneInitialized) {
+            this._scene.reset();
+            this._lastTimestamp = this._scene.currentTime();
+            this._moveOnce = true;
+            if (this._autoSize) {
+              this._autoSize.currentWaitedTime = 0;
             }
           }
         }
       }
-      this._realLastTimestamp = timestamp;
     }
+    this._realLastTimestamp = timestamp;
+  }
+  
+  async run(runParameter) {
+    this._runParameter = runParameter || {};
+
+
+    await this.stop();
 
     this._realLastTimestamp = this._initializedStartTime = false;
 
+    if (this._autoSize && !this._autoSize.offsetTimeTarget) {
+      await this.recalculateFPS()
+    }
+    
     // First call ever
     this._referenceRequestAnimationFrame = window.requestAnimationFrame(
-      mainLoop.bind(this)
+      this._mainLoop.bind(this)
     );
 
     return this;
   }
 
-  destroy() {
+  async stop() {
     this._referenceRequestAnimationFrame &&
       window.cancelAnimationFrame(this._referenceRequestAnimationFrame);
     this._referenceRequestAnimationFrame = null;
-    this._scene && this._scene.destroy(this._output);
+    this._scene && await this._scene.destroy(this._output);
+  }
+
+  async destroy() {
+    await this.stop()
     this._events.forEach(v => {
       v._node.removeEventListener(v._event, v._function);
     });
