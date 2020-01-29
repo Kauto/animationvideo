@@ -345,12 +345,12 @@ engine.resize();
 // "switchScene" will change the scene-object
 engine.switchScene(scene);
 
-// "run" starts the engine
-engine.run(/* optional: object with parameter that are given to the init-function */);
+// "run" starts the engine - returns a promise
+/* await */ engine.run(/* optional: object with parameter that are given to the init-function */);
 
 // "destroy" clean up the events, stops the main loop
-// that was started with "run"
-engine.destroy();
+// that was started with "run" - returns a promise
+/* await */ engine.destroy();
 ```
 
 ## Scenes
@@ -414,7 +414,7 @@ const objectScene = new SceneDefault({
   // "destroy" is an optional function.
   // It will run when the engine's destroy is called or
   // when the engine switches a scene.
-  destroy({ engine, scene, output }) {
+  async destroy({ engine, scene, output }) {
     // clean up code
 
     // return parameter for the next scene
