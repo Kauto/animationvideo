@@ -30,9 +30,9 @@ or in the **index.html**.
         - [Default](#default)
             - [Layers](#layers)
         - [Norm](#norm)
-        - [Audio](#audio)
-        - [NormAudio](#normaudio)
         - [NormCamera](#normcamera)
+        - [Timing](#timing)
+            - [Audio](#audio)
     - [Sprites](#sprites)
         - [Image](#image)
         - [Rect](#rect)
@@ -368,6 +368,7 @@ There are a number of functions that are given to the constructor that are expla
 ```js
 import Engine from 'animationvideo/Engine.mjs'
 import SceneDefault from 'animationvideo/Scenes/Default.mjs'
+import TimingDefault from 'animationvideo/Timing/Default.mjs'
 
 const engine = new Engine(document.querySelector('canvas'))
 
@@ -465,20 +466,24 @@ const objectScene = new SceneDefault({
     // f.e. switch scene at the end of a cutscene
   }
 
-  // "tickChunk" will set the interval in ms that will call "fixedUpdate".
-  // Default value is 16.66666667.
-  // can be a function or a fixed value
-  tickChunk: 1000/60,
+  // Timing is completely optional and describes how the time is updated and
+  // how often "fixedUpdate" is called
+  timing: new DefaultTiming({
+    // "tickChunk" will set the interval in ms that will call "fixedUpdate".
+    // Default value is 16.66666667.
+    // can be a function or a fixed value
+    tickChunk: 1000/60,
 
-  // "tickChunk" will set the number of frames
-  // that can be skipped while rendering
-  // can be a function or a fixed value
-  maxSkippedTickChunk: 3,
+    // "tickChunk" will set the number of frames
+    // that can be skipped while rendering
+    // can be a function (evaluated once) or a fixed value
+    maxSkippedTickChunk: 3,
 
-  // "tickChunkTolerance" will set the time in ms that will be ignored
-  // if a frame misses the target tickChunk-time. Default value is 0.1
-  // can be a function or a fixed value
-  tickChunkTolerance: 0.1,
+    // "tickChunkTolerance" will set the time in ms that will be ignored
+    // if a frame misses the target tickChunk-time. Default value is 0.1
+    // can be a function (evaluated once) or a fixed value
+    tickChunkTolerance: 0.1,
+  }),
 
   // "isDrawFrame" is a optional function that will determine if a scene should be drawn
   // If this function returns true it will still call "update" and "fixedUpdate" but
@@ -771,15 +776,131 @@ new Engine({
 
 [Test code at codesandbox.io](https://codesandbox.io/s/infallible-wildflower-w3uo7)
 
-### Audio
+### NormCamera
 
-This scene is similar to the [Default](#default)-scene. In addition to the Default-scene-functions you have to set an "**audioElement**". "**end**" is automatically called without giving "**endTime**".
+This is a [Norm](#norm)-Scene that has controls for zooming and moving the content of the canvas with a _camera_. There is support for mobile.
+
+```js
+import "./styles.css";
+import Animationvideo from "animationvideo";
+const {
+  Engine,
+  Scenes: { NormCamera },
+  Animations: { Remove, ChangeTo },
+  Sprites: { Image, Rect },
+  Easing: { QuadOut }
+} = Animationvideo;
+
+// The Engine runs the scene "NormCamera"
+new Engine({
+  autoSize: true,
+  canvas: document.querySelector("canvas"),
+  // The Engine uses the scene "NormCamera"
+  scene: new NormCamera({
+    cam: {
+      // use alternative camera controls
+      // -> you will move the camera with second mouse button/two finger touch
+      alternative: true,
+      zoomMax: 10, // max zoom factor
+      zoomMin: 0.5, // min zoom factor
+      zoomFactor: 1.2, // scoll factor of the mouse wheel
+      tween: 4, // how fast to interpolate the new position - higher = slower
+      registerEvents: true, // let NormCamera be the mouse
+      preventDefault: true, // block all other events that are bound
+      enabled: true, // enable camera movement - with this you can lock the camera
+      callResize: true, // call the resize events of the sprites
+      doubleClickDetectInterval: 350 // how long to wait (ms) for double click detection
+    },
+    // click event
+    // x, y is in Norm-space
+    click({ event, scene, x, y, imageManager }) {
+      scene.zoomTo(x - 0.2, y - 0.2, x + 0.2, y + 0.2);
+    },
+    // double click event
+    // x, y is in Norm-space
+    doubleClick({ event, scene, x, y, imageManager }) {
+      scene.zoomTo(-1, -1, 1, 1);
+    },
+    // event while marking a region - only with alternative camera controls
+    // x1,y1 will be the upper left corner, x2,y2 the bottom right corner in Norm Space
+    // fromX, fromY is the start position of the region
+    // toX, toY is the current position of the region
+    regionMove({ event, scene, x1, y1, x2, y2, fromX, fromY, toX, toY, imageManager }) {
+      this.spriteMarker.enabled = true;
+      this.spriteMarker.x = x1;
+      this.spriteMarker.y = y1;
+      this.spriteMarker.width = x2 - x1;
+      this.spriteMarker.height = y2 - y1;
+    },
+    // event after marking a region - only with alternative camera controls
+    // x1,y1 will be the upper left corner, x2,y2 the bottom right corner in Norm Space
+    // fromX, fromY is the start position of the region
+    // toX, toY is the current position of the region
+    region({ event, scene, x1, y1, x2, y2, fromX, fromY, toX, toY, imageManager }) {
+      this.spriteMarker.enabled = false;
+      this.layerOverlay.addElement(
+        new Rect({
+          x: x1,
+          y: y1,
+          width: x2 - x1,
+          height: y2 - y1,
+          color: "#fff",
+          compositeOperation: "lighter",
+          animation: [new ChangeTo({ alpha: 0 }, 3000, QuadOut), new Remove()]
+        })
+      );
+    },
+    // event when moving the mouse/finger over the canvas
+    mouseMove({ event, scene, x, y, imageManager }) {},
+    // event when start clicking the mouse/touching the finger over the canvas
+    mouseDown({ event, scene, x, y, imageManager }) {},
+    // event when end clicking the mouse/touching the finger over the canvas
+    mouseUp({ event, scene, x, y, imageManager }) {},
+    // event when moving the mouse out of the canvas
+    mouseOut({ event, scene, imageManager }) {},
+
+    images() {
+      return { imageFile: "https://placekitten.com/400/400" };
+    },
+    reset({ layerManager }) {
+      layerManager.addLayer().addElement(new Rect({ clear: true }));
+      layerManager.addLayer().addElement(
+        new Image({
+          normCover: true,
+          image: "imageFile"
+        })
+      );
+      this.layerOverlay = layerManager.addLayer();
+      this.spriteMarker = this.layerOverlay.addElement(
+        new Rect({
+          enabled: false,
+          color: "#fff",
+          norm: false,
+          compositeOperation: "difference"
+        })
+      );
+      return layerManager;
+    }
+  })
+}).run(); // start the engine
+```
+
+[Test code at codesandbox.io](https://codesandbox.io/s/funny-williams-fhgx6)
+
+### Timing
+
+Every scene is given a timing, that describes, how time is measured and how often the fixed update function is called. The default timing will measure the time with `performance.now()` and call the fixed update 60 times in a second.
+
+#### Audio
+
+After setting a "**audioElement**" the time for the animation is given by this audio-element. "**end**" of the scene will be automatically called without giving "**endTime**".
 
 ```js
 import Animationvideo from "animationvideo";
 const {
   Engine,
-  Scenes: { Audio },
+  Scenes: { Default: SceneDefault },
+  Timing: { Audio: TimingAudio },
   Animations: { ChangeTo, Wait, Remove },
   Sprites: { Rect, Path, StarField, FastBlur },
   Easing: { QuadInOut, ElasticOut, BounceOut, QuadOut }
@@ -791,9 +912,11 @@ new Engine({
   // the canvas for the animation
   canvas: document.querySelector("canvas"),
   // The Engine uses the scene "Audio"
-  scene: new Audio({
+  scene: new SceneDefault({
     // audio element that plays the music
-    audioElement: document.querySelector("audio"),
+    timing: new TimingAudio({
+      audioElement: document.getElementById('audio')
+    }),
     // function that runs when the audio ends
     end() {
       window.alert("audio done");
@@ -1013,121 +1136,6 @@ new Engine({
 ```
 
 [Test code at codesandbox.io](https://codesandbox.io/s/eloquent-field-55tk6)
-
-### NormAudio
-
-This scene is similar to the [Audio](#audio)-scene. But the coordinates are different: the middle of the canvas will be at 0, 0, left and bottom of the canvas at -1, -1 and the top right is at 1, 1. In addition the Norm has a function named `transformPoint(x,y)` that will transform normal x, y coordinates of the canvas (f.e. mouse position) into Norm-coordinates. See [Norm](#norm) for more information.
-
-### NormCamera
-
-This is a [Norm](#norm)-Scene that has controls for zooming and moving the content of the canvas with a _camera_. There is support for mobile.
-
-```js
-import "./styles.css";
-import Animationvideo from "animationvideo";
-const {
-  Engine,
-  Scenes: { NormCamera },
-  Animations: { Remove, ChangeTo },
-  Sprites: { Image, Rect },
-  Easing: { QuadOut }
-} = Animationvideo;
-
-// The Engine runs the scene "NormCamera"
-new Engine({
-  autoSize: true,
-  canvas: document.querySelector("canvas"),
-  // The Engine uses the scene "NormCamera"
-  scene: new NormCamera({
-    cam: {
-      // use alternative camera controls
-      // -> you will move the camera with second mouse button/two finger touch
-      alternative: true,
-      zoomMax: 10, // max zoom factor
-      zoomMin: 0.5, // min zoom factor
-      zoomFactor: 1.2, // scoll factor of the mouse wheel
-      tween: 4, // how fast to interpolate the new position - higher = slower
-      registerEvents: true, // let NormCamera be the mouse
-      preventDefault: true, // block all other events that are bound
-      enabled: true, // enable camera movement - with this you can lock the camera
-      callResize: true, // call the resize events of the sprites
-      doubleClickDetectInterval: 350 // how long to wait (ms) for double click detection
-    },
-    // click event
-    // x, y is in Norm-space
-    click({ event, scene, x, y, imageManager }) {
-      scene.zoomTo(x - 0.2, y - 0.2, x + 0.2, y + 0.2);
-    },
-    // double click event
-    // x, y is in Norm-space
-    doubleClick({ event, scene, x, y, imageManager }) {
-      scene.zoomTo(-1, -1, 1, 1);
-    },
-    // event while marking a region - only with alternative camera controls
-    // x1,y1 will be the upper left corner, x2,y2 the bottom right corner in Norm Space
-    // fromX, fromY is the start position of the region
-    // toX, toY is the current position of the region
-    regionMove({ event, scene, x1, y1, x2, y2, fromX, fromY, toX, toY, imageManager }) {
-      this.spriteMarker.enabled = true;
-      this.spriteMarker.x = x1;
-      this.spriteMarker.y = y1;
-      this.spriteMarker.width = x2 - x1;
-      this.spriteMarker.height = y2 - y1;
-    },
-    // event after marking a region - only with alternative camera controls
-    // x1,y1 will be the upper left corner, x2,y2 the bottom right corner in Norm Space
-    // fromX, fromY is the start position of the region
-    // toX, toY is the current position of the region
-    region({ event, scene, x1, y1, x2, y2, fromX, fromY, toX, toY, imageManager }) {
-      this.spriteMarker.enabled = false;
-      this.layerOverlay.addElement(
-        new Rect({
-          x: x1,
-          y: y1,
-          width: x2 - x1,
-          height: y2 - y1,
-          color: "#fff",
-          compositeOperation: "lighter",
-          animation: [new ChangeTo({ alpha: 0 }, 3000, QuadOut), new Remove()]
-        })
-      );
-    },
-    // event when moving the mouse/finger over the canvas
-    mouseMove({ event, scene, x, y, imageManager }) {},
-    // event when start clicking the mouse/touching the finger over the canvas
-    mouseDown({ event, scene, x, y, imageManager }) {},
-    // event when end clicking the mouse/touching the finger over the canvas
-    mouseUp({ event, scene, x, y, imageManager }) {},
-    // event when moving the mouse out of the canvas
-    mouseOut({ event, scene, imageManager }) {},
-
-    images() {
-      return { imageFile: "https://placekitten.com/400/400" };
-    },
-    reset({ layerManager }) {
-      layerManager.addLayer().addElement(new Rect({ clear: true }));
-      layerManager.addLayer().addElement(
-        new Image({
-          normCover: true,
-          image: "imageFile"
-        })
-      );
-      this.layerOverlay = layerManager.addLayer();
-      this.spriteMarker = this.layerOverlay.addElement(
-        new Rect({
-          enabled: false,
-          color: "#fff",
-          norm: false,
-          compositeOperation: "difference"
-        })
-      );
-      return layerManager;
-    }
-  })
-}).run(); // start the engine
-```
-
-[Test code at codesandbox.io](https://codesandbox.io/s/funny-williams-fhgx6)
 
 ## Sprites
 
