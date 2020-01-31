@@ -25,12 +25,34 @@ class Image extends Circle {
       // autoscale to max
       norm: false,
       normCover: false,
-      normToScreen: false,
+      normToScreen: false
     });
   }
 
   resize(output, additionalModifier) {
     this._normScale = undefined;
+  }
+
+  detect(context, color) {
+    this._detectHelper(context, color, false, () => {
+      const frameWidth = this.frameWidth || this.image.width;
+      const frameHeight = this.frameHeight || this.image.height;
+      const sX =
+        (this.width ? this.width : frameWidth) * this._normScale * this.scaleX;
+      const sY =
+        (this.height ? this.height : frameHeight) *
+        this._normScale *
+        this.scaleY;
+      const isTopLeft = this.position === Image.LEFT_TOP;
+
+      context.fillStyle = color;
+      context.fillRect(
+        isTopLeft ? 0 : -sX / 2,
+        isTopLeft ? 0 : -sY / 2,
+        sX,
+        sY
+      );
+    });
   }
 
   // Draw-Funktion
@@ -39,17 +61,19 @@ class Image extends Circle {
       const frameWidth = this.frameWidth || this.image.width,
         frameHeight = this.frameHeight || this.image.height;
       if (!this._normScale) {
-        this._normScale = this.normToScreen ? (this.normCover
-          ? Math.max(
-              additionalModifier.fullScreen.width / frameWidth,
-              additionalModifier.fullScreen.height / frameHeight
-            )
-          : this.norm
-          ? Math.min(
-              additionalModifier.fullScreen.width / frameWidth,
-              additionalModifier.fullScreen.height / frameHeight
-            )
-          : 1) : (this.normCover
+        this._normScale = this.normToScreen
+          ? this.normCover
+            ? Math.max(
+                additionalModifier.fullScreen.width / frameWidth,
+                additionalModifier.fullScreen.height / frameHeight
+              )
+            : this.norm
+            ? Math.min(
+                additionalModifier.fullScreen.width / frameWidth,
+                additionalModifier.fullScreen.height / frameHeight
+              )
+            : 1
+          : this.normCover
           ? Math.max(
               additionalModifier.width / frameWidth,
               additionalModifier.height / frameHeight
@@ -59,14 +83,21 @@ class Image extends Circle {
               additionalModifier.width / frameWidth,
               additionalModifier.height / frameHeight
             )
-          : 1);
+          : 1;
       }
-      const sX = (this.width ? this.width : frameWidth) * this._normScale * this.scaleX,
-        sY = (this.height ? this.height : frameHeight) * this._normScale * this.scaleY;
+      const sX =
+          (this.width ? this.width : frameWidth) *
+          this._normScale *
+          this.scaleX,
+        sY =
+          (this.height ? this.height : frameHeight) *
+          this._normScale *
+          this.scaleY;
       context.globalCompositeOperation = this.compositeOperation;
       context.globalAlpha = this.alpha * additionalModifier.alpha;
+      const isTopLeft = this.position === Image.LEFT_TOP;
       if (this.rotation == 0) {
-        if (this.position === Image.LEFT_TOP) {
+        if (isTopLeft) {
           context.drawImage(
             this.image,
             this.frameX,
@@ -101,8 +132,8 @@ class Image extends Circle {
           this.frameY,
           frameWidth,
           frameHeight,
-          -sX / 2,
-          -sY / 2,
+          isTopLeft ? 0 : -sX / 2,
+          isTopLeft ? 0 : -sY / 2,
           sX,
           sY
         );

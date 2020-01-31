@@ -44,6 +44,10 @@ export default class StackBlur extends FastBlur {
     this._tctx.putImageData(imageData, 0, 0);
   }
 
+  detect(context, color) {
+    this._detectHelper(context, color, false);
+  }
+
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {

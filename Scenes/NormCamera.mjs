@@ -42,6 +42,9 @@ export default class SceneNormCamera extends SceneNorm {
     };
 
     this._mousePos = [];
+
+    this._clickIntend = false;
+    this._hoverIntend = false;
   }
 
   camEnable() {
@@ -127,6 +130,18 @@ export default class SceneNormCamera extends SceneNorm {
     return super.fixedUpdate(output, timePassed, lastCall);
   }
 
+  isDrawFrame(output, timePassed) {
+    let drawFrame = super.isDrawFrame(output, timePassed);
+    if (this._clickIntend || this._hoverIntend) {
+      if (Array.isArray(drawFrame)) {
+        drawFrame[0] = Math.max(1, drawFrame[0]);
+      } else {
+        drawFrame = Math.max(1, drawFrame);
+      }
+    }
+    return drawFrame;
+  }
+
   move(output, timePassed) {
     const ret = super.move(output, timePassed);
     if (!this.camConfig.tween && this.hasCamChanged()) {
@@ -141,6 +156,102 @@ export default class SceneNormCamera extends SceneNorm {
     return ret;
   }
 
+  draw(output, canvasId, isRecalculatedCanvas) {
+    if (
+      !canvasId &&
+      !isRecalculatedCanvas &&
+      (this._clickIntend || this._hoverIntend)
+    ) {
+      const scale = this._additionalModifier.scaleCanvas;
+      const ctx = output.context[canvasId];
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.save();
+
+      ctx.setTransform(...this._getViewport().m);
+
+      this._layerManager.forEach(
+        ({ layerIndex, element, isFunction, index }) => {
+          if (!isFunction) {
+            const color = `rgb(${index & 0xff}, ${(index & 0xff00) >>
+              8}, ${layerIndex & 0xff})`;
+            element.detect(ctx, color);
+          }
+        },
+        0
+      );
+      ctx.restore();
+      let p = [];
+      if (this._clickIntend) {
+        const { mx, my } = this._clickIntend;
+        p = ctx.getImageData(
+          Math.round(mx / scale),
+          Math.round(my / scale),
+          1,
+          1
+        ).data;
+        if (p[3]) {
+          const layerIndex = p[2];
+          const index = p[0] + (p[1] << 8);
+          const element = this._layerManager.getById(layerIndex).getById(index);
+          const [x, y] = this.transformPoint(mx, my);
+          this._configuration.clickElement({
+            element,
+            layerIndex,
+            index,
+            mx,
+            my,
+            x,
+            y,
+            scene: this,
+            engine: this._engine,
+            imageManager: this._imageManager
+          });
+        } else if(this._configuration.clickNonElement) {
+          const [x, y] = this.transformPoint(mx, my);
+          this._configuration.clickNonElement({
+            mx,
+            my,
+            x,
+            y,
+            scene: this,
+            engine: this._engine,
+            imageManager: this._imageManager
+          });
+        }
+        this._clickIntend = false;
+      }
+      if (!p[3] && this._hoverIntend) {
+        const { mx, my } = this._hoverIntend;
+        p = ctx.getImageData(
+          Math.round(mx / scale),
+          Math.round(my / scale),
+          1,
+          1
+        ).data;
+        if (p[3]) {
+          const layerIndex = p[2];
+          const index = p[0] + (p[1] << 8);
+          const element = this._layerManager.getById(layerIndex).getById(index);
+          const [x, y] = this.transformPoint(mx, my);
+          this._configuration.hoverElement({
+            element,
+            layerIndex,
+            index,
+            mx,
+            my,
+            x,
+            y,
+            scene: this,
+            engine: this._engine,
+            imageManager: this._imageManager
+          });
+        }
+        this._hoverIntend = false;
+      }
+    }
+    super.draw(output, canvasId);
+  }
+
   resize(output) {
     super.resize(output);
     this.clampView();
@@ -153,13 +264,13 @@ export default class SceneNormCamera extends SceneNorm {
       [["touchendoutside", "mouseout"], this._mouseOut],
       [["touchmove", "mousemove"], this._mouseMove],
       [["wheel"], this._mouseWheel],
-      [["contextmenu"], this._eventPrevent]
+      [["contextmenu"], this.ePrevent]
     ]
       .map(([events, func]) =>
         events.map(e => ({
-          _node: element,
-          _event: e,
-          _function: func.bind(this)
+          n: element,
+          e: e,
+          f: func.bind(this)
         }))
       )
       // workaround for .flat(1) for edge
@@ -170,21 +281,21 @@ export default class SceneNormCamera extends SceneNorm {
           acc.push(cur);
         }
         return acc;
-      }, [])
+      }, []);
 
     this._events.forEach(v => {
-      v._node.addEventListener(v._event, v._function, true);
+      v.n.addEventListener(v.e, v.f, true);
     });
   }
 
   _destroyCamEvents() {
     this._events.forEach(v => {
-      v._node.removeEventListener(v._event, v._function, true);
+      v.n.removeEventListener(v.e, v.f, true);
     });
     this._events = [];
   }
 
-  _eventPrevent(e) {
+  ePrevent(e) {
     e.preventDefault();
   }
 
@@ -285,6 +396,7 @@ export default class SceneNormCamera extends SceneNorm {
       !i // i === 0
     ) {
       const [x, y] = this.transformPoint(mx, my);
+      this._clickIntend = this._configuration.clickElement && { mx, my };
       if (this._configuration.doubleClick) {
         if (this._mousePos[i].doubleClickTimer) {
           clearTimeout(this._mousePos[i].doubleClickTimer);
@@ -357,6 +469,7 @@ export default class SceneNormCamera extends SceneNorm {
     if (this.camConfig.preventDefault) e.preventDefault();
     const i = this._getMouseButton(e);
     const [mx, my] = this._getMousePosition(e);
+    this._hoverIntend = this._configuration.hoverElement && { mx, my };
     if (this._configuration.mouseMove) {
       const [x, y] = this.transformPoint(mx, my);
       this._configuration.mouseMove({

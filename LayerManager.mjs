@@ -41,7 +41,7 @@ class LayerManager {
     const l = this._layers.length;
     for (i = 0; i < l; i++) {
       if (this._layers[i].isCanvasId(canvasId)) {
-        this._layers[i].forEach(callback);
+        this._layers[i].forEach(callback, i);
       }
     }
   }

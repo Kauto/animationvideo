@@ -1028,7 +1028,14 @@
         cam: {
           alternative: true
         },
-        click({ scene, x, y }) {
+        clickElement({ element, x, y, mx, my }) {
+          element.animation = new ANI.Sequence([
+            ANI.ChangeTo({ color: '#00F' }, 10, Easing.quadInOut),
+            ANI.ChangeTo({ color: '#FF0' }, 1000, Easing.quadInOut)
+          ])
+          this.hideAfterTotalTimePassed = this.totalTimePassed + 1010
+        },
+        clickNonElement({ scene, x, y }) {
           scene.zoomTo(x - 0.2, y - 0.2, x + 0.2, y + 0.2);
         },
         doubleClick({ scene }) {
@@ -1042,15 +1049,15 @@
           this.spriteMarker.height = y2 - y1;
           this.hideAfterTotalTimePassed = this.totalTimePassed;
         },
-        region({ x1, y1, x2, y2 }){
+        region({ x1, y1, x2, y2 }) {
           this.spriteMarker.enabled = false;
           this.layerOverlay.addElement(
             SP.Rect({
               position: SP.Rect.LEFT_TOP,
               x: x1,
               y: y1,
-              width: x2-x1,
-              height: y2-y1,
+              width: x2 - x1,
+              height: y2 - y1,
               color: '#fff',
               compositeOperation: 'lighter',
               animation: [
@@ -1062,12 +1069,12 @@
           this.hideAfterTotalTimePassed = this.totalTimePassed + 3000
         },
         images() {
-          return { imageFile: "https://placekitten.com/400/400" };
+          return { imageFile: "https://i.imgur.com/QLVLv0B.jpg" };
         },
-        isDrawFrame({scene, totalTimePassed}) {
+        isDrawFrame({ scene, totalTimePassed }) {
           return scene.hasCamChanged() || this.hideAfterTotalTimePassed >= totalTimePassed;
         },
-        update({totalTimePassed}) {
+        update({ totalTimePassed }) {
           this.totalTimePassed = totalTimePassed;
         },
         reset({ layerManager }) {
@@ -1082,13 +1089,47 @@
               image: 'imageFile'
             })
           )
+          layerManager.addLayer().addElements([
+            SP.Rect({
+              x: -0.5,
+              y: -0.5,
+              width: 0.1,
+              height: 0.1,
+              color: '#ff0',
+              isClickable: true
+            }),
+            SP.Rect({
+              x: 0.5,
+              y: -0.5,
+              width: 0.1,
+              height: 0.1,
+              color: '#ff0',
+              isClickable: true
+            }),
+            SP.Rect({
+              x: -0.5,
+              y: 0.5,
+              width: 0.1,
+              height: 0.1,
+              color: '#ff0',
+              isClickable: true
+            }),
+            SP.Rect({
+              x: 0.5,
+              y: 0.5,
+              width: 0.1,
+              height: 0.1,
+              color: '#ff0',
+              isClickable: true
+            }),
+          ])
           this.layerOverlay = layerManager.addLayer()
           this.spriteMarker = this.layerOverlay.addElement(
             SP.Rect({
               position: SP.Rect.LEFT_TOP,
               enabled: false,
               color: '#fff',
-              norm: false, 
+              norm: false,
               compositeOperation: 'difference'
             })
           )

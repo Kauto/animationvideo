@@ -26,6 +26,10 @@ export default class Callback extends Circle {
     return super.animate(timePassed);
   }
 
+  detect(context, color) {
+    return
+  }
+
   draw(context, additionalParameter) {
     if (this.enabled) {
       this.callback(context, this._timePassed, additionalParameter, this);

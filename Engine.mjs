@@ -91,16 +91,16 @@ class Engine {
       }
       if (this._autoSize.registerResizeEvents) {
         this._events = ["resize", "orientationchange"].map(e => ({
-          _node: window,
-          _event: e,
-          _function: this.recalculateCanvas.bind(this)
+          n: window,
+          e: e,
+          f: this.recalculateCanvas.bind(this)
         }));
       }
       if (this._autoSize.registerVisibilityEvents) {
         this._events.push({
-          _node: document,
-          _event: "visibilitychange",
-          _function: this.handleVisibilityChange.bind(this)
+          n: document,
+          e: "visibilitychange",
+          f: this.handleVisibilityChange.bind(this)
         });
       }
       this._recalculateCanvas();
@@ -117,9 +117,9 @@ class Engine {
 
     if (options.clickToPlayAudio) {
       this._events.push({
-        _node: this._output.canvas[0],
-        _event: "click",
-        _function: this.playAudioOfScene.bind(this)
+        n: this._output.canvas[0],
+        e: "click",
+        f: this.playAudioOfScene.bind(this)
       });
     }
 
@@ -128,7 +128,7 @@ class Engine {
     // this._isOddFrame = true
 
     this._events.forEach(v => {
-      v._node.addEventListener(v._event, v._function);
+      v.n.addEventListener(v.e, v.f);
     });
 
     this.switchScene(options.scene, options.sceneParameter || {});
@@ -250,21 +250,20 @@ class Engine {
       this._mainLoop.bind(this)
     );
 
-    if (
-      this._recalculateCanvasIntend &&
-      (!this._reduceFramerate || !this._isOddFrame)
-    ) {
+    let isRecalculatedCanvas = false
+
+    if (this._recalculateCanvasIntend && (!this._reduceFramerate || !this._isOddFrame)) {
       this._recalculateCanvas();
       this._recalculateCanvasIntend = false;
-      for (let i = 0; i < this._canvasCount; i++) {
-        this._drawFrame[i] = Math.max(this._drawFrame[i] - 1, 1);
-      }
-    } else {
-      for (let i = 0; i < this._canvasCount; i++) {
-        this._drawFrame[i] = Math.max(this._drawFrame[i] - 1, 0);
-      }
+      isRecalculatedCanvas = true;
+    } else if (this._moveOnce) {
+      isRecalculatedCanvas = true;
     }
-
+    
+    for (let i = 0; i < this._canvasCount; i++) {
+      this._drawFrame[i] = Math.max(this._drawFrame[i] - 1, isRecalculatedCanvas ? 1 : 0);
+    }
+    
     if (!this._realLastTimestamp) {
       this._realLastTimestamp = timestamp;
     }
@@ -334,7 +333,7 @@ class Engine {
             for (let index = 0; index < this._canvasCount; index++) {
               if (this._drawFrame[index]) {
                 this._normalizeContext(this._output.context[index]);
-                this._scene.draw(this._output, index);
+                this._scene.draw(this._output, index, isRecalculatedCanvas);
               }
             }
           }
@@ -455,7 +454,7 @@ class Engine {
   async destroy() {
     await this.stop()
     this._events.forEach(v => {
-      v._node.removeEventListener(v._event, v._function);
+      v.n.removeEventListener(v.e, v.f);
     });
     this._events = [];
 

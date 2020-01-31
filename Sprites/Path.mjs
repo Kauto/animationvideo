@@ -52,6 +52,15 @@ export default class Path extends Group {
     return pasition._lerp(data.pathFrom, data.pathTo, progress);
   }
 
+
+  detect(context, color) {
+    this._detectHelper(context, color, false, () => {
+      context.fillStyle = color;
+      context.fill(this.path2D);
+    });
+  }
+
+
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {

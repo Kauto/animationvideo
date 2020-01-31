@@ -1879,7 +1879,6 @@ new Engine({
 
 - more readme
 - more tests
-- render to more than one canvas
 
 # License
 

@@ -16,6 +16,18 @@ class Text extends Circle {
     });
   }
 
+  detect(context, color) {
+    this._detectHelper(context, color, false, () => {
+      if (!this.position) {
+        context.textAlign = 'left';
+        context.textBaseline = 'top';
+      }
+      context.font = this.font;
+      context.fillStyle = color;
+      context.fillText(this.text, 0, 0);
+    });
+  }
+
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {

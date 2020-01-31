@@ -57,6 +57,10 @@ class Rect extends Circle {
     // this.normalizeFullScreen(additionalModifier);
   }
 
+  detect(context, color) {
+    this._detectHelper(context, color, this.position === Rect.LEFT_TOP);
+  }
+
   // Draw-Funktion
   draw(context, additionalModifier) {
     if (this.enabled) {

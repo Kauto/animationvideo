@@ -31,6 +31,9 @@ class ImageManager {
           const svg = new window.Blob([Images[i]], { type: "image/svg+xml" });
           self.Images[i].src = DOMURL.createObjectURL(svg);
         } else {
+          if (Images[i].substr(0, 4) === "http") {
+            self.Images[i].crossOrigin = "";
+          }
           self.Images[i].src = Images[i];
         }
         self.count++;

@@ -256,7 +256,7 @@ class Scene {
     });
   }
 
-  draw(output, canvasId) {
+  draw(output, canvasId, isRecalculatedCanvas) {
     const context = output.context[canvasId]
     this._layerManager.forEach(({ layer, element, isFunction, index }) => {
       if (isFunction) {

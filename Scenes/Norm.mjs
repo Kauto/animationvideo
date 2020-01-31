@@ -81,7 +81,7 @@ export default class SceneNorm extends Scene {
     return this._transformInvert.transformPoint(x * scale, y * scale);
   }
 
-  draw(output, canvasId) {
+  draw(output, canvasId, isRecalculatedCanvas) {
     const ctx = output.context[canvasId];
     ctx.save();
 

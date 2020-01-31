@@ -99,7 +99,7 @@ class Layer {
     );
   }
 
-  forEach(callback) {
+  forEach(callback, layerIndex = 0) {
     let index, element;
     const l = this._layer.length;
     for (index = this._start; index < l; index++) {
@@ -107,6 +107,7 @@ class Layer {
       if (element) {
         callback({
           index,
+          layerIndex,
           element,
           isFunction: this._isFunction[index],
           layer: this

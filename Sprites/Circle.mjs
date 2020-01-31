@@ -29,7 +29,9 @@ export default class Circle {
         return Array.isArray(result) ? new Sequence(result) : result;
       },
       // if it's rendering or not
-      enabled: true
+      enabled: true,
+      // if you can click it or not
+      isClickable: false
     };
   }
 
@@ -86,6 +88,43 @@ export default class Circle {
 
   resize(output, additionalModifier) {}
 
+  _detectHelper(context, color, moveToCenter, callback) {
+    if (this.enabled && this.isClickable) {
+      const hw = this.width / 2;
+      const hh = this.height / 2;
+      context.save();
+      if (moveToCenter) {
+        context.translate(this.x + hw, this.y + hh);
+      } else {
+        context.translate(this.x, this.y);
+      }
+      context.scale(this.scaleX, this.scaleY);
+      context.rotate(this.rotation);
+      if (callback) {
+        callback(hw, hh);
+      } else {
+        context.fillStyle = color;
+        context.fillRect(-hw, -hh, this.width, this.height);
+      }
+      context.restore();
+    }
+  }
+
+  detect(context, color) {
+    this._detectHelper(context, color, false, () => {
+      context.fillStyle = color;
+      context.arc(
+        0,
+        0,
+        1,
+        Math.PI / 2 + this.rotation,
+        Math.PI * 2.5 - this.rotation,
+        false
+      );
+      context.fill();
+    });
+  }
+
   // Draw-Funktion
   draw(context, additionalModifier) {
     if (this.enabled) {
@@ -105,7 +144,6 @@ export default class Circle {
         false
       );
       context.fill();
-      context.closePath();
       context.restore();
     }
   }
