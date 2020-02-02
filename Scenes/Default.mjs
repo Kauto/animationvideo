@@ -247,10 +247,10 @@ class Scene {
       });
     }
 
-    this._layerManager.forEach(({ element, isFunction, layer, index }) => {
+    this._layerManager.forEach(({ element, isFunction, layer, elementId }) => {
       if (!isFunction) {
         if (element.animate(timePassed)) {
-          layer.deleteById(index);
+          layer.deleteById(elementId);
         }
       }
     });
@@ -258,10 +258,12 @@ class Scene {
 
   draw(output, canvasId, isRecalculatedCanvas) {
     const context = output.context[canvasId]
-    this._layerManager.forEach(({ layer, element, isFunction, index }) => {
+    this._layerManager.forEach(({ layer, layerId, element, isFunction, elementId }) => {
       if (isFunction) {
         if (
           element({
+            layerId,
+            elementId,
             engine: this._engine,
             scene: this,
             layerManager: this._layerManager,
@@ -272,7 +274,7 @@ class Scene {
             imageManager: this._imageManager
           })
         ) {
-          layer.deleteById(index);
+          layer.deleteById(elementId);
         }
       } else {
         element.draw(context, this._additionalModifier);

@@ -82,7 +82,7 @@ class Layer {
       this._isFunction.length = len;
       this._nextFree = Math.min(this._nextFree, len);
       this._start = Math.min(this._start, len);
-    } else {
+    } else if (this._layer[elementId]) {
       this._layer[elementId] = null;
       this._nextFree = Math.min(this._nextFree, elementId);
       if (this._start === elementId) {
@@ -99,15 +99,15 @@ class Layer {
     );
   }
 
-  forEach(callback, layerIndex = 0) {
+  forEach(callback, layerId = 0) {
     let index, element;
     const l = this._layer.length;
     for (index = this._start; index < l; index++) {
       element = this._layer[index];
       if (element) {
         callback({
-          index,
-          layerIndex,
+          elementId: index,
+          layerId,
           element,
           isFunction: this._isFunction[index],
           layer: this

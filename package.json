@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "microbundle": "^0.12.0-next.7",
-    "mocha": "^7.0.0"
+    "microbundle": "^0.12.0-next.8",
+    "mocha": "^7.0.1"
   }
 }

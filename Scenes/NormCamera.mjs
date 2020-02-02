@@ -170,10 +170,10 @@ export default class SceneNormCamera extends SceneNorm {
       ctx.setTransform(...this._getViewport().m);
 
       this._layerManager.forEach(
-        ({ layerIndex, element, isFunction, index }) => {
+        ({ layerId, element, isFunction, elementId }) => {
           if (!isFunction) {
-            const color = `rgb(${index & 0xff}, ${(index & 0xff00) >>
-              8}, ${layerIndex & 0xff})`;
+            const color = `rgb(${elementId & 0xff}, ${(elementId & 0xff00) >>
+              8}, ${layerId & 0xff})`;
             element.detect(ctx, color);
           }
         },
@@ -190,14 +190,14 @@ export default class SceneNormCamera extends SceneNorm {
           1
         ).data;
         if (p[3]) {
-          const layerIndex = p[2];
-          const index = p[0] + (p[1] << 8);
-          const element = this._layerManager.getById(layerIndex).getById(index);
+          const layerId = p[2];
+          const elementId = p[0] + (p[1] << 8);
+          const element = this._layerManager.getById(layerId).getById(elementId);
           const [x, y] = this.transformPoint(mx, my);
           this._configuration.clickElement({
             element,
-            layerIndex,
-            index,
+            layerId,
+            elementId,
             mx,
             my,
             x,
