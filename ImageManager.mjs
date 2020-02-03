@@ -31,8 +31,15 @@ class ImageManager {
           const svg = new window.Blob([Images[i]], { type: "image/svg+xml" });
           self.Images[i].src = DOMURL.createObjectURL(svg);
         } else {
-          if (Images[i].substr(0, 4) === "http") {
-            self.Images[i].crossOrigin = "";
+          if (/^(https?:)?\/\//.test(Images[i])) {
+            self.Images[i].onerror = () => {
+              // load again without crossOrigin
+              const img = new window.Image();
+              img.onload = self.Images[i].onload;
+              self.Images[i] = img;
+              self.Images[i].src = Images[i];
+            };
+            self.Images[i].crossOrigin = "anonymous";
           }
           self.Images[i].src = Images[i];
         }

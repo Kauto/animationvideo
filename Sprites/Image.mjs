@@ -25,7 +25,10 @@ class Image extends Circle {
       // autoscale to max
       norm: false,
       normCover: false,
-      normToScreen: false
+      normToScreen: false,
+      clickExact: false,
+      color: '#FFF',
+      dye: 0
     });
   }
 
@@ -45,13 +48,49 @@ class Image extends Circle {
         this.scaleY;
       const isTopLeft = this.position === Image.LEFT_TOP;
 
-      context.fillStyle = color;
-      context.fillRect(
-        isTopLeft ? 0 : -sX / 2,
-        isTopLeft ? 0 : -sY / 2,
-        sX,
-        sY
-      );
+      if (this.clickExact) {
+        if (!this._temp_canvas) {
+          this._temp_canvas = document.createElement("canvas");
+          this._tctx = this._temp_canvas.getContext("2d");
+        }
+        this._temp_canvas.width = frameWidth;
+        this._temp_canvas.height = frameHeight;
+        this._tctx.globalAlpha = 1;
+        this._tctx.globalCompositeOperation = "source-over";
+        this._tctx.fillStyle = color;
+        this._tctx.fillRect(0, 0, frameWidth, frameHeight);
+        this._tctx.globalCompositeOperation = "destination-atop";
+        this._tctx.drawImage(
+          this.image,
+          this.frameX,
+          this.frameY,
+          frameWidth,
+          frameHeight,
+          0,
+          0,
+          frameWidth,
+          frameHeight
+        );
+        context.drawImage(
+          this._temp_canvas,
+          0,
+          0,
+          frameWidth,
+          frameHeight,
+          isTopLeft ? 0 : -sX / 2,
+          isTopLeft ? 0 : -sY / 2,
+          sX,
+          sY
+        );
+      } else {
+        context.fillStyle = color;
+        context.fillRect(
+          isTopLeft ? 0 : -sX / 2,
+          isTopLeft ? 0 : -sY / 2,
+          sX,
+          sY
+        );
+      }
     });
   }
 
@@ -96,12 +135,41 @@ class Image extends Circle {
       context.globalCompositeOperation = this.compositeOperation;
       context.globalAlpha = this.alpha * additionalModifier.alpha;
       const isTopLeft = this.position === Image.LEFT_TOP;
+
+      if (this.taint) {
+        if (!this._temp_canvas) {
+          this._temp_canvas = document.createElement("canvas");
+          this._tctx = this._temp_canvas.getContext("2d");
+        }
+        this._temp_canvas.width = frameWidth;
+        this._temp_canvas.height = frameHeight;
+        this._tctx.globalAlpha = 1;
+        this._tctx.globalCompositeOperation = "source-over";
+        this._tctx.clearRect(0, 0, frameWidth, frameHeight);
+        this._tctx.globalAlpha = this.taint;
+        this._tctx.fillStyle = this.color;
+        this._tctx.fillRect(0, 0, frameWidth, frameHeight);
+        this._tctx.globalAlpha = 1;
+        this._tctx.globalCompositeOperation = "destination-atop";
+        this._tctx.drawImage(
+          this.image,
+          this.frameX,
+          this.frameY,
+          frameWidth,
+          frameHeight,
+          0,
+          0,
+          frameWidth,
+          frameHeight
+        );
+      }
+
       if (this.rotation == 0) {
         if (isTopLeft) {
           context.drawImage(
-            this.image,
-            this.frameX,
-            this.frameY,
+            this.taint ? this._temp_canvas : this.image,
+            this.taint ? 0 : this.frameX,
+            this.taint ? 0 : this.frameY,
             frameWidth,
             frameHeight,
             this.x,
@@ -111,9 +179,9 @@ class Image extends Circle {
           );
         } else {
           context.drawImage(
-            this.image,
-            this.frameX,
-            this.frameY,
+            this.taint ? this._temp_canvas : this.image,
+            this.taint ? 0 : this.frameX,
+            this.taint ? 0 : this.frameY,
             frameWidth,
             frameHeight,
             this.x - sX / 2,
@@ -127,9 +195,9 @@ class Image extends Circle {
         context.translate(this.x, this.y);
         context.rotate(this.rotation);
         context.drawImage(
-          this.image,
-          this.frameX,
-          this.frameY,
+          this.taint ? this._temp_canvas : this.image,
+          this.taint ? 0 : this.frameX,
+          this.taint ? 0 : this.frameY,
           frameWidth,
           frameHeight,
           isTopLeft ? 0 : -sX / 2,
