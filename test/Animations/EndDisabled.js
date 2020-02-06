@@ -5,7 +5,7 @@ import {expect} from 'chai';
 
 describe('Animations/EndDisabled', function () {
   it('should return an end-code', function () {
-    expect((new EndDisabled()).run({}, 0)).to.equal(Animation.TIMELAPSE_TO_FORCE_DISABLE);
+    expect((new EndDisabled()).run({}, 0)).to.equal(Animation._TIMELAPSE_TO_FORCE_DISABLE);
   });
 
   it('should disable the sprite', function () {

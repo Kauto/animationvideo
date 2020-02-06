@@ -250,14 +250,11 @@ class Engine {
       this._mainLoop.bind(this)
     );
 
-    let isRecalculatedCanvas = false
+    let isRecalculatedCanvas = this._recalculateCanvasIntend && (!this._reduceFramerate || !this._isOddFrame)
 
-    if (this._recalculateCanvasIntend && (!this._reduceFramerate || !this._isOddFrame)) {
+    if (isRecalculatedCanvas) {
       this._recalculateCanvas();
       this._recalculateCanvasIntend = false;
-      isRecalculatedCanvas = true;
-    } else if (this._moveOnce) {
-      isRecalculatedCanvas = true;
     }
     
     for (let i = 0; i < this._canvasCount; i++) {
@@ -333,7 +330,8 @@ class Engine {
             for (let index = 0; index < this._canvasCount; index++) {
               if (this._drawFrame[index]) {
                 this._normalizeContext(this._output.context[index]);
-                this._scene.draw(this._output, index, isRecalculatedCanvas);
+                this._scene.init(this._output, index);
+                this._scene.draw(this._output, index);
               }
             }
           }

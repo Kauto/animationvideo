@@ -9,6 +9,7 @@ const degToRad = 0.017453292519943295; //Math.PI / 180;
 export default class Circle {
   constructor(givenParameter) {
     this._parseParameterList(this, this._getParameterList(), givenParameter);
+    this._needInit = true;
   }
 
   _parseParameterList(obj, parameterList, givenParameter) {
@@ -83,6 +84,15 @@ export default class Circle {
   play(label = "", timelapsed = 0) {
     if (this.animation) {
       this.animation.play && this.animation.play(label, timelapsed);
+    }
+  }
+
+  init(context, additionalModifier) {}
+
+  callInit(context, additionalModifier) {
+    if (this.enabled && this._needInit) {
+      this.init(context, additionalModifier);
+      this._needInit = false;
     }
   }
 

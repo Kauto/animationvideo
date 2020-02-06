@@ -88,13 +88,14 @@ export default class FastBlur extends Circle {
     this._detectHelper(context, color, false);
   }
   
+  init(context, additionalModifier) {
+    this.generateTempCanvas(additionalModifier);
+    this.normalizeFullScreen(additionalModifier);
+  }
+
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {
-      if (!this._temp_canvas) {
-        this.generateTempCanvas(additionalModifier);
-        this.normalizeFullScreen(additionalModifier);
-      }
       if (this.gridSize && this._currentGridSize !== this.gridSize) {
         this.resize(context, additionalModifier);
       }

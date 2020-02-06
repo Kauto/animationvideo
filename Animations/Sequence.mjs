@@ -107,14 +107,14 @@ class Sequence {
         timeLeft = 0;
       } else if (timeLeft === false) {
         return -1;
-      } else if (timeLeft === Sequence.TIMELAPSE_TO_FORCE_DISABLE) {
+      } else if (timeLeft === Sequence._TIMELAPSE_TO_FORCE_DISABLE) {
         sequencePosition.enabled = false;
         this.enabled = false;
         return timePassed;
-      } else if (timeLeft === Sequence.TIMELAPSE_TO_STOP) {
+      } else if (timeLeft === Sequence._TIMELAPSE_TO_STOP) {
         sequencePosition.enabled = false;
         return timePassed;
-      } else if (timeLeft === Sequence.TIMELAPSE_TO_REMOVE) {
+      } else if (timeLeft === Sequence._TIMELAPSE_TO_REMOVE) {
         return true;
       }
 
@@ -174,7 +174,7 @@ class Sequence {
   }
 }
 
-Sequence.TIMELAPSE_TO_FORCE_DISABLE = "FORCE_DISABLE";
-Sequence.TIMELAPSE_TO_STOP = "STOP";
-Sequence.TIMELAPSE_TO_REMOVE = "REMOVE";
+Sequence._TIMELAPSE_TO_FORCE_DISABLE = "F";
+Sequence._TIMELAPSE_TO_STOP = "S";
+Sequence._TIMELAPSE_TO_REMOVE = "R";
 export default Sequence;

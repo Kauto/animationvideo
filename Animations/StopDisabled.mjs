@@ -7,6 +7,6 @@ export default class EndDisabled {
 
     run(sprite, time) {
         sprite.enabled = false;
-        return Sequence.TIMELAPSE_TO_STOP;
+        return Sequence._TIMELAPSE_TO_STOP;
     };
 }

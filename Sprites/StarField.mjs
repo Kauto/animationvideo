@@ -6,18 +6,6 @@ import Rect from "./Rect.mjs";
 export default class StarField extends Rect {
   constructor(givenParameters) {
     super(givenParameters);
-
-    if (
-      this.x !== undefined &&
-      this.y !== undefined &&
-      this.width &&
-      this.height &&
-      this.lineWidth
-    ) {
-      this.init();
-    } else {
-      this._centerX = undefined;
-    }
   }
 
   _getParameterList() {
@@ -34,7 +22,17 @@ export default class StarField extends Rect {
     });
   }
 
-  init() {
+  init(context, additionalModifier) {
+    this.width = this.width || additionalModifier.width;
+    this.height = this.height || additionalModifier.height;
+    this.x = this.x === undefined ? additionalModifier.x : this.x;
+    this.y = this.y === undefined ? additionalModifier.y : this.y;
+    this.lineWidth =
+      this.lineWidth ||
+      Math.min(
+        additionalModifier.height / additionalModifier.heightInPixel,
+        additionalModifier.width / additionalModifier.widthInPixel
+      ) / 2;
     this._centerX = this.width / 2 + this.x;
     this._centerY = this.height / 2 + this.y;
     this._scaleZ = Math.max(this.width, this.height) / 2;
@@ -146,20 +144,6 @@ export default class StarField extends Rect {
   // Draw-Funktion
   draw(context, additionalModifier) {
     if (this.enabled) {
-      if (this._centerX === undefined) {
-        this.width = this.width || additionalModifier.width;
-        this.height = this.height || additionalModifier.height;
-        this.x = this.x === undefined ? additionalModifier.x : this.x;
-        this.y = this.y === undefined ? additionalModifier.y : this.y;
-        this.lineWidth =
-          this.lineWidth ||
-          Math.min(
-            additionalModifier.height / additionalModifier.heightInPixel,
-            additionalModifier.width / additionalModifier.widthInPixel
-          ) / 2;
-        this.init();
-        return;
-      }
       context.globalCompositeOperation = this.compositeOperation;
       context.globalAlpha = this.alpha * additionalModifier.alpha;
 

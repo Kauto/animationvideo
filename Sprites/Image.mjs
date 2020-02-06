@@ -7,6 +7,7 @@ import Circle from "./Circle.mjs";
 class Image extends Circle {
   constructor(givenParameter) {
     super(givenParameter);
+    this._currentDye = false;
   }
 
   _getParameterList() {
@@ -27,13 +28,55 @@ class Image extends Circle {
       normCover: false,
       normToScreen: false,
       clickExact: false,
-      color: '#FFF',
+      color: "#FFF",
       dye: 0
     });
   }
 
   resize(output, additionalModifier) {
-    this._normScale = undefined;
+    this._needInit = true
+  }
+
+  init(context, additionalModifier) {
+    const frameWidth = this.frameWidth || this.image.width;
+    const frameHeight = this.frameHeight || this.image.height;
+    this._normScale = this.normToScreen
+    ? this.normCover
+      ? Math.max(
+          additionalModifier.fullScreen.width / frameWidth,
+          additionalModifier.fullScreen.height / frameHeight
+        )
+      : this.norm
+      ? Math.min(
+          additionalModifier.fullScreen.width / frameWidth,
+          additionalModifier.fullScreen.height / frameHeight
+        )
+      : 1
+    : this.normCover
+    ? Math.max(
+        additionalModifier.width / frameWidth,
+        additionalModifier.height / frameHeight
+      )
+    : this.norm
+    ? Math.min(
+        additionalModifier.width / frameWidth,
+        additionalModifier.height / frameHeight
+      )
+    : 1;
+  }
+
+  _dyeCacheKey() {
+    return [this.dye, this.frameWidth, this.frameHeight, this.color, this.frameX, this.frameY].join(';');
+  }
+
+  _temp_context(frameWidth, frameHeight) {
+    if (!this._temp_canvas) {
+      this._temp_canvas = document.createElement("canvas");
+      this._tctx = this._temp_canvas.getContext("2d");
+    }
+    this._temp_canvas.width = frameWidth;
+    this._temp_canvas.height = frameHeight;
+    return this._tctx
   }
 
   detect(context, color) {
@@ -49,18 +92,13 @@ class Image extends Circle {
       const isTopLeft = this.position === Image.LEFT_TOP;
 
       if (this.clickExact) {
-        if (!this._temp_canvas) {
-          this._temp_canvas = document.createElement("canvas");
-          this._tctx = this._temp_canvas.getContext("2d");
-        }
-        this._temp_canvas.width = frameWidth;
-        this._temp_canvas.height = frameHeight;
-        this._tctx.globalAlpha = 1;
-        this._tctx.globalCompositeOperation = "source-over";
-        this._tctx.fillStyle = color;
-        this._tctx.fillRect(0, 0, frameWidth, frameHeight);
-        this._tctx.globalCompositeOperation = "destination-atop";
-        this._tctx.drawImage(
+        const tctx = this._temp_context(frameWidth, frameHeight)
+        tctx.globalAlpha = 1;
+        tctx.globalCompositeOperation = "source-over";
+        tctx.fillStyle = color;
+        tctx.fillRect(0, 0, frameWidth, frameHeight);
+        tctx.globalCompositeOperation = "destination-atop";
+        tctx.drawImage(
           this.image,
           this.frameX,
           this.frameY,
@@ -91,6 +129,7 @@ class Image extends Circle {
           sY
         );
       }
+      this._currentDye = false;
     });
   }
 
@@ -99,31 +138,6 @@ class Image extends Circle {
     if (this.enabled && this.image) {
       const frameWidth = this.frameWidth || this.image.width,
         frameHeight = this.frameHeight || this.image.height;
-      if (!this._normScale) {
-        this._normScale = this.normToScreen
-          ? this.normCover
-            ? Math.max(
-                additionalModifier.fullScreen.width / frameWidth,
-                additionalModifier.fullScreen.height / frameHeight
-              )
-            : this.norm
-            ? Math.min(
-                additionalModifier.fullScreen.width / frameWidth,
-                additionalModifier.fullScreen.height / frameHeight
-              )
-            : 1
-          : this.normCover
-          ? Math.max(
-              additionalModifier.width / frameWidth,
-              additionalModifier.height / frameHeight
-            )
-          : this.norm
-          ? Math.min(
-              additionalModifier.width / frameWidth,
-              additionalModifier.height / frameHeight
-            )
-          : 1;
-      }
       const sX =
           (this.width ? this.width : frameWidth) *
           this._normScale *
@@ -136,22 +150,17 @@ class Image extends Circle {
       context.globalAlpha = this.alpha * additionalModifier.alpha;
       const isTopLeft = this.position === Image.LEFT_TOP;
 
-      if (this.taint) {
-        if (!this._temp_canvas) {
-          this._temp_canvas = document.createElement("canvas");
-          this._tctx = this._temp_canvas.getContext("2d");
-        }
-        this._temp_canvas.width = frameWidth;
-        this._temp_canvas.height = frameHeight;
-        this._tctx.globalAlpha = 1;
-        this._tctx.globalCompositeOperation = "source-over";
-        this._tctx.clearRect(0, 0, frameWidth, frameHeight);
-        this._tctx.globalAlpha = this.taint;
-        this._tctx.fillStyle = this.color;
-        this._tctx.fillRect(0, 0, frameWidth, frameHeight);
-        this._tctx.globalAlpha = 1;
-        this._tctx.globalCompositeOperation = "destination-atop";
-        this._tctx.drawImage(
+      if (this.dye && this._currentDye !== this._dyeCacheKey()) {
+        const tctx = this._temp_context(frameWidth, frameHeight)
+        tctx.globalAlpha = 1;
+        tctx.globalCompositeOperation = "source-over";
+        tctx.clearRect(0, 0, frameWidth, frameHeight);
+        tctx.globalAlpha = this.dye;
+        tctx.fillStyle = this.color;
+        tctx.fillRect(0, 0, frameWidth, frameHeight);
+        tctx.globalAlpha = 1;
+        tctx.globalCompositeOperation = "destination-atop";
+        tctx.drawImage(
           this.image,
           this.frameX,
           this.frameY,
@@ -162,14 +171,15 @@ class Image extends Circle {
           frameWidth,
           frameHeight
         );
+        this._currentDye = this._dyeCacheKey();
       }
 
       if (this.rotation == 0) {
         if (isTopLeft) {
           context.drawImage(
-            this.taint ? this._temp_canvas : this.image,
-            this.taint ? 0 : this.frameX,
-            this.taint ? 0 : this.frameY,
+            this.dye ? this._temp_canvas : this.image,
+            this.dye ? 0 : this.frameX,
+            this.dye ? 0 : this.frameY,
             frameWidth,
             frameHeight,
             this.x,
@@ -179,9 +189,9 @@ class Image extends Circle {
           );
         } else {
           context.drawImage(
-            this.taint ? this._temp_canvas : this.image,
-            this.taint ? 0 : this.frameX,
-            this.taint ? 0 : this.frameY,
+            this.dye ? this._temp_canvas : this.image,
+            this.dye ? 0 : this.frameX,
+            this.dye ? 0 : this.frameY,
             frameWidth,
             frameHeight,
             this.x - sX / 2,
@@ -195,9 +205,9 @@ class Image extends Circle {
         context.translate(this.x, this.y);
         context.rotate(this.rotation);
         context.drawImage(
-          this.taint ? this._temp_canvas : this.image,
-          this.taint ? 0 : this.frameX,
-          this.taint ? 0 : this.frameY,
+          this.dye ? this._temp_canvas : this.image,
+          this.dye ? 0 : this.frameX,
+          this.dye ? 0 : this.frameY,
           frameWidth,
           frameHeight,
           isTopLeft ? 0 : -sX / 2,

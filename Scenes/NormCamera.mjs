@@ -156,10 +156,9 @@ export default class SceneNormCamera extends SceneNorm {
     return ret;
   }
 
-  draw(output, canvasId, isRecalculatedCanvas) {
+  draw(output, canvasId) {
     if (
       !canvasId &&
-      !isRecalculatedCanvas &&
       (this._clickIntend || this._hoverIntend)
     ) {
       const scale = this._additionalModifier.scaleCanvas;
@@ -398,9 +397,9 @@ export default class SceneNormCamera extends SceneNorm {
       const [x, y] = this.transformPoint(mx, my);
       this._clickIntend = this._configuration.clickElement && { mx, my };
       if (this._configuration.doubleClick) {
-        if (this._mousePos[i].doubleClickTimer) {
-          clearTimeout(this._mousePos[i].doubleClickTimer);
-          this._mousePos[i].doubleClickTimer = undefined;
+        if (this._mousePos[i]._doubleClickTimer) {
+          clearTimeout(this._mousePos[i]._doubleClickTimer);
+          this._mousePos[i]._doubleClickTimer = undefined;
           this._configuration.doubleClick({
             event: e,
             x,
@@ -410,8 +409,8 @@ export default class SceneNormCamera extends SceneNorm {
             imageManager: this._imageManager
           });
         } else {
-          this._mousePos[i].doubleClickTimer = setTimeout(() => {
-            this._mousePos[i].doubleClickTimer = undefined;
+          this._mousePos[i]._doubleClickTimer = setTimeout(() => {
+            this._mousePos[i]._doubleClickTimer = undefined;
             this._configuration.click({
               event: e,
               x,

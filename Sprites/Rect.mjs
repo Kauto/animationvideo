@@ -54,7 +54,11 @@ class Rect extends Circle {
   }
 
   resize(output, additionalModifier) {
-    // this.normalizeFullScreen(additionalModifier);
+    this._needInit = true
+  }
+
+  init(context, additionalModifier) {
+    this.normalizeFullScreen(additionalModifier);
   }
 
   detect(context, color) {
@@ -64,8 +68,6 @@ class Rect extends Circle {
   // Draw-Funktion
   draw(context, additionalModifier) {
     if (this.enabled) {
-      this.normalizeFullScreen(additionalModifier);
-
       context.globalCompositeOperation = this.compositeOperation;
       context.globalAlpha = this.alpha * additionalModifier.alpha;
       if (this.rotation === 0 && this.position === Rect.LEFT_TOP) {

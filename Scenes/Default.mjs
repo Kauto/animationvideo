@@ -77,7 +77,7 @@ class Scene {
         height: output.height
       }
     };
-    this._layerManager.forEach(({ layer, element, isFunction, index }) => {
+    this._layerManager.forEach(({ element, isFunction }) => {
       if (!isFunction) {
         element.resize(output, this._additionalModifier);
       }
@@ -278,6 +278,15 @@ class Scene {
         }
       } else {
         element.draw(context, this._additionalModifier);
+      }
+    }, canvasId);
+  }
+
+  init(output, canvasId, isRecalculatedCanvas) {
+    const context = output.context[canvasId]
+    this._layerManager.forEach(({ element, isFunction }) => {
+      if (!isFunction) {
+        element.callInit(context, this._additionalModifier);
       }
     }, canvasId);
   }

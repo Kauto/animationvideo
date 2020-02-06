@@ -6,6 +6,6 @@ export default class End {
 	}
 
 	run(sprite, time){
-		return Sequence.TIMELAPSE_TO_FORCE_DISABLE;
+		return Sequence._TIMELAPSE_TO_FORCE_DISABLE;
 	}
 }

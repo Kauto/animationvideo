@@ -6,6 +6,6 @@ export default class Remove {
 	}
 
 	run(sprite, time){
-		return Sequence.TIMELAPSE_TO_REMOVE;
+		return Sequence._TIMELAPSE_TO_REMOVE;
 	}
 }

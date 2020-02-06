@@ -5,6 +5,6 @@ import {expect} from 'chai';
 
 describe('Animations/End', function () {
   it('should return an end-code', function () {
-    expect((new End()).run({}, 0)).to.equal(Animation.TIMELAPSE_TO_FORCE_DISABLE);
+    expect((new End()).run({}, 0)).to.equal(Animation._TIMELAPSE_TO_FORCE_DISABLE);
   });
 });
