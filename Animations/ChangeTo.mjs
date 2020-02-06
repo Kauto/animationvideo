@@ -1,6 +1,6 @@
 import calc from "../func/calc.mjs";
 import ifNull from "../func/ifnull.mjs";
-import Color from "color";
+import { TinyColor } from '@ctrl/tinycolor';
 
 const degToRad = 0.017453292519943295; //Math.PI / 180;
 
@@ -23,7 +23,7 @@ function moveBezier(progress, data) {
 }
 
 function moveColor(progress, data, sprite) {
-  return data.colorFrom.mix(data.colorTo, progress).string();
+  return data.colorFrom.mix(data.colorTo, progress * 100).toString();
 }
 
 function movePath(progress, data, sprite) {
@@ -83,8 +83,8 @@ export default class ChangeTo {
         data.from = sprite[data.name];
         data.to = data.isFunction(data.from);
         if (data.isColor) {
-          data.colorFrom = Color(data.from);
-          data.colorTo = Color(data.to);
+          data.colorFrom = new TinyColor(data.from);
+          data.colorTo = new TinyColor(data.to);
           data.moveAlgorithm = moveColor;
         } else if (data.isPath) {
           [data.pathFrom, data.pathTo] = sprite.changeToPathInit(
@@ -100,8 +100,8 @@ export default class ChangeTo {
           data.moveAlgorithm = moveDefault;
         }
       } else if (data.isColor) {
-        data.colorFrom = Color(sprite[data.name]);
-        data.colorTo = Color(data.to);
+        data.colorFrom = new TinyColor(sprite[data.name]);
+        data.colorTo = new TinyColor(data.to);
       } else if (data.isPath) {
         [data.pathFrom, data.pathTo] = sprite.changeToPathInit(
           sprite[data.name],

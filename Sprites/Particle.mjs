@@ -1,5 +1,5 @@
 import Circle from "./Circle.mjs";
-import Color from "color";
+import { TinyColor } from "@ctrl/tinycolor";
 
 const gradientSize = 64;
 const gradientResolution = 4;
@@ -21,7 +21,9 @@ class Particle extends Circle {
 
     if (!Particle._Gradient) {
       const length = 256 >> gradientResolution;
-      Particle._Gradient = Array.from({length}, a=>Array.from({length}, a=>Array.from({length})))
+      Particle._Gradient = Array.from({ length }, a =>
+        Array.from({ length }, a => Array.from({ length }))
+      );
     }
     if (!Particle._Gradient[cr][cg][cb]) {
       Particle._Gradient[cr][cg][cb] = Particle.generateGradientImage(
@@ -94,9 +96,9 @@ class Particle extends Circle {
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {
-      // faster than: if (!(this.color instanceof Color && this.color.model === 'rgb')) {
-      if (!this.color || !this.color.color) {
-        this.color = Color(this.color).rgb();
+      // faster than: if (!(this.color instanceof TinyColor && this.color.model === 'rgb')) {
+      if (!this.color || !this.color.r) {
+        this.color = new TinyColor(this.color).toRgb();
       }
       if (this._currentScaleX !== this.scaleX) {
         this._currentScaleX = this.scaleX;
@@ -105,12 +107,12 @@ class Particle extends Circle {
             additionalModifier.width >
           gradientSize;
       }
-      const color = this.color.color;
+      const { r, g, b } = this.color;
       context.globalCompositeOperation = this.compositeOperation;
       context.globalAlpha = this.alpha * additionalModifier.alpha;
       context.imageSmoothingEnabled = this._currentPixelSmoothing;
       context.drawImage(
-        Particle.getGradientImage(color[0], color[1], color[2]),
+        Particle.getGradientImage(r, g, b),
         0,
         0,
         gradientSize,

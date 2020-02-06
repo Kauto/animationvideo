@@ -18,8 +18,8 @@ export default class Group extends Circle {
       spriteFinished = false;
     // animate all sprites
     if (this.enabled) {
-      for (let i in this.sprite) {
-        spriteFinished = spriteFinished || this.sprite[i].animate(timepassed) === true;
+      for (const sprite of this.sprite) {
+        spriteFinished = spriteFinished || sprite.animate(timepassed) === true;
       }
     }
 
@@ -37,14 +37,23 @@ export default class Group extends Circle {
     if (this.animation) {
       this.animation.play && this.animation.play(label, timelapsed);
     }
-    for (let i in this.sprite) {
-      this.sprite[i].play && this.sprite[i].play(label, timelapsed);
+    for (const sprite of this.sprite) {
+      sprite.play && sprite.play(label, timelapsed);
     }
   }
 
   resize(output, additionalModifier) {
-    for (let i in this.sprite) {
-      this.sprite[i].resize(output, additionalModifier);
+    for (const sprite of this.sprite) {
+      sprite.resize(output, additionalModifier);
+    }
+  }
+
+  callInit(context, additionalModifier) {
+    if (this.enabled) {
+      super.callInit(context, additionalModifier)
+      for(let sprite of this.sprite) {
+        sprite.callInit(context, additionalModifier);
+      }
     }
   }
 
@@ -61,8 +70,8 @@ export default class Group extends Circle {
       context.scale(this.scaleX, this.scaleY);
       context.rotate(this.rotation);
       // draw all sprites
-      for (let i in this.sprite) {
-        this.sprite[i].draw(context, additionalModifier);
+      for (const sprite of this.sprite) {
+        sprite.draw(context, additionalModifier);
       }
       context.restore();
     }

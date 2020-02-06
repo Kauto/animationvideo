@@ -34,39 +34,49 @@ class Image extends Circle {
   }
 
   resize(output, additionalModifier) {
-    this._needInit = true
+    this._needInit = true;
   }
 
   init(context, additionalModifier) {
     const frameWidth = this.frameWidth || this.image.width;
     const frameHeight = this.frameHeight || this.image.height;
+
     this._normScale = this.normToScreen
-    ? this.normCover
+      ? this.normCover
+        ? Math.max(
+            additionalModifier.fullScreen.width / frameWidth,
+            additionalModifier.fullScreen.height / frameHeight
+          )
+        : this.norm
+        ? Math.min(
+            additionalModifier.fullScreen.width / frameWidth,
+            additionalModifier.fullScreen.height / frameHeight
+          )
+        : 1
+      : this.normCover
       ? Math.max(
-          additionalModifier.fullScreen.width / frameWidth,
-          additionalModifier.fullScreen.height / frameHeight
+          additionalModifier.width / frameWidth,
+          additionalModifier.height / frameHeight
         )
       : this.norm
       ? Math.min(
-          additionalModifier.fullScreen.width / frameWidth,
-          additionalModifier.fullScreen.height / frameHeight
+          additionalModifier.width / frameWidth,
+          additionalModifier.height / frameHeight
         )
-      : 1
-    : this.normCover
-    ? Math.max(
-        additionalModifier.width / frameWidth,
-        additionalModifier.height / frameHeight
-      )
-    : this.norm
-    ? Math.min(
-        additionalModifier.width / frameWidth,
-        additionalModifier.height / frameHeight
-      )
-    : 1;
+      : 1;
   }
 
   _dyeCacheKey() {
-    return [this.dye, this.frameWidth, this.frameHeight, this.color, this.frameX, this.frameY].join(';');
+    const frameWidth = this.frameWidth || this.image.width;
+    const frameHeight = this.frameHeight || this.image.height;
+    return [
+      this.dye,
+      frameWidth,
+      frameHeight,
+      this.color,
+      this.frameX,
+      this.frameY
+    ].join(";");
   }
 
   _temp_context(frameWidth, frameHeight) {
@@ -76,7 +86,7 @@ class Image extends Circle {
     }
     this._temp_canvas.width = frameWidth;
     this._temp_canvas.height = frameHeight;
-    return this._tctx
+    return this._tctx;
   }
 
   detect(context, color) {
@@ -90,9 +100,8 @@ class Image extends Circle {
         this._normScale *
         this.scaleY;
       const isTopLeft = this.position === Image.LEFT_TOP;
-
       if (this.clickExact) {
-        const tctx = this._temp_context(frameWidth, frameHeight)
+        const tctx = this._temp_context(frameWidth, frameHeight);
         tctx.globalAlpha = 1;
         tctx.globalCompositeOperation = "source-over";
         tctx.fillStyle = color;
@@ -151,7 +160,7 @@ class Image extends Circle {
       const isTopLeft = this.position === Image.LEFT_TOP;
 
       if (this.dye && this._currentDye !== this._dyeCacheKey()) {
-        const tctx = this._temp_context(frameWidth, frameHeight)
+        const tctx = this._temp_context(frameWidth, frameHeight);
         tctx.globalAlpha = 1;
         tctx.globalCompositeOperation = "source-over";
         tctx.clearRect(0, 0, frameWidth, frameHeight);

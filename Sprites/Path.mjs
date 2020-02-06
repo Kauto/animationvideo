@@ -129,8 +129,8 @@ export default class Path extends Group {
       }
 
       // draw all sprites
-      for (let i in this.sprite) {
-        this.sprite[i].draw(context, additionalModifier);
+      for (const sprite of this.sprite) {
+        sprite.draw(context, additionalModifier);
       }
 
       context.restore();

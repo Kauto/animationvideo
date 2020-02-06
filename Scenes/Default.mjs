@@ -282,7 +282,7 @@ class Scene {
     }, canvasId);
   }
 
-  init(output, canvasId, isRecalculatedCanvas) {
+  init(output, canvasId) {
     const context = output.context[canvasId]
     this._layerManager.forEach(({ element, isFunction }) => {
       if (!isFunction) {

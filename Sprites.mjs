@@ -1,40 +1,17 @@
-import _Callback from './Sprites/Callback.mjs';
-import _Canvas from './Sprites/Canvas.mjs';
-import _Circle from './Sprites/Circle.mjs';
-import _Emitter from './Sprites/Emitter.mjs';
-import _FastBlur from './Sprites/FastBlur.mjs';
-import _Group from './Sprites/Group.mjs';
-import _Image from './Sprites/Image.mjs';
-import _Text from './Sprites/Text.mjs';
-import _Particle from './Sprites/Particle.mjs';
-import _Path from './Sprites/Path.mjs';
-import _Rect from './Sprites/Rect.mjs';
-import _Scroller from './Sprites/Scroller.mjs';
-import _StackBlur from './Sprites/StackBlur.mjs';
-import _StarField from './Sprites/StarField.mjs';
-
-const
-  Callback = (...args) => new _Callback(...args),
-  Canvas = (...args) => new _Canvas(...args),
-  Circle = (...args) => new _Circle(...args),
-  Emitter = (...args) => new _Emitter(...args),
-  FastBlur = (...args) => new _FastBlur(...args),
-  Group = (...args) => new _Group(...args),
-  Image = (...args) => new _Image(...args),
-  Text = (...args) => new _Text(...args),
-  Particle = (...args) => new _Particle(...args),
-  Path = (...args) => new _Path(...args),
-  Rect = (...args) => new _Rect(...args),
-  Scroller = (...args) => new _Scroller(...args),
-  StackBlur = (...args) => new _StackBlur(...args);
-  StarField = (...args) => new _StarField(...args);
-
-Image.LEFT_TOP = _Image.LEFT_TOP
-Image.CENTER = _Image.CENTER
-Rect.LEFT_TOP = _Rect.LEFT_TOP
-Rect.CENTER = _Rect.CENTER
-Text.LEFT_TOP = _Text.LEFT_TOP
-Text.CENTER = _Text.CENTER
+import Callback from './Sprites/Callback.mjs';
+import Canvas from './Sprites/Canvas.mjs';
+import Circle from './Sprites/Circle.mjs';
+import Emitter from './Sprites/Emitter.mjs';
+import FastBlur from './Sprites/FastBlur.mjs';
+import Group from './Sprites/Group.mjs';
+import Image from './Sprites/Image.mjs';
+import Text from './Sprites/Text.mjs';
+import Particle from './Sprites/Particle.mjs';
+import Path from './Sprites/Path.mjs';
+import Rect from './Sprites/Rect.mjs';
+import Scroller from './Sprites/Scroller.mjs';
+import StackBlur from './Sprites/StackBlur.mjs';
+import StarField from './Sprites/StarField.mjs';
 
 export default {
   Callback,

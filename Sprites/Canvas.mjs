@@ -132,8 +132,8 @@ export default class Canvas extends Group {
           this._tctx.scale(cam.zoom, cam.zoom);
           this._tctx.translate(-cam.x, -cam.y);
         }
-        for (let i in this.sprite) {
-          this.sprite[i].draw(
+        for (const sprite of this.sprite) {
+          sprite.draw(
             this._tctx,
             this.norm
               ? Object.assign({}, additionalModifier, {

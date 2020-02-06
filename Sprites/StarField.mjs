@@ -6,6 +6,16 @@ import Rect from "./Rect.mjs";
 export default class StarField extends Rect {
   constructor(givenParameters) {
     super(givenParameters);
+
+    this._starsX = [];
+    this._starsY = [];
+    this._starsZ = [];
+    this._starsOldX = [];
+    this._starsOldY = [];
+    this._starsNewX = [];
+    this._starsNewY = [];
+    this._starsEnabled = [];
+    this._starsLineWidth = [];
   }
 
   _getParameterList() {
@@ -13,12 +23,12 @@ export default class StarField extends Rect {
       // set image
       count: 40,
       // relative position
-      moveX: 0.,
-      moveY: 0.,
-      moveZ: 0.,
+      moveX: 0,
+      moveY: 0,
+      moveZ: 0,
       lineWidth: undefined,
       highScale: true,
-      color: '#FFF' // here default color is white
+      color: "#FFF" // here default color is white
     });
   }
 
@@ -36,19 +46,15 @@ export default class StarField extends Rect {
     this._centerX = this.width / 2 + this.x;
     this._centerY = this.height / 2 + this.y;
     this._scaleZ = Math.max(this.width, this.height) / 2;
-    this._starsX = [];
-    this._starsY = [];
-    this._starsZ = [];
-    this._starsOldX = [];
-    this._starsOldY = [];
-    this._starsNewX = [];
-    this._starsNewY = [];
-    this._starsEnabled = [];
-    this._starsLineWidth = [];
+    function clampOrRandom(val, min, max = -min) {
+      return val === undefined || val < min || val >= max
+        ? Math.random() * (max - min) + min
+        : val;
+    }
     for (let i = 0; i < this.count; i++) {
-      this._starsX[i] = Math.random() * this.width - this.width / 2;
-      this._starsY[i] = Math.random() * this.height - this.height / 2;
-      this._starsZ[i] = Math.random() * this._scaleZ;
+      this._starsX[i] = clampOrRandom(this._starsX[i], -this.width / 2);
+      this._starsY[i] = clampOrRandom(this._starsY[i], -this.height / 2);
+      this._starsZ[i] = clampOrRandom(this._starsZ[i], 0, this._scaleZ);
     }
   }
 
@@ -135,12 +141,14 @@ export default class StarField extends Rect {
     return ret;
   }
 
-  resize(output, additionalModifier){}
+  resize(output, additionalModifier) {
+    this._needInit = true
+  }
 
   detect(context, color) {
     this._detectHelper(context, color, false);
   }
-  
+
   // Draw-Funktion
   draw(context, additionalModifier) {
     if (this.enabled) {
@@ -154,7 +162,8 @@ export default class StarField extends Rect {
           if (this._starsEnabled[i]) {
             context.fillRect(
               this._starsNewX[i],
-              this._starsNewY[i] - (this._starsLineWidth[i] * this.lineWidth) / 2,
+              this._starsNewY[i] -
+                (this._starsLineWidth[i] * this.lineWidth) / 2,
               this._starsOldX[i] - this._starsNewX[i],
               this._starsLineWidth[i] * this.lineWidth
             );
