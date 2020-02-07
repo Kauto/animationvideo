@@ -1031,8 +1031,8 @@
         },
         clickElement({ element, x, y, mx, my }) {
           element.animation = new ANI.Sequence([
-            new ANI.ChangeTo({ color: '#00F', rotationInDegree: 360, dye: 1 }, 0, Easing.quadInOut),
-            new ANI.ChangeTo({ color: '#FF0', rotationInDegree: 0, dye: 0 }, 1000, Easing.quadInOut)
+            new ANI.ChangeTo({ color: '#00F', rotationInDegree: 360, tint: 1 }, 0, Easing.quadInOut),
+            new ANI.ChangeTo({ color: '#FF0', rotationInDegree: 0, tint: 0 }, 1000, Easing.quadInOut)
           ])
           this.hideAfterTotalTimePassed = this.totalTimePassed + 1000
         },

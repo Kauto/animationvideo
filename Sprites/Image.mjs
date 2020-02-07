@@ -7,7 +7,7 @@ import Circle from "./Circle.mjs";
 class Image extends Circle {
   constructor(givenParameter) {
     super(givenParameter);
-    this._currentDye = false;
+    this._currentTint = false;
   }
 
   _getParameterList() {
@@ -29,7 +29,7 @@ class Image extends Circle {
       normToScreen: false,
       clickExact: false,
       color: "#FFF",
-      dye: 0
+      tint: 0
     });
   }
 
@@ -66,11 +66,11 @@ class Image extends Circle {
       : 1;
   }
 
-  _dyeCacheKey() {
+  _tintCacheKey() {
     const frameWidth = this.frameWidth || this.image.width;
     const frameHeight = this.frameHeight || this.image.height;
     return [
-      this.dye,
+      this.tint,
       frameWidth,
       frameHeight,
       this.color,
@@ -138,7 +138,7 @@ class Image extends Circle {
           sY
         );
       }
-      this._currentDye = false;
+      this._currentTint = false;
     });
   }
 
@@ -159,12 +159,12 @@ class Image extends Circle {
       context.globalAlpha = this.alpha * additionalModifier.alpha;
       const isTopLeft = this.position === Image.LEFT_TOP;
 
-      if (this.dye && this._currentDye !== this._dyeCacheKey()) {
+      if (this.tint && this._currentTint !== this._tintCacheKey()) {
         const tctx = this._temp_context(frameWidth, frameHeight);
         tctx.globalAlpha = 1;
         tctx.globalCompositeOperation = "source-over";
         tctx.clearRect(0, 0, frameWidth, frameHeight);
-        tctx.globalAlpha = this.dye;
+        tctx.globalAlpha = this.tint;
         tctx.fillStyle = this.color;
         tctx.fillRect(0, 0, frameWidth, frameHeight);
         tctx.globalAlpha = 1;
@@ -180,15 +180,15 @@ class Image extends Circle {
           frameWidth,
           frameHeight
         );
-        this._currentDye = this._dyeCacheKey();
+        this._currentTint = this._tintCacheKey();
       }
 
       if (this.rotation == 0) {
         if (isTopLeft) {
           context.drawImage(
-            this.dye ? this._temp_canvas : this.image,
-            this.dye ? 0 : this.frameX,
-            this.dye ? 0 : this.frameY,
+            this.tint ? this._temp_canvas : this.image,
+            this.tint ? 0 : this.frameX,
+            this.tint ? 0 : this.frameY,
             frameWidth,
             frameHeight,
             this.x,
@@ -198,9 +198,9 @@ class Image extends Circle {
           );
         } else {
           context.drawImage(
-            this.dye ? this._temp_canvas : this.image,
-            this.dye ? 0 : this.frameX,
-            this.dye ? 0 : this.frameY,
+            this.tint ? this._temp_canvas : this.image,
+            this.tint ? 0 : this.frameX,
+            this.tint ? 0 : this.frameY,
             frameWidth,
             frameHeight,
             this.x - sX / 2,
@@ -214,9 +214,9 @@ class Image extends Circle {
         context.translate(this.x, this.y);
         context.rotate(this.rotation);
         context.drawImage(
-          this.dye ? this._temp_canvas : this.image,
-          this.dye ? 0 : this.frameX,
-          this.dye ? 0 : this.frameY,
+          this.tint ? this._temp_canvas : this.image,
+          this.tint ? 0 : this.frameX,
+          this.tint ? 0 : this.frameY,
           frameWidth,
           frameHeight,
           isTopLeft ? 0 : -sX / 2,

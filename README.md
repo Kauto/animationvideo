@@ -110,7 +110,7 @@ import ChangeTo from "animationvideo/Animations/ChangeTo.mjs";
 import QuadInOut from "eases/quad-in-out";
 ```
 
-This is possible with [Webpack >= 4](https://webpack.js.org/). For older packer you can use the main package and extract the needed components.
+This is possible with [Webpack >= 4](https://webpack.js.org/) and other packers. For older packers you can use the main package and extract the needed components.
 
 ```js
 import AnimationVideo from "animationvideo";
@@ -128,24 +128,26 @@ For simple web projects you can include the js-file directly and use the global 
 ```html
 <script src="dist/animationvideo.umd.js"></script>
 <script>
-  AnimationVideo.Engine(document.querySelector("canvas"))
+  new AnimationVideo.Engine(document.querySelector("canvas"))
     .switchScene(
-      AnimationVideo.Scenes.Norm({
+      new AnimationVideo.Scenes.Norm({
         reset: () => [
-          [AnimationVideo.Sprites.Rect({ clear: true })],
           [
-            AnimationVideo.Sprites.Circle({
+            new AnimationVideo.Sprites.Rect({ clear: true })
+          ],
+          [
+            new AnimationVideo.Sprites.Circle({
               scaleX: 0.5,
               scaleY: 0.5,
               color: "#F00",
-              animation: AnimationVideo.Animations.Forever([
-                AnimationVideo.Animations.ChangeTo(
+              animation: new AnimationVideo.Animations.Forever([
+                new AnimationVideo.Animations.ChangeTo(
                   {
                     color: "#00F"
                   },
                   1000
                 ),
-                AnimationVideo.Animations.ChangeTo(
+                new AnimationVideo.Animations.ChangeTo(
                   {
                     color: "#F00"
                   },
@@ -1143,7 +1145,7 @@ new Engine({
 
 ### Image
 
-Renders an image to the canvas. Can be a real image or the reference to an image loaded with the _images_ routine of the scene.
+Renders an image to the canvas. Can be a real image or the reference to an image loaded with the _images_ routine of the scene. You can tint an image (give it a color), but this will create a new canvas in the background and can be slow. 
 
 ```js
 import Engine from "animationvideo/Engine.mjs";
@@ -1181,7 +1183,9 @@ new Engine({
             norm: false, // resize the image, so it hits the corner of the canvas
             normCover: false, // resize the image, so it's completly covering the canvas
             normToScreen: false, // it will be norm-ed to the visible, zoomed out screen, not to the full -1 to 1 canvas
-            animation: undefined
+            animation: undefined,
+            tint: 0, // tint the image with the color "color". A value between 0 (no tint) and 1 (image is completly in this color)
+            color: '#fff' // color for the tint
           })
         ]
       ];
