@@ -53,6 +53,19 @@ class LayerManager {
     );
   }
 
+  getElementsByTag (tag) {
+    let result = []
+    this.forEach(({element, isFunction}) => {
+      if (!isFunction) {
+        const ans = element.getElementsByTag(aTag)
+        if (ans) {
+          result = result.concat(ans)
+        }
+      }
+    })
+    return result
+  }
+
   count() {
     return this._layers.length;
   }

@@ -32,7 +32,11 @@ export default class Circle {
       // if it's rendering or not
       enabled: true,
       // if you can click it or not
-      isClickable: false
+      isClickable: false,
+      // tags to mark the sprites
+      tag: value => {
+        return Array.isArray(value) ? value : value ? [value] : [];
+      }
     };
   }
 
@@ -65,6 +69,20 @@ export default class Circle {
       // color
       color: "#fff"
     });
+  }
+
+  getElementsByTag(tag) {
+    if (typeof tag === "function") {
+      if (this.tag.filter(tag).length) {
+        return [this];
+      }
+    } else {
+      const aTag = Array.isArray(tag) ? tag : [tag];
+      if (aTag.filter(tag => this.tag.includes(tag)).length) {
+        return [this];
+      }
+    }
+    return [];
   }
 
   // Animation-Funktion

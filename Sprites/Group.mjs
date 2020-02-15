@@ -11,6 +11,17 @@ export default class Group extends Circle {
     });
   }
 
+  getElementsByTag(tag) {
+    let result = super.getElementsByTag(tag)
+    for (const sprite of this.sprite) {
+      const ans = sprite.getElementsByTag(tag);
+      if (ans) {
+        result = result.concat(ans)
+      }
+    } 
+    return result
+  }
+
   // overwrite change
   animate(timepassed) {
     // call super
