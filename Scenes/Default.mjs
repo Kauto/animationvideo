@@ -18,6 +18,7 @@ class Scene {
     this._initDone = false;
     this._additionalModifier = undefined;
     this._imageManager = ImageManager;
+    this._resetIntend = false;
 
     this._timing = this._configuration.timing || new TimingDefault()
   }
@@ -198,8 +199,11 @@ class Scene {
     // calc total time
     this._timing.totalTimePassed += timePassed;
 
+    if (this._resetIntend) {
+      this._resetIntend = false;
+      this.reset()
     // Jump back?
-    if (timePassed < 0) {
+  } else if (timePassed < 0) {
       // Back to the beginning
       timePassed = this._timing.totalTimePassed;
       this.reset();
@@ -289,6 +293,10 @@ class Scene {
         element.callInit(context, this._additionalModifier);
       }
     }, canvasId);
+  }
+
+  resetIntend() {
+    this._resetIntend = true
   }
 
   reset() {

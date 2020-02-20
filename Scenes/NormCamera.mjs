@@ -31,6 +31,7 @@ export default class SceneNormCamera extends SceneNorm {
       y: this.camConfig.currentY || 0,
       zoom: this.camConfig.currentZoom || 1
     };
+    this._instant = false;
 
     this._clampLimits = {
       _x1: -1,
@@ -64,6 +65,10 @@ export default class SceneNormCamera extends SceneNorm {
       zoom: 1
     };
     return this;
+  }
+
+  camInstant() {
+    this._instant = true
   }
 
   camTween(tween) {
@@ -113,7 +118,7 @@ export default class SceneNormCamera extends SceneNorm {
   }
 
   fixedUpdate(output, timePassed, lastCall) {
-    if (this.camConfig.tween && this.hasCamChanged()) {
+    if (this.camConfig.tween && !this._instant && this.hasCamChanged()) {
       this.cam.x += (this.toCam.x - this.cam.x) / this.camConfig.tween;
       this.cam.y += (this.toCam.y - this.cam.y) / this.camConfig.tween;
       this.cam.zoom += (this.toCam.zoom - this.cam.zoom) / this.camConfig.tween;
@@ -144,7 +149,8 @@ export default class SceneNormCamera extends SceneNorm {
 
   move(output, timePassed) {
     const ret = super.move(output, timePassed);
-    if (!this.camConfig.tween && this.hasCamChanged()) {
+    if ((!this.camConfig.tween || this._instant) && this.hasCamChanged()) {
+      this._instant = false;
       this.cam = Object.assign({}, this.toCam);
       if (this.camConfig.callResize) {
         super.resize(output);
@@ -157,10 +163,7 @@ export default class SceneNormCamera extends SceneNorm {
   }
 
   draw(output, canvasId) {
-    if (
-      !canvasId &&
-      (this._clickIntend || this._hoverIntend)
-    ) {
+    if (!canvasId && (this._clickIntend || this._hoverIntend)) {
       const scale = this._additionalModifier.scaleCanvas;
       const ctx = output.context[canvasId];
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -191,7 +194,9 @@ export default class SceneNormCamera extends SceneNorm {
         if (p[3]) {
           const layerId = p[2];
           const elementId = p[0] + (p[1] << 8);
-          const element = this._layerManager.getById(layerId).getById(elementId);
+          const element = this._layerManager
+            .getById(layerId)
+            .getById(elementId);
           const [x, y] = this.transformPoint(mx, my);
           this._configuration.clickElement({
             element,
@@ -205,7 +210,7 @@ export default class SceneNormCamera extends SceneNorm {
             engine: this._engine,
             imageManager: this._imageManager
           });
-        } else if(this._configuration.clickNonElement) {
+        } else if (this._configuration.clickNonElement) {
           const [x, y] = this.transformPoint(mx, my);
           this._configuration.clickNonElement({
             mx,
@@ -589,6 +594,17 @@ export default class SceneNormCamera extends SceneNorm {
         this.zoomOut();
       }
     }
+  }
+  zoomToFullScreen() {
+    this.toCam.zoom = Math.min(
+      this._additionalModifier.fullScreen.width / this._additionalModifier.width,
+      this._additionalModifier.fullScreen.height / this._additionalModifier.height
+    );
+    return this;
+  }
+  zoomToNorm() {
+    this.toCam.zoom = 1;
+    return this;
   }
   zoomIn() {
     this.toCam.zoom = Math.min(
