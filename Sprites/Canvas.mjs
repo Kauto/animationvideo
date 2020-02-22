@@ -91,15 +91,15 @@ export default class Canvas extends Group {
     super.resize(output, additionalModifier);
   }
 
-  detect(context, color) {
-    this._detectHelper(context, color, false);
+  detect(context, x, y) {
+    return this._detectHelper(context, x, y, false);
   }
 
   init(context, additionalModifier) {
     this.generateTempCanvas(additionalModifier);
     this.normalizeFullScreen(additionalModifier);
   }
-  
+
   // draw-methode
   draw(context, additionalModifier) {
     if (this.enabled) {

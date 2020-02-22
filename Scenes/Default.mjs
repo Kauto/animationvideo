@@ -18,7 +18,7 @@ class Scene {
     this._initDone = false;
     this._additionalModifier = undefined;
     this._imageManager = ImageManager;
-    this._resetIntend = false;
+    //this._resetIntend = false;
 
     this._timing = this._configuration.timing || new TimingDefault()
   }
@@ -193,6 +193,14 @@ class Scene {
           imageManager: this._imageManager
         })
       : timePassed !== 0;
+  }
+
+  detect(output) {}
+
+  detectImage(output, canvasId) {}
+
+  hasDetectImage() {
+    return 0
   }
 
   move(output, timePassed) {

@@ -44,22 +44,19 @@ export default class Path extends Group {
   // helper function for changeTo
   changeToPathInit(from, to) {
     return pasition._preprocessing(
-      typeof from === 'string' ? pasition.path2shapes(from) : from,
-      typeof to === 'string' ? pasition.path2shapes(to) : to
+      typeof from === "string" ? pasition.path2shapes(from) : from,
+      typeof to === "string" ? pasition.path2shapes(to) : to
     );
   }
   changeToPath(progress, data, sprite) {
     return pasition._lerp(data.pathFrom, data.pathTo, progress);
   }
 
-
-  detect(context, color) {
-    this._detectHelper(context, color, false, () => {
-      context.fillStyle = color;
-      context.fill(this.path2D);
+  detect(context, x, y) {
+    return this._detectHelper(context, x, y, false, () => {
+      return context.isPath(this.path2D, x, y);
     });
   }
-
 
   // draw-methode
   draw(context, additionalModifier) {
@@ -85,7 +82,7 @@ export default class Path extends Group {
             });
             this.path2D.closePath();
           });
-        } else if(this.path instanceof Path2D) {
+        } else if (this.path instanceof Path2D) {
           this.path2D = this.path;
         } else {
           this.path2D = new Path2D(this.path);

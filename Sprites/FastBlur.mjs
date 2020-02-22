@@ -32,8 +32,8 @@ export default class FastBlur extends Circle {
   }
 
   generateTempCanvas(additionalModifier) {
-    const w = additionalModifier.widthInPixel
-    const h = additionalModifier.heightInPixel
+    const w = additionalModifier.widthInPixel;
+    const h = additionalModifier.heightInPixel;
     this._temp_canvas = document.createElement("canvas");
     if (this.gridSize) {
       this._currentGridSize = this.gridSize;
@@ -84,10 +84,10 @@ export default class FastBlur extends Circle {
     this.normalizeFullScreen(additionalModifier);
   }
 
-  detect(context, color) {
-    this._detectHelper(context, color, false);
+  detect(context, x, y) {
+    return this._detectHelper(context, x, y, false);
   }
-  
+
   init(context, additionalModifier) {
     this.generateTempCanvas(additionalModifier);
     this.normalizeFullScreen(additionalModifier);
@@ -129,7 +129,8 @@ export default class FastBlur extends Circle {
           this._tctx.fillRect(0, 0, targetW, targetH);
         }
 
-        this.additionalBlur && this.additionalBlur(targetW, targetH, additionalModifier);
+        this.additionalBlur &&
+          this.additionalBlur(targetW, targetH, additionalModifier);
 
         // optional: clear screen
         if (this.clear) {

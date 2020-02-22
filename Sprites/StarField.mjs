@@ -142,11 +142,11 @@ export default class StarField extends Rect {
   }
 
   resize(output, additionalModifier) {
-    this._needInit = true
+    this._needInit = true;
   }
 
-  detect(context, color) {
-    this._detectHelper(context, color, false);
+  detect(context, x, y) {
+    return this._detectHelper(context, x, y, false);
   }
 
   // Draw-Funktion

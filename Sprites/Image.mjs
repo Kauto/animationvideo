@@ -89,8 +89,8 @@ class Image extends Circle {
     return this._tctx;
   }
 
-  detect(context, color) {
-    this._detectHelper(context, color, false, () => {
+  detectDraw(context, color) {
+    if (this.enabled && this.isClickable && this.clickExact) {
       const frameWidth = this.frameWidth || this.image.width;
       const frameHeight = this.frameHeight || this.image.height;
       const sX =
@@ -100,46 +100,48 @@ class Image extends Circle {
         this._normScale *
         this.scaleY;
       const isTopLeft = this.position === Image.LEFT_TOP;
-      if (this.clickExact) {
-        const tctx = this._temp_context(frameWidth, frameHeight);
-        tctx.globalAlpha = 1;
-        tctx.globalCompositeOperation = "source-over";
-        tctx.fillStyle = color;
-        tctx.fillRect(0, 0, frameWidth, frameHeight);
-        tctx.globalCompositeOperation = "destination-atop";
-        tctx.drawImage(
-          this.image,
-          this.frameX,
-          this.frameY,
-          frameWidth,
-          frameHeight,
-          0,
-          0,
-          frameWidth,
-          frameHeight
-        );
-        context.drawImage(
-          this._temp_canvas,
-          0,
-          0,
-          frameWidth,
-          frameHeight,
-          isTopLeft ? 0 : -sX / 2,
-          isTopLeft ? 0 : -sY / 2,
-          sX,
-          sY
-        );
-      } else {
-        context.fillStyle = color;
-        context.fillRect(
-          isTopLeft ? 0 : -sX / 2,
-          isTopLeft ? 0 : -sY / 2,
-          sX,
-          sY
-        );
-      }
+
+      const tctx = this._temp_context(frameWidth, frameHeight);
+      tctx.globalAlpha = 1;
+      tctx.globalCompositeOperation = "source-over";
+      tctx.fillStyle = color;
+      tctx.fillRect(0, 0, frameWidth, frameHeight);
+      tctx.globalCompositeOperation = "destination-atop";
+      tctx.drawImage(
+        this.image,
+        this.frameX,
+        this.frameY,
+        frameWidth,
+        frameHeight,
+        0,
+        0,
+        frameWidth,
+        frameHeight
+      );
+
+      context.save();
+      context.translate(this.x, this.y);
+      context.scale(this.scaleX, this.scaleY);
+      context.rotate(this.rotation);
+      context.drawImage(
+        this._temp_canvas,
+        0,
+        0,
+        frameWidth,
+        frameHeight,
+        isTopLeft ? 0 : -sX / 2,
+        isTopLeft ? 0 : -sY / 2,
+        sX,
+        sY
+      );
+      context.restore();
       this._currentTint = false;
-    });
+    }
+  }
+
+  detect(context, x, y) {
+    if (this.enabled && this.isClickable && this.clickExact) return "c";
+    return this._detectHelper(context, x, y, false);
   }
 
   // Draw-Funktion

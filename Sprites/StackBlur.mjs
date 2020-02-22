@@ -44,8 +44,8 @@ export default class StackBlur extends FastBlur {
     this._tctx.putImageData(imageData, 0, 0);
   }
 
-  detect(context, color) {
-    this._detectHelper(context, color, false);
+  detect(context, x, y) {
+    return this._detectHelper(context, x, y, false);
   }
 
   // draw-methode
@@ -63,7 +63,10 @@ export default class StackBlur extends FastBlur {
         this._currentRadiusPart = this.radiusPart;
       }
       const radius = Math.round(
-        this.radius * (this.radiusScale && ((additionalModifier.cam ? additionalModifier.cam.zoom : 1) / additionalModifier.scaleCanvas))
+        this.radius *
+          (this.radiusScale &&
+            (additionalModifier.cam ? additionalModifier.cam.zoom : 1) /
+              additionalModifier.scaleCanvas)
       );
       if (radius) {
         if (this.onCanvas) {

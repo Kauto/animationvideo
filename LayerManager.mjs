@@ -41,7 +41,9 @@ class LayerManager {
     const l = this._layers.length;
     for (i = 0; i < l; i++) {
       if (this._layers[i].isCanvasId(canvasId)) {
-        this._layers[i].forEach(callback, i);
+        if (this._layers[i].forEach(callback, i) === false) {
+          break;
+        }
       }
     }
   }
@@ -57,7 +59,7 @@ class LayerManager {
     let result = []
     this.forEach(({element, isFunction}) => {
       if (!isFunction) {
-        const ans = element.getElementsByTag(aTag)
+        const ans = element.getElementsByTag(tag)
         if (ans) {
           result = result.concat(ans)
         }

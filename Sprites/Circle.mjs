@@ -116,7 +116,8 @@ export default class Circle {
 
   resize(output, additionalModifier) {}
 
-  _detectHelper(context, color, moveToCenter, callback) {
+  _detectHelper(context, x, y, moveToCenter, callback) {
+    let a = false;
     if (this.enabled && this.isClickable) {
       const hw = this.width / 2;
       const hh = this.height / 2;
@@ -128,19 +129,23 @@ export default class Circle {
       }
       context.scale(this.scaleX, this.scaleY);
       context.rotate(this.rotation);
+      context.beginPath();
       if (callback) {
-        callback(hw, hh);
+        a = callback(hw, hh);
       } else {
-        context.fillStyle = color;
-        context.fillRect(-hw, -hh, this.width, this.height);
+        context.rect(-hw, -hh, this.width, this.height);
+        context.closePath();
+        a = context.isPointInPath(x, y);
       }
       context.restore();
     }
+    return a ? this : false;
   }
 
-  detect(context, color) {
-    this._detectHelper(context, color, false, () => {
-      context.fillStyle = color;
+  detectDraw(context, color) {}
+
+  detect(context, x, y) {
+    return this._detectHelper(context, x, y, false, () => {
       context.arc(
         0,
         0,
@@ -149,7 +154,7 @@ export default class Circle {
         Math.PI * 2.5 - this.rotation,
         false
       );
-      context.fill();
+      return context.isPointInPath(x, y);
     });
   }
 

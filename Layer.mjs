@@ -105,17 +105,32 @@ class Layer {
     for (index = this._start; index < l; index++) {
       element = this._layer[index];
       if (element) {
-        callback({
+        if (callback({
           elementId: index,
           layerId,
           element,
           isFunction: this._isFunction[index],
           layer: this
-        });
+        }) === false) {
+          return
+        }
       }
     }
   }
 
+  getElementsByTag (tag) {
+    let result = []
+    this.forEach(({element, isFunction}) => {
+      if (!isFunction) {
+        const ans = element.getElementsByTag(tag)
+        if (ans) {
+          result = result.concat(ans)
+        }
+      }
+    })
+    return result
+  }
+  
   play(label = "", timelapsed = 0) {
     this.forEach(
       ({ element, isFunction }) =>

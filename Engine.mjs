@@ -207,11 +207,11 @@ class Engine {
       window.cancelAnimationFrame(this._referenceRequestAnimationFrame);
       this._referenceRequestAnimationFrame = false;
     }
-    await new Promise(resolve => requestAnimationFrame(resolve))
-    const start = this._now()
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    const start = this._now();
     const count = 3;
-    for (let i = count; i--;) {
-      await new Promise(resolve => requestAnimationFrame(resolve))
+    for (let i = count; i--; ) {
+      await new Promise(resolve => requestAnimationFrame(resolve));
     }
 
     const timeBetweenFrames = (this._now() - start) / count;
@@ -250,17 +250,22 @@ class Engine {
       this._mainLoop.bind(this)
     );
 
-    let isRecalculatedCanvas = this._recalculateCanvasIntend && (!this._reduceFramerate || !this._isOddFrame)
+    let isRecalculatedCanvas =
+      this._recalculateCanvasIntend &&
+      (!this._reduceFramerate || !this._isOddFrame);
 
     if (isRecalculatedCanvas) {
       this._recalculateCanvas();
       this._recalculateCanvasIntend = false;
     }
-    
+
     for (let i = 0; i < this._canvasCount; i++) {
-      this._drawFrame[i] = Math.max(this._drawFrame[i] - 1, isRecalculatedCanvas ? 1 : 0);
+      this._drawFrame[i] = Math.max(
+        this._drawFrame[i] - 1,
+        isRecalculatedCanvas ? 1 : 0
+      );
     }
-    
+
     if (!this._realLastTimestamp) {
       this._realLastTimestamp = timestamp;
     }
@@ -309,19 +314,38 @@ class Engine {
 
         if (this._isSceneInitialized) {
           const moveFrame = timePassed !== 0 || this._moveOnce;
-          this._moveOnce = false
-          const drawFrame = this._scene.isDrawFrame(this._output, timePassed);
-          if (Array.isArray(drawFrame)) {
-            for (let i = 0; i < this._canvasCount; i++) {
-              this._drawFrame[i] = Math.max(this._drawFrame[i], drawFrame[i]);
-            }
-          } else {
-            for (let i = 0; i < this._canvasCount; i++) {
-              this._drawFrame[i] = Math.max(this._drawFrame[i], drawFrame);
+          this._moveOnce = false;
+
+          const nowAutoSize = this._now();
+
+          if (this._output.canvas[0].width) {
+            for (let index = 0; index < this._canvasCount; index++) {
+              this._normalizeContext(this._output.context[index]);
+              this._scene.init(this._output, index);
+              this._scene.detect(this._output, index);
             }
           }
 
-          const nowAutoSize = this._now();
+          const drawFrame = this._scene.isDrawFrame(this._output, timePassed);
+          const detectFrame = this._scene.hasDetectImage();
+          if (Array.isArray(drawFrame)) {
+            for (let i = 0; i < this._canvasCount; i++) {
+              this._drawFrame[i] = Math.max(
+                this._drawFrame[i],
+                drawFrame[i],
+                detectFrame
+              );
+            }
+          } else {
+            for (let i = 0; i < this._canvasCount; i++) {
+              this._drawFrame[i] = Math.max(
+                this._drawFrame[i],
+                drawFrame,
+                detectFrame
+              );
+            }
+          }
+
           if (moveFrame) {
             this._scene.move(this._output, timePassed);
           }
@@ -329,8 +353,7 @@ class Engine {
           if (this._output.canvas[0].width) {
             for (let index = 0; index < this._canvasCount; index++) {
               if (this._drawFrame[index]) {
-                this._normalizeContext(this._output.context[index]);
-                this._scene.init(this._output, index);
+                this._scene.detectImage(this._output, index);
                 this._scene.draw(this._output, index);
               }
             }
@@ -348,22 +371,22 @@ class Engine {
               const deltaFrame = this._now() - nowAutoSize;
               const delta =
                 (Math.abs(deltaTimestamp - targetTime) >
-                  Math.abs(deltaFrame - targetTime)
+                Math.abs(deltaFrame - targetTime)
                   ? deltaTimestamp
                   : deltaFrame) - targetTime;
               if (Math.abs(delta) <= this._autoSize.offsetTimeDelta) {
                 this._autoSize.currentOffsetTime =
                   this._autoSize.currentOffsetTime >= 0
                     ? Math.max(
-                      0,
-                      this._autoSize.currentOffsetTime -
-                      this._autoSize.offsetTimeDelta
-                    )
+                        0,
+                        this._autoSize.currentOffsetTime -
+                          this._autoSize.offsetTimeDelta
+                      )
                     : Math.min(
-                      0,
-                      this._autoSize.currentOffsetTime +
-                      this._autoSize.offsetTimeDelta
-                    );
+                        0,
+                        this._autoSize.currentOffsetTime +
+                          this._autoSize.offsetTimeDelta
+                      );
               } else {
                 if (
                   delta < 0 &&
@@ -421,19 +444,18 @@ class Engine {
     }
     this._realLastTimestamp = timestamp;
   }
-  
+
   async run(runParameter) {
     this._runParameter = runParameter || {};
-
 
     await this.stop();
 
     this._realLastTimestamp = this._initializedStartTime = false;
 
     if (this._autoSize && !this._autoSize.offsetTimeTarget) {
-      await this.recalculateFPS()
+      await this.recalculateFPS();
     }
-    
+
     // First call ever
     this._referenceRequestAnimationFrame = window.requestAnimationFrame(
       this._mainLoop.bind(this)
@@ -446,11 +468,11 @@ class Engine {
     this._referenceRequestAnimationFrame &&
       window.cancelAnimationFrame(this._referenceRequestAnimationFrame);
     this._referenceRequestAnimationFrame = null;
-    this._scene && await this._scene.destroy(this._output);
+    this._scene && (await this._scene.destroy(this._output));
   }
 
   async destroy() {
-    await this.stop()
+    await this.stop();
     this._events.forEach(v => {
       v.n.removeEventListener(v.e, v.f);
     });

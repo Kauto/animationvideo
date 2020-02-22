@@ -19,7 +19,9 @@ export default class SceneNormCamera extends SceneNorm {
         enabled: true,
         callResize: true,
         doubleClickDetectInterval: 350,
-        alternative: false
+        alternative: false,
+        clickElement: !!this._configuration.clickElement,
+        hoverElement: !!this._configuration.hoverElement
       },
       calc(this._configuration.cam) || {}
     );
@@ -68,7 +70,7 @@ export default class SceneNormCamera extends SceneNorm {
   }
 
   camInstant() {
-    this._instant = true
+    this._instant = true;
   }
 
   camTween(tween) {
@@ -135,18 +137,136 @@ export default class SceneNormCamera extends SceneNorm {
     return super.fixedUpdate(output, timePassed, lastCall);
   }
 
-  isDrawFrame(output, timePassed) {
-    let drawFrame = super.isDrawFrame(output, timePassed);
+  detect(output, canvasId) {
+    this._hasDetectImage = false;
     if (this._clickIntend || this._hoverIntend) {
-      if (Array.isArray(drawFrame)) {
-        drawFrame[0] = Math.max(1, drawFrame[0]);
+      const isClick = !!this._clickIntend;
+      const { mx, my } = this._clickIntend || this._hoverIntend;
+      const scale = this._additionalModifier.scaleCanvas;
+      const ctx = output.context[canvasId];
+      const cx = Math.round(mx / scale);
+      const cy = Math.round(my / scale);
+      const [x, y] = this.transformPoint(mx, my);
+
+      ctx.save();
+      ctx.setTransform(...this._getViewport().m);
+      let found = null;
+      this._layerManager.forEach(
+        ({ layerId, element, isFunction, elementId }) => {
+          if (!isFunction) {
+            const a = element.detect(ctx, cx, cy);
+            if (a === "c") {
+              found = "c";
+            } else if (a) {
+              found = { layerId, element: a, elementId };
+              return false;
+            }
+          }
+        }
+      );
+      ctx.restore();
+
+      if (found === "c") {
+        this._hasDetectImage = true;
       } else {
-        drawFrame = Math.max(1, drawFrame);
+        this._clickIntend = false;
+        this._hoverIntend = false;
+        const param = {
+          mx,
+          my,
+          x,
+          y,
+          scene: this,
+          engine: this._engine,
+          imageManager: this._imageManager,
+          layerManager: this._layerManager
+        };
+        if (found) {
+          Object.assign(param, found);
+          if (isClick) {
+            this._configuration.clickElement && this._configuration.clickElement(param);
+          } else {
+            this._configuration.hoverElement && this._configuration.hoverElement(param);
+          }
+        } else {
+          if (isClick) {
+            this._configuration.clickNonElement && this._configuration.clickNonElement(param);
+          } else {
+            this._configuration.hoverNonElement && this._configuration.hoverNonElement(param);
+          }
+        }
       }
     }
-    return drawFrame;
   }
 
+  detectImage(output, canvasId) {
+    if (!canvasId && this._hasDetectImage) {
+      const isClick = !!this._clickIntend;
+      const { mx, my } = this._clickIntend || this._hoverIntend;
+      const scale = this._additionalModifier.scaleCanvas;
+      const ctx = output.context[canvasId];
+      const cx = Math.round(mx / scale);
+      const cy = Math.round(my / scale);
+      const [x, y] = this.transformPoint(mx, my);
+      const param = {
+        mx,
+        my,
+        x,
+        y,
+        scene: this,
+        engine: this._engine,
+        imageManager: this._imageManager,
+        layerManager: this._layerManager
+      };
+
+      const oldISE = ctx.imageSmoothingEnabled;
+      ctx.imageSmoothingEnabled = false;
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.save();
+
+      ctx.setTransform(...this._getViewport().m);
+
+      this._layerManager.forEach(
+        ({ layerId, element, isFunction, elementId }) => {
+          if (!isFunction) {
+            const color = `rgb(${elementId & 0xff}, ${(elementId & 0xff00) >>
+              8}, ${layerId & 0xff})`;
+            element.detectDraw(ctx, color);
+          }
+        },
+        0
+      );
+      ctx.restore();
+      ctx.imageSmoothingEnabled = oldISE;
+      this._engine._normalizeContext(ctx);
+
+      this._clickIntend = false;
+      this._hoverIntend = false;
+
+      const p = ctx.getImageData(cx, cy, 1, 1).data;
+      if (p[3]) {
+        param.layerId = p[2];
+        param.elementId = p[0] + (p[1] << 8);
+        param.element = this._layerManager.getById(param.layerId).getById(param.elementId);
+        if (isClick) {
+          this._configuration.clickElement && this._configuration.clickElement(param);
+        } else {
+          this._configuration.hoverElement && this._configuration.hoverElement(param);
+        }
+      } else {
+        if (isClick) {
+          this._configuration.clickNonElement && this._configuration.clickNonElement(param);
+        } else {
+          this._configuration.hoverNonElement && this._configuration.hoverNonElement(param);
+        }
+      }
+    }
+  }
+
+  hasDetectImage() {
+    return this._hasDetectImage ? 1 : 0;
+  }
+  
   move(output, timePassed) {
     const ret = super.move(output, timePassed);
     if ((!this.camConfig.tween || this._instant) && this.hasCamChanged()) {
@@ -160,100 +280,6 @@ export default class SceneNormCamera extends SceneNorm {
       }
     }
     return ret;
-  }
-
-  draw(output, canvasId) {
-    if (!canvasId && (this._clickIntend || this._hoverIntend)) {
-      const scale = this._additionalModifier.scaleCanvas;
-      const ctx = output.context[canvasId];
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      ctx.save();
-
-      ctx.setTransform(...this._getViewport().m);
-
-      this._layerManager.forEach(
-        ({ layerId, element, isFunction, elementId }) => {
-          if (!isFunction) {
-            const color = `rgb(${elementId & 0xff}, ${(elementId & 0xff00) >>
-              8}, ${layerId & 0xff})`;
-            element.detect(ctx, color);
-          }
-        },
-        0
-      );
-      ctx.restore();
-      let p = [];
-      if (this._clickIntend) {
-        const { mx, my } = this._clickIntend;
-        p = ctx.getImageData(
-          Math.round(mx / scale),
-          Math.round(my / scale),
-          1,
-          1
-        ).data;
-        if (p[3]) {
-          const layerId = p[2];
-          const elementId = p[0] + (p[1] << 8);
-          const element = this._layerManager
-            .getById(layerId)
-            .getById(elementId);
-          const [x, y] = this.transformPoint(mx, my);
-          this._configuration.clickElement({
-            element,
-            layerId,
-            elementId,
-            mx,
-            my,
-            x,
-            y,
-            scene: this,
-            engine: this._engine,
-            imageManager: this._imageManager
-          });
-        } else if (this._configuration.clickNonElement) {
-          const [x, y] = this.transformPoint(mx, my);
-          this._configuration.clickNonElement({
-            mx,
-            my,
-            x,
-            y,
-            scene: this,
-            engine: this._engine,
-            imageManager: this._imageManager
-          });
-        }
-        this._clickIntend = false;
-      }
-      if (!p[3] && this._hoverIntend) {
-        const { mx, my } = this._hoverIntend;
-        p = ctx.getImageData(
-          Math.round(mx / scale),
-          Math.round(my / scale),
-          1,
-          1
-        ).data;
-        if (p[3]) {
-          const layerIndex = p[2];
-          const index = p[0] + (p[1] << 8);
-          const element = this._layerManager.getById(layerIndex).getById(index);
-          const [x, y] = this.transformPoint(mx, my);
-          this._configuration.hoverElement({
-            element,
-            layerIndex,
-            index,
-            mx,
-            my,
-            x,
-            y,
-            scene: this,
-            engine: this._engine,
-            imageManager: this._imageManager
-          });
-        }
-        this._hoverIntend = false;
-      }
-    }
-    super.draw(output, canvasId);
   }
 
   resize(output) {
@@ -400,7 +426,7 @@ export default class SceneNormCamera extends SceneNorm {
       !i // i === 0
     ) {
       const [x, y] = this.transformPoint(mx, my);
-      this._clickIntend = this._configuration.clickElement && { mx, my };
+      this._clickIntend = this.camConfig.clickElement && { mx, my };
       if (this._configuration.doubleClick) {
         if (this._mousePos[i]._doubleClickTimer) {
           clearTimeout(this._mousePos[i]._doubleClickTimer);
@@ -473,7 +499,7 @@ export default class SceneNormCamera extends SceneNorm {
     if (this.camConfig.preventDefault) e.preventDefault();
     const i = this._getMouseButton(e);
     const [mx, my] = this._getMousePosition(e);
-    this._hoverIntend = this._configuration.hoverElement && { mx, my };
+    this._hoverIntend = this.camConfig.hoverElement && { mx, my };
     if (this._configuration.mouseMove) {
       const [x, y] = this.transformPoint(mx, my);
       this._configuration.mouseMove({
@@ -597,8 +623,10 @@ export default class SceneNormCamera extends SceneNorm {
   }
   zoomToFullScreen() {
     this.toCam.zoom = Math.min(
-      this._additionalModifier.fullScreen.width / this._additionalModifier.width,
-      this._additionalModifier.fullScreen.height / this._additionalModifier.height
+      this._additionalModifier.fullScreen.width /
+        this._additionalModifier.width,
+      this._additionalModifier.fullScreen.height /
+        this._additionalModifier.height
     );
     return this;
   }

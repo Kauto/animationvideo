@@ -1,4 +1,4 @@
-import Circle from './Circle.mjs';
+import Circle from "./Circle.mjs";
 
 export default class Group extends Circle {
   constructor(givenParameter) {
@@ -12,14 +12,14 @@ export default class Group extends Circle {
   }
 
   getElementsByTag(tag) {
-    let result = super.getElementsByTag(tag)
+    let result = super.getElementsByTag(tag);
     for (const sprite of this.sprite) {
       const ans = sprite.getElementsByTag(tag);
       if (ans) {
-        result = result.concat(ans)
+        result = result.concat(ans);
       }
-    } 
-    return result
+    }
+    return result;
   }
 
   // overwrite change
@@ -61,11 +61,29 @@ export default class Group extends Circle {
 
   callInit(context, additionalModifier) {
     if (this.enabled) {
-      super.callInit(context, additionalModifier)
-      for(let sprite of this.sprite) {
+      super.callInit(context, additionalModifier);
+      for (let sprite of this.sprite) {
         sprite.callInit(context, additionalModifier);
       }
     }
+  }
+
+  detectImage(context, color) {
+    if (this.enabled) {
+      for (const sprite of this.sprite) {
+        sprite.detectImage(context, color);
+      }
+    }
+  }
+
+  detect(context, x, y) {
+    if (this.enabled) {
+      for (const sprite of this.sprite) {
+        const a = sprite.detect(context, x, y);
+        if (a) return a;
+      }
+    }
+    return false;
   }
 
   // draw-methode

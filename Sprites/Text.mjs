@@ -16,8 +16,12 @@ class Text extends Circle {
     });
   }
 
-  detect(context, color) {
-    this._detectHelper(context, color, false, () => {
+  detectDraw(context, color) {
+    if (this.enabled && this.isClickable) {
+      context.save();
+      context.translate(this.x, this.y);
+      context.scale(this.scaleX, this.scaleY);
+      context.rotate(this.rotation);
       if (!this.position) {
         context.textAlign = 'left';
         context.textBaseline = 'top';
@@ -25,7 +29,12 @@ class Text extends Circle {
       context.font = this.font;
       context.fillStyle = color;
       context.fillText(this.text, 0, 0);
-    });
+      context.restore();
+    }
+  }
+
+  detect(context, color) {
+    return "c"
   }
 
   // draw-methode
