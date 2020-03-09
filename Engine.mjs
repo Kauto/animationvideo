@@ -246,6 +246,7 @@ class Engine {
   }
 
   _mainLoop(timestamp) {
+    if (!this._referenceRequestAnimationFrame) return
     this._referenceRequestAnimationFrame = window.requestAnimationFrame(
       this._mainLoop.bind(this)
     );
@@ -465,8 +466,7 @@ class Engine {
   }
 
   async stop() {
-    this._referenceRequestAnimationFrame &&
-      window.cancelAnimationFrame(this._referenceRequestAnimationFrame);
+    window.cancelAnimationFrame(this._referenceRequestAnimationFrame);
     this._referenceRequestAnimationFrame = null;
     this._scene && (await this._scene.destroy(this._output));
   }

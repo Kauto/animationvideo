@@ -179,7 +179,8 @@ export default class SceneNormCamera extends SceneNorm {
           scene: this,
           engine: this._engine,
           imageManager: this._imageManager,
-          layerManager: this._layerManager
+          layerManager: this._layerManager,
+          output
         };
         if (found) {
           Object.assign(param, found);
@@ -216,7 +217,8 @@ export default class SceneNormCamera extends SceneNorm {
         scene: this,
         engine: this._engine,
         imageManager: this._imageManager,
-        layerManager: this._layerManager
+        layerManager: this._layerManager,
+        output
       };
 
       const oldISE = ctx.imageSmoothingEnabled;

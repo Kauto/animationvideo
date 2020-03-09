@@ -208,7 +208,6 @@ class Scene {
     this._timing.totalTimePassed += timePassed;
 
     if (this._resetIntend) {
-      this._resetIntend = false;
       this.reset()
     // Jump back?
   } else if (timePassed < 0) {
@@ -309,6 +308,7 @@ class Scene {
 
   reset() {
     this._timing.totalTimePassed = 0;
+    this._resetIntend = false;
     let result = this._configuration.reset
       ? this._configuration.reset({
           engine: this._engine,
