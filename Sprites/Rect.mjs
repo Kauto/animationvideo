@@ -67,7 +67,7 @@ class Rect extends Circle {
 
   // Draw-Funktion
   draw(context, additionalModifier) {
-    if (this.enabled) {
+    if (this.enabled && this.alpha > 0) {
       context.globalCompositeOperation = this.compositeOperation;
       context.globalAlpha = this.alpha * additionalModifier.alpha;
       if (this.rotation === 0 && this.position === Rect.LEFT_TOP) {

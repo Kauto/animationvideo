@@ -34,7 +34,7 @@
   "homepage": "http://intergenies.com/programs/nodejs/animationvideo",
   "license": "MIT",
   "dependencies": {
-    "@ctrl/tinycolor": "^2.6.0",
+    "@ctrl/tinycolor": "^2.6.1",
     "eases": "^1.0.8",
     "pasition": "^1.0.3",
     "stackblur-canvas": "^2.2.0"

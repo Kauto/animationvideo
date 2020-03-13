@@ -146,7 +146,7 @@ class Image extends Circle {
 
   // Draw-Funktion
   draw(context, additionalModifier) {
-    if (this.enabled && this.image) {
+    if (this.enabled && this.image && this.alpha > 0) {
       const frameWidth = this.frameWidth || this.image.width,
         frameHeight = this.frameHeight || this.image.height;
       const sX =

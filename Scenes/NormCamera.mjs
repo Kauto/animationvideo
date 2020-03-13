@@ -137,6 +137,48 @@ export default class SceneNormCamera extends SceneNorm {
     return super.fixedUpdate(output, timePassed, lastCall);
   }
 
+  _dispatchEvent(isClick, param) {
+    if (isClick) {
+      if (this._configuration.doubleClickElement) {
+        if (this._doubleClickElementTimer) {
+          clearTimeout(this._doubleClickElementTimer);
+          this._doubleClickElementTimer = undefined;
+          this._configuration.doubleClickElement(param);
+        } else {
+          this._doubleClickElementTimer = setTimeout(() => {
+            this._doubleClickElementTimer = undefined;
+            this._configuration.clickElement && this._configuration.clickElement(param);
+          }, this.camConfig.doubleClickDetectInterval);
+        }
+      } else {
+        this._configuration.clickElement && this._configuration.clickElement(param);
+      }
+    } else {
+      this._configuration.hoverElement && this._configuration.hoverElement(param);
+    }
+  }
+
+  _dispatchNonEvent(isClick, param) {
+    if (isClick) {
+      if (this._configuration.doubleClickElement) {
+        if (this._doubleClickElementTimer) {
+          clearTimeout(this._doubleClickElementTimer);
+          this._doubleClickElementTimer = undefined;
+          this._configuration.doubleClickElement(param);
+        } else {
+          this._doubleClickElementTimer = setTimeout(() => {
+            this._doubleClickElementTimer = undefined;
+            this._configuration.clickNonElement && this._configuration.clickNonElement(param);
+          }, this.camConfig.doubleClickDetectInterval);
+        }
+      } else {
+        this._configuration.clickNonElement && this._configuration.clickNonElement(param);
+      }
+    } else {
+      this._configuration.hoverNonElement && this._configuration.hoverNonElement(param);
+    }
+  }
+
   detect(output, canvasId) {
     this._hasDetectImage = false;
     if (this._clickIntend || this._hoverIntend) {
@@ -184,17 +226,9 @@ export default class SceneNormCamera extends SceneNorm {
         };
         if (found) {
           Object.assign(param, found);
-          if (isClick) {
-            this._configuration.clickElement && this._configuration.clickElement(param);
-          } else {
-            this._configuration.hoverElement && this._configuration.hoverElement(param);
-          }
+          this._dispatchEvent(isClick, param);
         } else {
-          if (isClick) {
-            this._configuration.clickNonElement && this._configuration.clickNonElement(param);
-          } else {
-            this._configuration.hoverNonElement && this._configuration.hoverNonElement(param);
-          }
+          this._dispatchNonEvent(isClick, param);
         }
       }
     }
@@ -249,18 +283,12 @@ export default class SceneNormCamera extends SceneNorm {
       if (p[3]) {
         param.layerId = p[2];
         param.elementId = p[0] + (p[1] << 8);
-        param.element = this._layerManager.getById(param.layerId).getById(param.elementId);
-        if (isClick) {
-          this._configuration.clickElement && this._configuration.clickElement(param);
-        } else {
-          this._configuration.hoverElement && this._configuration.hoverElement(param);
-        }
+        param.element = this._layerManager
+          .getById(param.layerId)
+          .getById(param.elementId);
+        this._dispatchEvent(isClick, param);
       } else {
-        if (isClick) {
-          this._configuration.clickNonElement && this._configuration.clickNonElement(param);
-        } else {
-          this._configuration.hoverNonElement && this._configuration.hoverNonElement(param);
-        }
+        this._dispatchNonEvent(isClick, param);
       }
     }
   }
@@ -268,7 +296,7 @@ export default class SceneNormCamera extends SceneNorm {
   hasDetectImage() {
     return this._hasDetectImage ? 1 : 0;
   }
-  
+
   move(output, timePassed) {
     const ret = super.move(output, timePassed);
     if ((!this.camConfig.tween || this._instant) && this.hasCamChanged()) {
