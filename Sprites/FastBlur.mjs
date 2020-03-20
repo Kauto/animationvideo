@@ -31,7 +31,7 @@ export default class FastBlur extends Circle {
     });
   }
 
-  generateTempCanvas(additionalModifier) {
+  _generateTempCanvas(additionalModifier) {
     const w = additionalModifier.widthInPixel;
     const h = additionalModifier.heightInPixel;
     this._temp_canvas = document.createElement("canvas");
@@ -66,7 +66,7 @@ export default class FastBlur extends Circle {
   resize(output, additionalModifier) {
     if (this._temp_canvas && this._currentGridSize !== this.gridSize) {
       const oldTempCanvas = this._temp_canvas;
-      this.generateTempCanvas(additionalModifier);
+      this._generateTempCanvas(additionalModifier);
       this._tctx.globalCompositeOperation = "copy";
       this._tctx.drawImage(
         oldTempCanvas,
@@ -89,13 +89,13 @@ export default class FastBlur extends Circle {
   }
 
   init(context, additionalModifier) {
-    this.generateTempCanvas(additionalModifier);
+    this._generateTempCanvas(additionalModifier);
     this.normalizeFullScreen(additionalModifier);
   }
 
   // draw-methode
   draw(context, additionalModifier) {
-    if (this.enabled) {
+    if (this.enabled && this.alpha > 0) {
       if (this.gridSize && this._currentGridSize !== this.gridSize) {
         this.resize(context, additionalModifier);
       }
@@ -134,10 +134,13 @@ export default class FastBlur extends Circle {
 
         // optional: clear screen
         if (this.clear) {
+          context.globalCompositeOperation = "source-over";
+          context.globalAlpha = 1;
           context.clearRect(this.x, this.y, w, h);
         }
         context.globalCompositeOperation = this.compositeOperation;
         context.globalAlpha = a;
+        const oldValue = context.imageSmoothingEnabled;
         context.imageSmoothingEnabled = !this.pixel;
         context.drawImage(
           this._temp_canvas,
@@ -150,7 +153,7 @@ export default class FastBlur extends Circle {
           w,
           h
         );
-        context.imageSmoothingEnabled = true;
+        context.imageSmoothingEnabled = oldValue;
       }
     } else {
       // optional: clear screen

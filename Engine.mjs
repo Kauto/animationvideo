@@ -321,9 +321,11 @@ class Engine {
 
           if (this._output.canvas[0].width) {
             for (let index = 0; index < this._canvasCount; index++) {
-              this._normalizeContext(this._output.context[index]);
+              const ctx = this._output.context[index];
+              this._normalizeContext(ctx);
               this._scene.init(this._output, index);
               this._scene.detect(this._output, index);
+              //this._normalizeContext(ctx);
             }
           }
 

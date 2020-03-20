@@ -31,7 +31,7 @@ export default class Canvas extends Group {
     });
   }
 
-  generateTempCanvas(additionalModifier) {
+  _generateTempCanvas(additionalModifier) {
     const w = additionalModifier.widthInPixel;
     const h = additionalModifier.heightInPixel;
     this._temp_canvas = document.createElement("canvas");
@@ -71,7 +71,7 @@ export default class Canvas extends Group {
       !this.canvasWidth
     ) {
       const oldTempCanvas = this._temp_canvas;
-      this.generateTempCanvas(additionalModifier);
+      this._generateTempCanvas(additionalModifier);
       this._tctx.globalCompositeOperation = "copy";
       this._tctx.drawImage(
         oldTempCanvas,
@@ -96,7 +96,7 @@ export default class Canvas extends Group {
   }
 
   init(context, additionalModifier) {
-    this.generateTempCanvas(additionalModifier);
+    this._generateTempCanvas(additionalModifier);
     this.normalizeFullScreen(additionalModifier);
   }
 

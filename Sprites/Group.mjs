@@ -60,11 +60,9 @@ export default class Group extends Circle {
   }
 
   callInit(context, additionalModifier) {
-    if (this.enabled) {
-      super.callInit(context, additionalModifier);
-      for (let sprite of this.sprite) {
-        sprite.callInit(context, additionalModifier);
-      }
+    super.callInit(context, additionalModifier);
+    for (let sprite of this.sprite) {
+      sprite.callInit(context, additionalModifier);
     }
   }
 

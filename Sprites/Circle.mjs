@@ -108,7 +108,7 @@ export default class Circle {
   init(context, additionalModifier) {}
 
   callInit(context, additionalModifier) {
-    if (this.enabled && this._needInit) {
+    if (this._needInit) {
       this.init(context, additionalModifier);
       this._needInit = false;
     }

@@ -1,5 +1,6 @@
 import Circle from "./Circle.mjs";
-import TinyColor from "@ctrl/tinycolor";
+import * as TinyColorImport from "@ctrl/tinycolor";
+const { TinyColor } = TinyColorImport.default || TinyColorImport;
 
 const gradientSize = 64;
 const gradientResolution = 4;
