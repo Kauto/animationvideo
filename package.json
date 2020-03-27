@@ -1,7 +1,7 @@
 {
   "name": "animationvideo",
   "amdName": "AnimationVideo",
-  "version": "0.24.4",
+  "version": "0.24.5",
   "description": "Javascript-Libary for animation and audio syncing",
   "main": "dist/animationvideo.js",
   "browser": "dist/animationvideo.umd.js",
