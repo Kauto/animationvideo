@@ -1,6 +1,6 @@
 import Circle from "./Circle.mjs";
-import * as TinyColorImport from "@ctrl/tinycolor";
-const { TinyColor } = TinyColorImport.default || TinyColorImport;
+import tinycolor from "@ctrl/tinycolor";
+const tinycolorf = typeof(tinycolor) === 'function' ? tinycolor : tinycolor.tinycolor
 
 const gradientSize = 64;
 const gradientResolution = 4;
@@ -99,7 +99,7 @@ class Particle extends Circle {
     if (this.enabled) {
       // faster than: if (!(this.color instanceof TinyColor && this.color.model === 'rgb')) {
       if (!this.color || !this.color.r) {
-        this.color = new TinyColor(this.color).toRgb();
+        this.color = tinycolorf(this.color).toRgb();
       }
       if (this._currentScaleX !== this.scaleX) {
         this._currentScaleX = this.scaleX;
