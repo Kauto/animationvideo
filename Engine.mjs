@@ -63,7 +63,7 @@ class Engine {
       const defaultAutoSizeSettings = {
         enabled: true,
         scaleLimitMin: 1,
-        scaleLimitMax: 3,
+        scaleLimitMax: 2.5,
         scaleFactor: 1.07,
         referenceWidth: () => this._output.canvas[0].clientWidth,
         referenceHeight: () => this._output.canvas[0].clientHeight,
