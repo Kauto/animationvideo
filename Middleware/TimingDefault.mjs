@@ -1,7 +1,10 @@
 import calc from "../func/calc.mjs";
-import ifNull from "../func/ifnull.mjs";
+import ifNull from "../func/ifNull.mjs";
 
 export default class TimingDefault {
+  enabled = true;
+  type = "timing";
+
   constructor(configuration = {}) {
     this._configuration = configuration;
     this._tickChunk = ifNull(calc(this._configuration.tickChunk), 100 / 6);
@@ -17,18 +20,13 @@ export default class TimingDefault {
     this.totalTimePassed = 0;
   }
 
-  init() {
-  }
-
-  isLoaded() {
-    return true;
-  }
+  init() {}
 
   currentTime() {
     return window.performance ? performance.now() : Date.now();
   }
 
-  clampTime(timePassed) {
+  clampTime({ timePassed }) {
     const maxTime = this._tickChunk
       ? this._tickChunk * this._maxSkippedTickChunk
       : 2000;
@@ -38,7 +36,7 @@ export default class TimingDefault {
     return timePassed;
   }
 
-  shiftTime(timePassed) {
+  shiftTime({ timePassed }) {
     return this._tickChunk ? -(timePassed % this._tickChunk) : 0;
   }
 
@@ -50,16 +48,14 @@ export default class TimingDefault {
     return this._tickChunk;
   }
 
-  hasOneChunkedFrame(timePassed) {
-    return timePassed >= this._tickChunk - this._tickChunkTolerance
+  hasOneChunkedFrame({ timePassed }) {
+    return timePassed >= this._tickChunk - this._tickChunkTolerance;
   }
 
-  calcFrames(timePassed) {
+  calcFrames({ timePassed }) {
     return Math.min(
       this._maxSkippedTickChunk,
-      Math.floor(
-        (timePassed + this._tickChunkTolerance) / this._tickChunk
-      )
-    )
+      Math.floor((timePassed + this._tickChunkTolerance) / this._tickChunk)
+    );
   }
 }

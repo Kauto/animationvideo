@@ -1,6 +1,7 @@
-import TimingDefault from "./Default.mjs";
+import TimingDefault from "./TimingDefault.mjs";
 
-export default class TimingAuto extends TimingDefault {
+export default class TimingAudio extends TimingDefault {
+  enabled = true;
   constructor(configuration = {}) {
     super(configuration);
     this._maxSkippedTickChunk = Number.POSITIVE_INFINITY;
@@ -11,7 +12,7 @@ export default class TimingAuto extends TimingDefault {
   }
 
   get audioElement() {
-    return this._audioElement
+    return this._audioElement;
   }
 
   init() {
@@ -22,27 +23,26 @@ export default class TimingAuto extends TimingDefault {
         this._enableAndroidHack = true;
       }
       this._audioElement.preload = "auto";
-      this._audioElement.load();
+      return new Promise(resolve => {
+        let canplaythrough = () => {
+          this._audioElement.removeEventListener(
+            "canplaythrough",
+            canplaythrough
+          );
+          let playPromise = this._audioElement.play();
+          if (playPromise) {
+            playPromise.catch(e => {});
+          }
+          resolve();
+        };
+        this._audioElement.addEventListener("canplaythrough", canplaythrough);
+        this._audioElement.load();
+      });
     }
   }
 
-  isLoaded() {
-    if (this._audioElement) {
-      if (
-        !(this._audioElement.readyState >= this._audioElement.HAVE_ENOUGH_DATA)
-      ) {
-        return false;
-      } else {
-        let playPromise = this._audioElement.play();
-        if (playPromise) {
-          playPromise.catch(e => {});
-        }
-        if (this._audioElement.duration > 0) {
-          return this._audioElement.duration * 1000;
-        }
-      }
-    }
-    return true;
+  endTime() {
+    return this._audioElement.duration * 1000;
   }
 
   currentTime() {

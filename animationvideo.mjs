@@ -1,23 +1,18 @@
 import Engine from './Engine.mjs';
-import Scenes from './Scenes.mjs';
+import Scene from './Scene.mjs';
 import ImageManager from './ImageManager.mjs';
 import Sprites from './Sprites.mjs';
 import Animations from './Animations.mjs';
 import Easing from 'eases';
-import Default from './Timing/Default.mjs';
-import Audio from './Timing/Audio.mjs';
+import Middleware from './Middleware.mjs';
 
-const Timing = {
-  Default,
-  Audio
-}
 
 export {
   Engine,
-  Scenes,
+  Scene,
   ImageManager,
   Sprites,
   Animations,
   Easing,
-  Timing
+  Middleware
 };

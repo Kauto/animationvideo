@@ -1,4 +1,4 @@
-import ifNull from "../func/ifnull.mjs";
+import ifNull from "../func/ifNull.mjs";
 import calc from "../func/calc.mjs";
 import Sequence from "../Animations/Sequence.mjs";
 

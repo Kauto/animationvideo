@@ -1,4 +1,5 @@
 import calc from "./func/calc.mjs";
+import toArray from "./func/toArray.mjs";
 
 class Engine {
   constructor(canvasOrOptions) {
@@ -55,9 +56,7 @@ class Engine {
     this._referenceRequestAnimationFrame = null;
 
     // data about the output canvas
-    this._output.canvas = Array.isArray(options.canvas)
-      ? options.canvas
-      : [options.canvas];
+    this._output.canvas = toArray(options.canvas);
 
     if (options.autoSize) {
       const defaultAutoSizeSettings = {
@@ -148,7 +147,7 @@ class Engine {
     }
   }
 
-  _normalizeContext(ctx) {
+  normContext(ctx) {
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
     ctx.globalAlpha = 1;
@@ -228,7 +227,7 @@ class Engine {
 
   resize() {
     if (this._scene && this._scene.resize) {
-      this._scene.resize(this._output);
+      this._scene.resize();
     }
     return this;
   }
@@ -276,11 +275,10 @@ class Engine {
 
     if (this._newScene && !this._promiseSceneDestroying) {
       this._promiseSceneDestroying = Promise.resolve(
-        this._scene ? this._scene.destroy(this._output) : {}
+        this._scene ? this._scene.destroy() : {}
       );
       this._promiseSceneDestroying.then(destroyParameterForNewScene => {
         this._newScene.callInit(
-          this._output,
           {
             run: this._runParameter,
             scene: this._sceneParameter,
@@ -322,15 +320,13 @@ class Engine {
           if (this._output.canvas[0].width) {
             for (let index = 0; index < this._canvasCount; index++) {
               const ctx = this._output.context[index];
-              this._normalizeContext(ctx);
-              this._scene.init(this._output, index);
-              this._scene.detect(this._output, index);
-              //this._normalizeContext(ctx);
+              this.normContext(ctx);
+              this._scene.initSprites(index);
+              //this.normContext(ctx);
             }
           }
 
-          const drawFrame = this._scene.isDrawFrame(this._output, timePassed);
-          const detectFrame = this._scene.hasDetectImage();
+          const drawFrame = this._scene.isDrawFrame(timePassed);
           if (Array.isArray(drawFrame)) {
             for (let i = 0; i < this._canvasCount; i++) {
               this._drawFrame[i] = Math.max(
@@ -350,14 +346,13 @@ class Engine {
           }
 
           if (moveFrame) {
-            this._scene.move(this._output, timePassed);
+            this._scene.move(timePassed);
           }
 
           if (this._output.canvas[0].width) {
             for (let index = 0; index < this._canvasCount; index++) {
               if (this._drawFrame[index]) {
-                this._scene.detectImage(this._output, index);
-                this._scene.draw(this._output, index);
+                this._scene.draw(index);
               }
             }
           }
@@ -427,10 +422,9 @@ class Engine {
           }
         } else {
           for (let i = 0; i < this._canvasCount; i++) {
-            this._normalizeContext(this._output.context[i]);
+            this.normContext(this._output.context[i]);
           }
           this._isSceneInitialized = this._scene.callLoading({
-            output: this._output,
             timePassed: timestamp - this._realLastTimestamp,
             totalTimePassed: timestamp - this._initializedStartTime
           });
@@ -470,7 +464,7 @@ class Engine {
   async stop() {
     window.cancelAnimationFrame(this._referenceRequestAnimationFrame);
     this._referenceRequestAnimationFrame = null;
-    this._scene && (await this._scene.destroy(this._output));
+    this._scene && (await this._scene.destroy());
   }
 
   async destroy() {

@@ -1,5 +1,5 @@
 import calc from '../func/calc.mjs';
-import ifNull from "../func/ifnull.mjs";
+import ifNull from "../func/ifNull.mjs";
 
 export default class WaitDisabled {
 
