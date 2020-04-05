@@ -1,13 +1,17 @@
+import Transform from '../func/Transform.mjs'
+
 export default class Camera {
-  enabled = true;
-  type = "camera";
-  cam = {
-    zoom: 1,
-    x: 0,
-    y: 0
-  };
+  constructor() {
+    this.type = "camera";
+    this.cam = {
+      zoom: 1,
+      x: 0,
+      y: 0,
+    };
+  }
 
   viewport({}, matrix) {
+    console.log(this.cam)
     return matrix
       .scale(this.cam.zoom, this.cam.zoom)
       .translate(-this.cam.x, -this.cam.y);
@@ -32,7 +36,7 @@ export default class Camera {
       x2: additionalModifier.x + additionalModifier.width,
       y2: additionalModifier.y + additionalModifier.height,
       _w: additionalModifier.width,
-      _h: additionalModifier.height
+      _h: additionalModifier.height,
     };
     return additionalModifier;
   }
@@ -42,7 +46,7 @@ export default class Camera {
       x1: scene.additionalModifier.x,
       y1: scene.additionalModifier.y,
       x2: scene.additionalModifier.x + scene.additionalModifier.width,
-      y2: scene.additionalModifier.y + scene.additionalModifier.height
+      y2: scene.additionalModifier.y + scene.additionalModifier.height,
     };
     const invert = this.viewportByCam({ engine }, cam).invert();
     const [x1, y1] = invert.transformPoint(0, 0);
@@ -129,7 +133,7 @@ export default class Camera {
         scene.additionalModifier.height
     );
   }
-  
+
   zoomTo({ scene, engine, cam, x1, y1, x2, y2 }) {
     const scale = scene.additionalModifier.scaleCanvas;
     const invert = this.viewportByCam({ engine }, cam).invert();
@@ -149,7 +153,8 @@ export default class Camera {
     return {
       x: mx,
       y: my,
-      zoom: this.toCam.zoom * Math.max(Math.min(zoomX, zoomY), Number.MIN_VALUE)
+      zoom:
+        this.toCam.zoom * Math.max(Math.min(zoomX, zoomY), Number.MIN_VALUE),
     };
   }
 }

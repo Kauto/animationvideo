@@ -2,10 +2,8 @@ import calc from "../func/calc.mjs";
 import ifNull from "../func/ifNull.mjs";
 
 export default class TimingDefault {
-  enabled = true;
-  type = "timing";
-
   constructor(configuration = {}) {
+    this.type = "timing";
     this._configuration = configuration;
     this._tickChunk = ifNull(calc(this._configuration.tickChunk), 100 / 6);
     this._maxSkippedTickChunk = ifNull(

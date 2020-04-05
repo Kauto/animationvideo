@@ -1,9 +1,8 @@
 export default class Click {
-  enabled = true;
   /*
     _doubleClickElementTimer = undefined;
   */
-  constructor({ doubleClickDetectInterval = 350 }) {
+  constructor({ doubleClickDetectInterval = 350 } = {}) {
     this._doubleClickDetectInterval = doubleClickDetectInterval;
   }
 

@@ -1,6 +1,21 @@
 export default class Events {
-  enabled = true;
-  type = "events";
+  constructor() {
+    this.type = "events";
+  }
+
+
+  _pushEvent(command, event, scene) {
+    if (scene.value("preventDefault")) event.preventDefault();
+    const [mx, my] = this.getMousePosition({ event });
+    const [x, y] = scene.transformPoint(mx, my);
+    scene.pipeBack(command, {
+      event,
+      position: [mx, my],
+      x,
+      y,
+      button: this.getMouseButton({ event }),
+    });
+  }
 
   init({ output, scene }) {
     const element = output.canvas[0];
@@ -10,76 +25,42 @@ export default class Events {
       [
         scene.value("preventDefault") && [
           ["contextmenu"],
-          e => e.preventDefault()
+          (e) => e.preventDefault(),
         ],
         scene.has("mouseDown") && [
           ["touchstart", "mousedown"],
-          event => {
-            if (scene.value("preventDefault")) event.preventDefault();
-            scene.pipeBack("mouseDown", {
-              event,
-              position: this.getMousePosition({event}),
-              button: this.getMouseButton({event})
-            });
-          }
+          (event) => this._pushEvent("mouseDown", event, scene),
         ],
         scene.has("mouseUp") && [
           ["touchend", "mouseup"],
-          event =>{
-            if (scene.value("preventDefault")) event.preventDefault();
-            scene.pipeBack("mouseUp", {
-              event,
-              position: this.getMousePosition({event}),
-              button: this.getMouseButton({event})
-            })
-          }
+          (event) => this._pushEvent("mouseUp", event, scene),
         ],
         scene.has("mouseOut") && [
           ["touchendoutside", "mouseout"],
-          event =>{
-            if (scene.value("preventDefault")) event.preventDefault();
-            scene.pipeBack("mouseOut", {
-              event,
-              position: this.getMousePosition({event}),
-              button: this.getMouseButton({event})
-            })
-          }
+          (event) => this._pushEvent("mouseOut", event, scene),
         ],
         scene.has("mouseMove") && [
           ["touchmove", "mousemove"],
-          event =>{
-            if (scene.value("preventDefault")) event.preventDefault();
-            scene.pipeBack("mouseMove", {
-              event,
-              position: this.getMousePosition({event}),
-              button: this.getMouseButton({event})
-            })
-          }
+          (event) => this._pushEvent("mouseMove", event, scene),
         ],
         scene.has("mouseWheel") && [
           ["wheel"],
-          event =>{
-            if (scene.value("preventDefault")) event.preventDefault();
-            scene.pipeBack("mouseWheel", {
-              event,
-              position: this.getMousePosition({event}),
-              button: this.getMouseButton({event})
-            })
-          }
-        ]
-      ].filter(v => v)
+          (event) => this._pushEvent("mouseWheel", event, scene),
+        ],
+      ].filter((v) => v)
     );
 
     this._events = events
       .filter(Array.isArray)
       .reduce((acc, cur) => {
         acc.push.apply(acc, cur);
+        return acc;
       }, [])
       .map(([events, func]) =>
-        events.map(e => ({
+        events.map((e) => ({
           n: element,
           e: e,
-          f: func
+          f: func,
         }))
       )
       // workaround for .flat(1) for edge
@@ -92,19 +73,19 @@ export default class Events {
         return acc;
       }, []);
 
-    this._events.forEach(v => {
+    this._events.forEach((v) => {
       v.n.addEventListener(v.e, v.f, true);
     });
   }
 
   destroy() {
-    this._events.forEach(v => {
+    this._events.forEach((v) => {
       v.n.removeEventListener(v.e, v.f, true);
     });
     this._events = [];
   }
 
-  getMousePosition({event: e}) {
+  getMousePosition({ event: e }) {
     let touches;
     if (e.touches && e.touches.length > 0) {
       touches = e.targetTouches;
@@ -117,7 +98,7 @@ export default class Events {
       touches = Array.from(touches);
       return [
         touches.reduce((sum, v) => sum + v.pageX, 0) / length - rect.left,
-        touches.reduce((sum, v) => sum + v.pageY, 0) / length - rect.top
+        touches.reduce((sum, v) => sum + v.pageY, 0) / length - rect.top,
       ];
     }
     if (e.offsetX === undefined) {
@@ -127,14 +108,7 @@ export default class Events {
     return [e.offsetX, e.offsetY];
   }
 
-  
-  getMouseButton({event: e}) {
-    return this.camConfig.alternative
-      ? e.which
-        ? e.which - 1
-        : e.button || 0
-      : 0;
+  getMouseButton({ event: e }) {
+    return e.which ? e.which - 1 : e.button || 0;
   }
-
-
 }

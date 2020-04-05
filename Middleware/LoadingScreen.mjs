@@ -1,5 +1,4 @@
 export default class LoadingScreen {
-  enabled = true;
   loading({ output, progress }) {
     const ctx = output.context[0];
     const loadedHeight =

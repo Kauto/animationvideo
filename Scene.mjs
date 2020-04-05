@@ -2,6 +2,7 @@ import ImageManager from "./ImageManager.mjs";
 import LayerManager from "./LayerManager.mjs";
 import calc from "./func/calc.mjs";
 import toArray from "./func/toArray.mjs";
+import Transform from "./func/transform.mjs";
 import TimingDefault from "./Middleware/TimingDefault.mjs";
 
 class Scene {
@@ -20,32 +21,36 @@ class Scene {
 
     this.middlewares = configurationClassOrObjects;
     if (!this.middlewareByType("timing")) {
-      this.middleware = [TimingDefault, ...this.middlewares];
+      this.middlewares = [TimingDefault, ...this.middlewares];
     }
+  }
+
+  get _output() {
+    return this._engine.getOutput()
   }
 
   set middlewares(middlewares) {
     this._middleware = toArray(middlewares)
-      .map(configurationClassOrObject =>
+      .map((configurationClassOrObject) =>
         typeof configurationClassOrObject === "function"
           ? new configurationClassOrObject()
           : configurationClassOrObject
       )
       .reduce(
         (middlewareCommandList, c) => {
-          for (command of Object.keys(middlewareCommandList)) {
+          for (let command of Object.keys(middlewareCommandList)) {
             if (command in c) {
               middlewareCommandList[command].push(c);
             }
           }
           middlewareCommandList._all.push(c);
-          if (c.type === "camera") middlewareCommandList._camera = c;
-          if (c.type === "timing") middlewareCommandList._timing = c;
+          if (!("enabled" in c)) c.enabled = true;
+          if (c.type) middlewareCommandList[`_${c.type}`] = c;
           return middlewareCommandList;
         },
         {
+          _all: [],
           init: [],
-          events: [],
           isDrawFrame: [],
           initSprites: [],
           fixedUpdate: [],
@@ -61,16 +66,17 @@ class Scene {
           hasOneChunkedFrame: [],
           calcFrames: [],
           tickChunk: [],
-          additionalModifier: []
+          additionalModifier: [],
         }
       );
+      console.log(this._middleware)
   }
   get middlewares() {
     return this._middleware._all;
   }
 
   middlewareByType(type) {
-    const objs = this._middleware._all.filter(c => c.type == type);
+    const objs = this._middleware._all.filter((c) => c.type == type);
     if (objs.length) {
       return objs[objs.length - 1];
     }
@@ -79,15 +85,15 @@ class Scene {
   has(command) {
     return (
       command in this._middleware ||
-      this._middleware._all.filter(c => command in c).length > 0
+      this._middleware._all.filter((c) => command in c).length > 0
     );
   }
 
   do(command, params, defaultValue, func) {
     let objs =
       this._middleware[command] ||
-      this._middleware._all.filter(c => command in c);
-    objs = objs.filter(v => v.enabled);
+      this._middleware._all.filter((c) => command in c);
+    objs = objs.filter((v) => v.enabled);
     if (!objs.length) {
       return defaultValue;
     }
@@ -97,7 +103,7 @@ class Scene {
 
   map(command, params = {}) {
     return this.do(command, params, [], (objs, fullParams) =>
-      objs.map(c => c[command](fullParams))
+      objs.map((c) => c[command](fullParams))
     );
   }
 
@@ -136,7 +142,7 @@ class Scene {
           if (Array.isArray(res)) {
             res = res.map((v, i) => Math.max(v, newRes[i]));
           } else {
-            res = newRes.map(v => Math.max(v, res));
+            res = newRes.map((v) => Math.max(v, res));
           }
         } else {
           if (Array.isArray(res)) {
@@ -166,8 +172,8 @@ class Scene {
   value(command, params = {}) {
     let objs =
       this._middleware[command] ||
-      this._middleware._all.filter(c => command in c);
-    objs.filter(v => v.enabled);
+      this._middleware._all.filter((c) => command in c);
+    objs.filter((v) => v.enabled);
     if (!objs.length) {
       return undefined;
     }
@@ -208,9 +214,7 @@ class Scene {
 
   transformPoint(x, y, scale = this._additionalModifier.scaleCanvas) {
     if (!this._transformInvert) {
-      this._transformInvert = this.viewport()
-        .clone()
-        .invert();
+      this._transformInvert = this.viewport().clone().invert();
     }
     return this._transformInvert.transformPoint(x * scale, y * scale);
   }
@@ -218,15 +222,15 @@ class Scene {
   callInit(parameter, engine) {
     this._engine = engine;
     this.resize();
-    const images = calc(this._configuration.images);
+    const images = this.value("images");
     if (images) {
       this._imageManager.add(images);
     }
     Promise.all(
       this.map("init", {
-        parameter
+        parameter,
       })
-    ).then(res => (this._initDone = true));
+    ).then((res) => (this._initDone = true));
   }
 
   get additionalModifier() {
@@ -234,6 +238,7 @@ class Scene {
   }
 
   updateAdditionalModifier() {
+    const output = this._output;
     this._additionalModifier = this.pipe(
       "additionalModifier",
       {},
@@ -250,20 +255,20 @@ class Scene {
           x: 0,
           y: 0,
           width: output.width,
-          height: output.height
+          height: output.height,
         },
         fullScreen: {
           x: 0,
           y: 0,
           width: output.width,
-          height: output.height
-        }
+          height: output.height,
+        },
       }
     );
   }
 
   resize() {
-    const output = this._engine.getOutput();
+    const output = this._output;
     this.updateAdditionalModifier();
     this.pipe("resize");
     this._layerManager.forEach(({ element, isFunction }) => {
@@ -274,18 +279,21 @@ class Scene {
   }
 
   async destroy() {
-    this._destroyEvents();
     const parameter = await this.pipeAsync("destroy");
     this._initDone = false;
     return parameter;
   }
 
   get timing() {
-    return this.middleware._timing;
+    return this._middleware._timing;
   }
 
   get camera() {
-    return this.middleware._camera;
+    return this._middleware._camera;
+  }
+
+  get control() {
+    return this._middleware._control;
   }
 
   get totalTimePassed() {
@@ -299,8 +307,8 @@ class Scene {
       imageManager: this._imageManager,
       layerManager: this._layerManager,
       totalTimePassed: this._totalTimePassed,
-      output: this._engine && this._engine.getOutput(),
-      ...additionalParameter
+      output: this._engine && this._output,
+      ...additionalParameter,
     };
   }
 
@@ -309,7 +317,7 @@ class Scene {
       this._endTime = this.value("endTime");
       args.progress = "Click to play";
       this.value("loading", {
-        args
+        args,
       });
       return true;
     }
@@ -318,7 +326,7 @@ class Scene {
       : "Loading...";
 
     this.value("loading", {
-      args
+      args,
     });
     return false;
   }
@@ -326,7 +334,7 @@ class Scene {
   fixedUpdate(timePassed, lastCall) {
     this.map("fixedUpdate", {
       timePassed,
-      lastCall
+      lastCall,
     });
   }
 
@@ -356,7 +364,7 @@ class Scene {
     if (this.value("isChunked")) {
       if (this.value("hasOneChunkedFrame", { timePassed })) {
         // how many frames should be skipped. Maximum is a skip of 2 frames
-        const frames = this.value.calcFrames(timePassed) - 1;
+        const frames = this.value('calcFrames', {timePassed}) - 1;
         for (let calcFrame = 0; calcFrame <= frames; calcFrame++) {
           this.fixedUpdate(this.value("tickChunk"), calcFrame === frames);
         }
@@ -378,9 +386,9 @@ class Scene {
 
   draw(canvasId) {
     this.map("draw", { canvasId });
-    const context = this._engine.getOutput().context[canvasId];
+    const context = this._output.context[canvasId];
     context.save();
-
+    
     context.setTransform(...this.viewport().m);
 
     this._layerManager.forEach(
@@ -392,7 +400,7 @@ class Scene {
                 layerId,
                 elementId,
                 layer,
-                context
+                context,
               })
             )
           ) {
@@ -409,13 +417,13 @@ class Scene {
   }
 
   initSprites(canvasId) {
-    const context = this._engine.getOutput().context[canvasId];
+    const context = this._output.context[canvasId];
     this._layerManager.forEach(({ element, isFunction }) => {
       if (!isFunction) {
         element.callInit(context, this._additionalModifier);
       }
     }, canvasId);
-    this._callMiddleware("initSprites", { canvasId });
+    this.map("initSprites", { canvasId });
   }
 
   resetIntend() {
@@ -431,15 +439,16 @@ class Scene {
         engine: this._engine,
         scene: this,
         layerManager: this._layerManager,
-        imageManager: this._imageManager
+        imageManager: this._imageManager,
       },
       new LayerManager()
     );
 
+    console.log(result);
     if (Array.isArray(result)) {
       const layers = result;
       result = new LayerManager();
-      layers.forEach(v => {
+      layers.forEach((v) => {
         result.addLayer().addElements(v);
       });
     }

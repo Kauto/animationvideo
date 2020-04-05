@@ -1,8 +1,6 @@
 import CameraControl from "./CameraControl.mjs";
 
 export default class CameraControlSecondButton extends CameraControl {
-  enabled = true;
-
   mouseUp({ event: e, position: [mx, my], button: i, scene }) {
     if (!this._mousePos[i]) {
       this._mousePos[i] = {};

@@ -1,7 +1,6 @@
 import TimingDefault from "./TimingDefault.mjs";
 
 export default class TimingAudio extends TimingDefault {
-  enabled = true;
   constructor(configuration = {}) {
     super(configuration);
     this._maxSkippedTickChunk = Number.POSITIVE_INFINITY;
@@ -23,7 +22,7 @@ export default class TimingAudio extends TimingDefault {
         this._enableAndroidHack = true;
       }
       this._audioElement.preload = "auto";
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         let canplaythrough = () => {
           this._audioElement.removeEventListener(
             "canplaythrough",
@@ -31,7 +30,7 @@ export default class TimingAudio extends TimingDefault {
           );
           let playPromise = this._audioElement.play();
           if (playPromise) {
-            playPromise.catch(e => {});
+            playPromise.catch((e) => {});
           }
           resolve();
         };
@@ -88,11 +87,11 @@ export default class TimingAudio extends TimingDefault {
     }
   }
 
-  clampTime(timePassed) {
+  clampTime({ timePassed }) {
     return timePassed;
   }
 
-  shiftTime(timePassed) {
+  shiftTime() {
     return 0;
   }
 }

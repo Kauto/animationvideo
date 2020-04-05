@@ -1,12 +1,11 @@
 export default class Element {
-  enabled = true;
   /*
   _clickIntend = false;
   _hoverIntend = false;
   _hasDetectImage = false;
   _doubleClickElementTimer = undefined;
   */
-  constructor({ doubleClickDetectInterval = 350 }) {
+  constructor({ doubleClickDetectInterval = 350 } = {}) {
     this._doubleClickDetectInterval = doubleClickDetectInterval;
   }
 

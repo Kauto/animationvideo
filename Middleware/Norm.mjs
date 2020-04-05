@@ -1,5 +1,6 @@
+import Transform from '../func/Transform.mjs'
+
 export default class Norm {
-  enabled = true;
   viewport({ engine }, matrix) {
     const hw = engine.getWidth() / 2;
     const hh = engine.getHeight() / 2;
@@ -7,8 +8,8 @@ export default class Norm {
     return matrix.translate(hw, hh).scale(scale, scale);
   }
 
-  additionalModifier({output, scene}) {
-    scene.cacheClear()
+  additionalModifier({ engine, output, scene }) {
+    scene.cacheClear();
     const additionalModifier = {
       alpha: 1,
       x: -1,
@@ -17,7 +18,7 @@ export default class Norm {
       height: 2,
       widthInPixel: output.width,
       heightInPixel: output.height,
-      scaleCanvas: output.width / output.canvas[0].clientWidth
+      scaleCanvas: output.width / output.canvas[0].clientWidth,
     };
     const [x1, y1] = scene.transformPoint(0, 0, 1);
     const [x2, y2] = scene.transformPoint(output.width, output.height, 1);
@@ -25,13 +26,12 @@ export default class Norm {
       x: x1,
       y: y1,
       width: x2 - x1,
-      height: y2 - y1
+      height: y2 - y1,
     };
-    const transformInvert = scene.viewport({
-      x: 0,
-      y: 0,
-      zoom: 1
-    }).invert();
+    const hw = engine.getWidth() / 2;
+    const hh = engine.getHeight() / 2;
+    const scale = engine.getRatio() > 1 ? hw : hh;
+    const transformInvert = new Transform().translate(hw, hh).scale(scale, scale).invert();
     const [sx1, sy1] = transformInvert.transformPoint(0, 0, 1);
     const [sx2, sy2] = transformInvert.transformPoint(
       output.width,
@@ -42,7 +42,9 @@ export default class Norm {
       x: sx1,
       y: sy1,
       width: sx2 - sx1,
-      height: sy2 - sy1
+      height: sy2 - sy1,
     };
+
+    return additionalModifier;
   }
 }

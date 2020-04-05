@@ -1,11 +1,11 @@
-export default class CameraControl {
-  enabled = true;
 
+const clickTime = 300;
+export default class CameraControl {
   constructor(config = {}) {
+    this.type = "control";
     this._mousePos = {};
     this.toCam = {};
     this.config = Object.assign(
-      {},
       {
         zoomMax: 10,
         zoomMin: 0.5,
@@ -122,7 +122,7 @@ export default class CameraControl {
     }
   }
 
-  mouseWheel({ event: e, position: [mx, my], button: i, scene }) {
+  mouseWheel({ event: e, position: [mx, my], scene }) {
     if (this.config.preventDefault) e.preventDefault();
     if (this.config.enabled) {
       const scale = scene.additionalModifier.scaleCanvas;
@@ -150,15 +150,19 @@ export default class CameraControl {
     return (
       Math.abs(this.toCam.x - this._scene.camera.cam.x) >= Number.EPSILON * t ||
       Math.abs(this.toCam.y - this._scene.camera.cam.y) >= Number.EPSILON * t ||
-      Math.abs(this.toCam.zoom - this._scene.camera.cam.zoom) >= Number.EPSILON * t
+      Math.abs(this.toCam.zoom - this._scene.camera.cam.zoom) >=
+        Number.EPSILON * t
     );
   }
 
-  fixedUpdate({ scene, output, timePassed, lastCall }) {
+  fixedUpdate({ scene, lastCall }) {
     if (this.config.tween && !this._instant && this.hasCamChanged()) {
-      scene.camera.cam.x += (this.toCam.x - scene.camera.cam.x) / this.config.tween;
-      scene.camera.cam.y += (this.toCam.y - scene.camera.cam.y) / this.config.tween;
-      scene.camera.cam.zoom += (this.toCam.zoom - scene.camera.cam.zoom) / this.config.tween;
+      scene.camera.cam.x +=
+        (this.toCam.x - scene.camera.cam.x) / this.config.tween;
+      scene.camera.cam.y +=
+        (this.toCam.y - scene.camera.cam.y) / this.config.tween;
+      scene.camera.cam.zoom +=
+        (this.toCam.zoom - scene.camera.cam.zoom) / this.config.tween;
       if (lastCall) {
         scene.additionalModifier.cam = this.cam;
         if (this.config.callResize) {
@@ -187,7 +191,7 @@ export default class CameraControl {
   }
 
   resize(args) {
-    this.toCam = scene.camera.clampView(args, this.toCam);
+    this.toCam = args.scene.camera.clampView(args, this.toCam);
   }
 
   zoomToNorm() {
