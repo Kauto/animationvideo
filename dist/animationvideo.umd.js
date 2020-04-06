@@ -7976,22 +7976,22 @@
 	    var _this = this;
 
 	    if (isClick) {
-	      if (scene.has('doubleClickElement')) {
+	      if (scene.has("doubleClickElement")) {
 	        if (this._doubleClickElementTimer) {
 	          clearTimeout(this._doubleClickElementTimer);
 	          this._doubleClickElementTimer = 0;
-	          scene.map('doubleClickElement', param);
+	          scene.map("doubleClickElement", param);
 	        } else {
 	          this._doubleClickElementTimer = setTimeout(function () {
 	            _this._doubleClickElementTimer = 0;
-	            scene.map('clickElement', param);
+	            scene.map("clickElement", param);
 	          }, this._doubleClickDetectInterval);
 	        }
 	      } else {
-	        scene.map('clickElement', param);
+	        scene.map("clickElement", param);
 	      }
 	    } else {
-	      scene.map('hoverElement', param);
+	      scene.map("hoverElement", param);
 	    }
 	  };
 
@@ -7999,26 +7999,26 @@
 	    var _this2 = this;
 
 	    if (isClick) {
-	      if (scene.has('doubleClickNonElement')) {
+	      if (scene.has("doubleClickNonElement")) {
 	        if (this._doubleClickElementTimer) {
 	          clearTimeout(this._doubleClickElementTimer);
 	          this._doubleClickElementTimer = undefined;
-	          scene.map('doubleClickNonElement', param);
+	          scene.map("doubleClickNonElement", param);
 	        } else {
 	          this._doubleClickElementTimer = setTimeout(function () {
 	            _this2._doubleClickElementTimer = undefined;
-	            scene.map('clickNonElement', param);
+	            scene.map("clickNonElement", param);
 	          }, this._doubleClickDetectInterval);
 	        }
 	      } else {
-	        scene.map('clickNonElement', param);
+	        scene.map("clickNonElement", param);
 	      }
 	    } else {
-	      scene.map('hoverNonElement', param);
+	      scene.map("hoverNonElement", param);
 	    }
 	  };
 
-	  _proto.initSprite = function initSprite(_ref2) {
+	  _proto.initSprites = function initSprites(_ref2) {
 	    var scene = _ref2.scene,
 	        output = _ref2.output,
 	        layerManager = _ref2.layerManager,
@@ -8026,6 +8026,7 @@
 	    this._hasDetectImage = false;
 
 	    if (this._clickIntend || this._hoverIntend) {
+	      console.log(this._clickIntend, this._hoverIntend);
 	      var isClick = !!this._clickIntend;
 
 	      var _ref3 = this._clickIntend || this._hoverIntend,
@@ -8109,9 +8110,9 @@
 	      var cx = Math.round(mx / scale);
 	      var cy = Math.round(my / scale);
 
-	      var _this$transformPoint = this.transformPoint(mx, my),
-	          x = _this$transformPoint[0],
-	          y = _this$transformPoint[1];
+	      var _scene$transformPoint2 = scene.transformPoint(mx, my),
+	          x = _scene$transformPoint2[0],
+	          y = _scene$transformPoint2[1];
 
 	      var param = {
 	        mx: mx,
@@ -8159,10 +8160,11 @@
 	        _ref8$position = _ref8.position,
 	        mx = _ref8$position[0],
 	        my = _ref8$position[1];
-	    this._clickIntend = scene.has('clickElement') && {
+	    this._clickIntend = scene.has("clickElement") && {
 	      mx: mx,
 	      my: my
 	    };
+	    console.log('clickEl', this._clickIntend);
 	  };
 
 	  _proto.mouseMove = function mouseMove(_ref9) {
@@ -8170,7 +8172,7 @@
 	        _ref9$position = _ref9.position,
 	        mx = _ref9$position[0],
 	        my = _ref9$position[1];
-	    this._hoverIntend = scene.has('hoverElement') && {
+	    this._hoverIntend = scene.has("hoverElement") && {
 	      mx: mx,
 	      my: my
 	    };

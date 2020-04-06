@@ -15,49 +15,50 @@ export default class Element {
 
   _dispatchEvent(scene, isClick, param) {
     if (isClick) {
-      if (scene.has('doubleClickElement')) {
+      if (scene.has("doubleClickElement")) {
         if (this._doubleClickElementTimer) {
           clearTimeout(this._doubleClickElementTimer);
           this._doubleClickElementTimer = 0;
-          scene.map('doubleClickElement', param);
+          scene.map("doubleClickElement", param);
         } else {
           this._doubleClickElementTimer = setTimeout(() => {
             this._doubleClickElementTimer = 0;
-            scene.map('clickElement', param);
+            scene.map("clickElement", param);
           }, this._doubleClickDetectInterval);
         }
       } else {
-        scene.map('clickElement', param);
+        scene.map("clickElement", param);
       }
     } else {
-      scene.map('hoverElement', param);
+      scene.map("hoverElement", param);
     }
   }
 
   _dispatchNonEvent(scene, isClick, param) {
     if (isClick) {
-      if (scene.has('doubleClickNonElement')) {
+      if (scene.has("doubleClickNonElement")) {
         if (this._doubleClickElementTimer) {
           clearTimeout(this._doubleClickElementTimer);
           this._doubleClickElementTimer = undefined;
-          scene.map('doubleClickNonElement', param);
+          scene.map("doubleClickNonElement", param);
         } else {
           this._doubleClickElementTimer = setTimeout(() => {
             this._doubleClickElementTimer = undefined;
-            scene.map('clickNonElement', param);
+            scene.map("clickNonElement", param);
           }, this._doubleClickDetectInterval);
         }
       } else {
-        scene.map('clickNonElement', param);
+        scene.map("clickNonElement", param);
       }
     } else {
-      scene.map('hoverNonElement', param);
+      scene.map("hoverNonElement", param);
     }
   }
 
-  initSprite({ scene, output, layerManager, canvasId }) {
+  initSprites({ scene, output, layerManager, canvasId }) {
     this._hasDetectImage = false;
     if (this._clickIntend || this._hoverIntend) {
+      console.log(this._clickIntend, this._hoverIntend);
       const isClick = !!this._clickIntend;
       const { mx, my } = this._clickIntend || this._hoverIntend;
       const scale = scene.additionalModifier.scaleCanvas;
@@ -69,19 +70,17 @@ export default class Element {
       ctx.save();
       ctx.setTransform(...scene.viewport().m);
       let found = 0;
-      layerManager.forEach(
-        ({ layerId, element, isFunction, elementId }) => {
-          if (!isFunction) {
-            const a = element.detect(ctx, cx, cy);
-            if (a === "c") {
-              found = "c";
-            } else if (a) {
-              found = { layerId, element: a, elementId };
-              return false;
-            }
+      layerManager.forEach(({ layerId, element, isFunction, elementId }) => {
+        if (!isFunction) {
+          const a = element.detect(ctx, cx, cy);
+          if (a === "c") {
+            found = "c";
+          } else if (a) {
+            found = { layerId, element: a, elementId };
+            return false;
           }
         }
-      );
+      });
       ctx.restore();
 
       if (found === "c") {
@@ -93,7 +92,7 @@ export default class Element {
           mx,
           my,
           x,
-          y
+          y,
         };
         if (found) {
           Object.assign(param, found);
@@ -105,13 +104,7 @@ export default class Element {
     }
   }
 
-  draw({
-    engine,
-    scene,
-    layerManager,
-    output,
-    canvasId
-  }) {
+  draw({ engine, scene, layerManager, output, canvasId }) {
     if (!canvasId && this._hasDetectImage) {
       const isClick = !!this._clickIntend;
       const { mx, my } = this._clickIntend || this._hoverIntend;
@@ -119,12 +112,12 @@ export default class Element {
       const ctx = output.context[canvasId];
       const cx = Math.round(mx / scale);
       const cy = Math.round(my / scale);
-      const [x, y] = this.transformPoint(mx, my);
+      const [x, y] = scene.transformPoint(mx, my);
       const param = {
         mx,
         my,
         x,
-        y
+        y,
       };
 
       const oldISE = ctx.imageSmoothingEnabled;
@@ -136,8 +129,9 @@ export default class Element {
 
       layerManager.forEach(({ layerId, element, isFunction, elementId }) => {
         if (!isFunction) {
-          const color = `rgb(${elementId & 0xff}, ${(elementId & 0xff00) >>
-            8}, ${layerId & 0xff})`;
+          const color = `rgb(${elementId & 0xff}, ${
+            (elementId & 0xff00) >> 8
+          }, ${layerId & 0xff})`;
           element.detectDraw(ctx, color);
         }
       }, 0);
@@ -162,11 +156,12 @@ export default class Element {
     }
   }
 
-  mouseUp({scene, position: [mx, my]}) {
-    this._clickIntend = scene.has('clickElement') && { mx, my };
+  mouseUp({ scene, position: [mx, my] }) {
+    this._clickIntend = scene.has("clickElement") && { mx, my };
+    console.log('clickEl',  this._clickIntend)
   }
 
-  mouseMove({scene, position: [mx, my]}) {
-    this._hoverIntend = scene.has('hoverElement') && { mx, my };
+  mouseMove({ scene, position: [mx, my] }) {
+    this._hoverIntend = scene.has("hoverElement") && { mx, my };
   }
 }

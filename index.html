@@ -1022,7 +1022,12 @@
           this.hideAfterTotalTimePassed = this.totalTimePassed + 1000
         },
         clickNonElement({ scene, x, y }) {
-          scene.zoomTo(x - 0.2, y - 0.2, x + 0.2, y + 0.2);
+          scene.value('zoomTo', {
+            x1: x - 0.2, 
+            y1: y - 0.2,
+            x2: x + 0.2,
+            y2: y + 0.2
+          });
         },
         doubleClick({ scene }) {
           scene.value('zoomTo', {
