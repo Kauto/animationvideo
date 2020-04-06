@@ -28,15 +28,7 @@ export default class Camera {
   }
 
   additionalModifier({}, additionalModifier) {
-    additionalModifier.cam = this.cam;
-    cl = {
-      x1: additionalModifier.x,
-      y1: additionalModifier.y,
-      x2: additionalModifier.x + additionalModifier.width,
-      y2: additionalModifier.y + additionalModifier.height,
-      _w: additionalModifier.width,
-      _h: additionalModifier.height,
-    };
+    additionalModifier.cam = {...this.cam};
     return additionalModifier;
   }
 
