@@ -45,7 +45,7 @@ class Scene {
           }
           middlewareCommandList._all.push(c);
           if (!("enabled" in c)) c.enabled = true;
-          if (c.type) middlewareCommandList[`_${c.type}`] = c;
+          if (c.type) middlewareCommandList[`t_${c.type}`] = c;
           return middlewareCommandList;
         },
         {
@@ -285,15 +285,15 @@ class Scene {
   }
 
   get timing() {
-    return this._middleware._timing;
+    return this._middleware.t_timing;
   }
 
   get camera() {
-    return this._middleware._camera;
+    return this._middleware.t_camera;
   }
 
   get control() {
-    return this._middleware._control;
+    return this._middleware.t_control;
   }
 
   get totalTimePassed() {

@@ -11,7 +11,6 @@ export default class Camera {
   }
 
   viewport({}, matrix) {
-    console.log(this.cam)
     return matrix
       .scale(this.cam.zoom, this.cam.zoom)
       .translate(-this.cam.x, -this.cam.y);

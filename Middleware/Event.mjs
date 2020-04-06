@@ -5,7 +5,7 @@ export default class Events {
 
 
   _pushEvent(command, event, scene) {
-    if (scene.value("preventDefault")) event.preventDefault();
+    if (scene.value("preventDefault") ?? true) event.preventDefault();
     const [mx, my] = this.getMousePosition({ event });
     const [x, y] = scene.transformPoint(mx, my);
     scene.pipeBack(command, {
@@ -23,7 +23,7 @@ export default class Events {
     const events = scene.map("events");
     events.push(
       [
-        scene.value("preventDefault") && [
+        (scene.value("preventDefault") ?? true) && [
           ["contextmenu"],
           (e) => e.preventDefault(),
         ],

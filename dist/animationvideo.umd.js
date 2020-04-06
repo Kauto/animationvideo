@@ -1951,7 +1951,7 @@
 	        middlewareCommandList._all.push(c);
 
 	        if (!("enabled" in c)) c.enabled = true;
-	        if (c.type) middlewareCommandList["_" + c.type] = c;
+	        if (c.type) middlewareCommandList["t_" + c.type] = c;
 	        return middlewareCommandList;
 	      }, {
 	        _all: [],
@@ -1986,17 +1986,17 @@
 	  }, {
 	    key: "timing",
 	    get: function get() {
-	      return this._middleware._timing;
+	      return this._middleware.t_timing;
 	    }
 	  }, {
 	    key: "camera",
 	    get: function get() {
-	      return this._middleware._camera;
+	      return this._middleware.t_camera;
 	    }
 	  }, {
 	    key: "control",
 	    get: function get() {
-	      return this._middleware._control;
+	      return this._middleware.t_control;
 	    }
 	  }, {
 	    key: "totalTimePassed",
@@ -7373,7 +7373,6 @@
 	  _proto.viewport = function viewport(_ref, matrix) {
 	    _objectDestructuringEmpty(_ref);
 
-	    console.log(this.cam);
 	    return matrix.scale(this.cam.zoom, this.cam.zoom).translate(-this.cam.x, -this.cam.y);
 	  };
 
@@ -7562,7 +7561,7 @@
 	  _proto.init = function init(_ref) {
 	    var scene = _ref.scene;
 	    this._scene = scene;
-	    this.toCam = scene.camera.cam;
+	    this.toCam = Object.assign({}, scene.camera.cam);
 	  };
 
 	  _proto.mouseDown = function mouseDown(_ref2) {
@@ -7669,30 +7668,26 @@
 	        mx = _ref6$position[0],
 	        my = _ref6$position[1],
 	        scene = _ref6.scene;
-	    if (this.config.preventDefault) e.preventDefault();
+	    var scale = scene.additionalModifier.scaleCanvas;
 
-	    if (this.config.enabled) {
-	      var scale = scene.additionalModifier.scaleCanvas;
+	    var _scene$camera$viewpor = scene.camera.viewportByCam(arguments[0], this.toCam).invert().transformPoint(mx * scale, my * scale),
+	        ox = _scene$camera$viewpor[0],
+	        oy = _scene$camera$viewpor[1];
 
-	      var _scene$camera$viewpor = scene.camera.viewportByCam(arguments[0], this.toCam).invert().transformPoint(mx * scale, my * scale),
-	          ox = _scene$camera$viewpor[0],
-	          oy = _scene$camera$viewpor[1];
+	    var wheelData = e.wheelDelta || e.deltaY * -1;
 
-	      var wheelData = e.wheelDelta || e.deltaY * -1;
+	    if (wheelData / 120 > 0) {
+	      this.zoomIn();
 
-	      if (wheelData / 120 > 0) {
-	        this.zoomIn();
+	      var _scene$camera$viewpor2 = scene.camera.viewportByCam(arguments[0], this.toCam).invert().transformPoint(mx * scale, my * scale),
+	          nx = _scene$camera$viewpor2[0],
+	          ny = _scene$camera$viewpor2[1];
 
-	        var _this$_getViewportByC = this._getViewportByCam(this.toCam).invert().transformPoint(mx * scale, my * scale),
-	            nx = _this$_getViewportByC[0],
-	            ny = _this$_getViewportByC[1];
-
-	        this.toCam.x -= nx - ox;
-	        this.toCam.y -= ny - oy;
-	        this.toCam = scene.camera.clampView(arguments[0], this.toCam);
-	      } else {
-	        this.zoomOut(arguments[0]);
-	      }
+	      this.toCam.x -= nx - ox;
+	      this.toCam.y -= ny - oy;
+	      this.toCam = scene.camera.clampView(arguments[0], this.toCam);
+	    } else {
+	      this.zoomOut(arguments[0]);
 	    }
 	  };
 
@@ -7757,7 +7752,7 @@
 
 	  _proto.zoomOut = function zoomOut(args) {
 	    this.toCam.zoom = Math.max(this.config.zoomMin, this.toCam.zoom / this.config.zoomFactor);
-	    this.toCam = this._scene.camera.clampView(args, this.toCam);
+	    if (args) this.toCam = this._scene.camera.clampView(args, this.toCam);
 	    return this;
 	  };
 
@@ -7923,15 +7918,10 @@
 
 	  var _proto = Click.prototype;
 
-	  _proto.mouseUp = function mouseUp(_ref2) {
+	  _proto.mouseUp = function mouseUp(param) {
 	    var _this = this;
 
-	    var event = _ref2.event,
-	        position = _ref2.position;
-	    var param = {
-	      event: event,
-	      position: position
-	    };
+	    var scene = param.scene;
 
 	    if (scene.has("doubleClick")) {
 	      if (this._doubleClickElementTimer) {
@@ -8186,7 +8176,9 @@
 	  var _proto = Events.prototype;
 
 	  _proto._pushEvent = function _pushEvent(command, event, scene) {
-	    if (scene.value("preventDefault")) event.preventDefault();
+	    var _scene$value;
+
+	    if ((_scene$value = scene.value("preventDefault")) != null ? _scene$value : true) event.preventDefault();
 
 	    var _this$getMousePositio = this.getMousePosition({
 	      event: event
@@ -8210,13 +8202,14 @@
 	  };
 
 	  _proto.init = function init(_ref) {
-	    var _this = this;
+	    var _scene$value2,
+	        _this = this;
 
 	    var output = _ref.output,
 	        scene = _ref.scene;
 	    var element = output.canvas[0];
 	    var events = scene.map("events");
-	    events.push([scene.value("preventDefault") && [["contextmenu"], function (e) {
+	    events.push([((_scene$value2 = scene.value("preventDefault")) != null ? _scene$value2 : true) && [["contextmenu"], function (e) {
 	      return e.preventDefault();
 	    }], scene.has("mouseDown") && [["touchstart", "mousedown"], function (event) {
 	      return _this._pushEvent("mouseDown", event, scene);

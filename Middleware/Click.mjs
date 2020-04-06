@@ -6,8 +6,8 @@ export default class Click {
     this._doubleClickDetectInterval = doubleClickDetectInterval;
   }
 
-  mouseUp({ event, position }) {
-    const param = { event, position };
+  mouseUp(param) {
+    const { scene } = param;
     if (scene.has("doubleClick")) {
       if (this._doubleClickElementTimer) {
         clearTimeout(this._doubleClickElementTimer);
