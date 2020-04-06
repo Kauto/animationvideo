@@ -122,24 +122,24 @@ export default class CameraControl {
   }
 
   mouseWheel({ event: e, position: [mx, my], scene }) {
-      const scale = scene.additionalModifier.scaleCanvas;
-      const [ox, oy] = scene.camera
+    const scale = scene.additionalModifier.scaleCanvas;
+    const [ox, oy] = scene.camera
+      .viewportByCam(arguments[0], this.toCam)
+      .invert()
+      .transformPoint(mx * scale, my * scale);
+    const wheelData = e.wheelDelta || e.deltaY * -1;
+    if (wheelData / 120 > 0) {
+      this.zoomIn();
+      const [nx, ny] = scene.camera
         .viewportByCam(arguments[0], this.toCam)
         .invert()
         .transformPoint(mx * scale, my * scale);
-      const wheelData = e.wheelDelta || e.deltaY * -1;
-      if (wheelData / 120 > 0) {
-        this.zoomIn();
-        const [nx, ny] = scene.camera
-          .viewportByCam(arguments[0], this.toCam)
-          .invert()
-          .transformPoint(mx * scale, my * scale);
-        this.toCam.x -= nx - ox;
-        this.toCam.y -= ny - oy;
-        this.toCam = scene.camera.clampView(arguments[0], this.toCam);
-      } else {
-        this.zoomOut(arguments[0]);
-      }
+      this.toCam.x -= nx - ox;
+      this.toCam.y -= ny - oy;
+      this.toCam = scene.camera.clampView(arguments[0], this.toCam);
+    } else {
+      this.zoomOut(arguments[0]);
+    }
   }
 
   hasCamChanged() {
@@ -209,5 +209,10 @@ export default class CameraControl {
     );
     if (args) this.toCam = this._scene.camera.clampView(args, this.toCam);
     return this;
+  }
+
+  zoomTo(params) {
+    params.cam = this.toCam;
+    params.scene.camera.zoomTo(params);
   }
 }

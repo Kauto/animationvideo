@@ -7480,7 +7480,7 @@
 	    var scale = scene.additionalModifier.scaleCanvas;
 	    var invert = this.viewportByCam({
 	      engine: engine
-	    }, cam).invert();
+	    }, cam || this.cam).invert();
 
 	    var _invert$transformPoin3 = invert.transformPoint(0, 0),
 	        sx1 = _invert$transformPoin3[0],
@@ -7498,11 +7498,19 @@
 	    var my = y1 + h / 2;
 	    var zoomX = sw / w;
 	    var zoomY = sh / h;
-	    return {
+	    var ret = {
 	      x: mx,
 	      y: my,
-	      zoom: this.toCam.zoom * Math.max(Math.min(zoomX, zoomY), Number.MIN_VALUE)
+	      zoom: cam.zoom * Math.max(Math.min(zoomX, zoomY), Number.MIN_VALUE)
 	    };
+
+	    if (cam) {
+	      cam.x = ret.x;
+	      cam.y = ret.y;
+	      cam.zoom = ret.zoom;
+	    } else {
+	      this.cam = ret;
+	    }
 	  };
 
 	  _createClass(Camera, [{
@@ -7754,6 +7762,11 @@
 	    this.toCam.zoom = Math.max(this.config.zoomMin, this.toCam.zoom / this.config.zoomFactor);
 	    if (args) this.toCam = this._scene.camera.clampView(args, this.toCam);
 	    return this;
+	  };
+
+	  _proto.zoomTo = function zoomTo(params) {
+	    params.cam = this.toCam;
+	    params.scene.camera.zoomTo(params);
 	  };
 
 	  return CameraControl;

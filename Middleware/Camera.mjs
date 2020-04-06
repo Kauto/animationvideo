@@ -1,4 +1,4 @@
-import Transform from '../func/Transform.mjs'
+import Transform from "../func/Transform.mjs";
 
 export default class Camera {
   constructor() {
@@ -135,7 +135,7 @@ export default class Camera {
 
   zoomTo({ scene, engine, cam, x1, y1, x2, y2 }) {
     const scale = scene.additionalModifier.scaleCanvas;
-    const invert = this.viewportByCam({ engine }, cam).invert();
+    const invert = this.viewportByCam({ engine }, cam || this.cam).invert();
     const [sx1, sy1] = invert.transformPoint(0, 0);
     const [sx2, sy2] = invert.transformPoint(
       engine.getWidth() * scale,
@@ -149,11 +149,17 @@ export default class Camera {
     const my = y1 + h / 2;
     const zoomX = sw / w;
     const zoomY = sh / h;
-    return {
+    const ret = {
       x: mx,
       y: my,
-      zoom:
-        this.toCam.zoom * Math.max(Math.min(zoomX, zoomY), Number.MIN_VALUE),
+      zoom: cam.zoom * Math.max(Math.min(zoomX, zoomY), Number.MIN_VALUE),
     };
+    if (cam) {
+      cam.x = ret.x;
+      cam.y = ret.y;
+      cam.zoom = ret.zoom;
+    } else {
+      this.cam = ret;
+    }
   }
 }

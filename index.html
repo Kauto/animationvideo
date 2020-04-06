@@ -1014,9 +1014,6 @@
       AnimationVideo.Middleware.CameraControl,
       AnimationVideo.Middleware.Element,
       {
-        cam: {
-          alternative: true
-        },
         clickElement({ element, x, y, mx, my }) {
           element.animation = new ANI.Sequence([
             new ANI.ChangeTo({ color: '#00F', rotationInDegree: 360, tint: 1 }, 0, Easing.quadInOut),
@@ -1028,7 +1025,12 @@
           scene.zoomTo(x - 0.2, y - 0.2, x + 0.2, y + 0.2);
         },
         doubleClick({ scene }) {
-          scene.zoomTo(-1, -1, 1, 1);
+          scene.value('zoomTo', {
+            x1: -1, 
+            y1: -1,
+            x2: 1, 
+            y2: 1
+          });
         },
         regionMove({ x1, y1, x2, y2 }) {
           this.spriteMarker.enabled = true;
