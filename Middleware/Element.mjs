@@ -58,7 +58,6 @@ export default class Element {
   initSprites({ scene, output, layerManager, canvasId }) {
     this._hasDetectImage = false;
     if (this._clickIntend || this._hoverIntend) {
-      console.log(this._clickIntend, this._hoverIntend);
       const isClick = !!this._clickIntend;
       const { mx, my } = this._clickIntend || this._hoverIntend;
       const scale = scene.additionalModifier.scaleCanvas;
@@ -156,9 +155,8 @@ export default class Element {
     }
   }
 
-  mouseUp({ scene, position: [mx, my] }) {
-    this._clickIntend = scene.has("clickElement") && { mx, my };
-    console.log('clickEl',  this._clickIntend)
+  mouseUp({ scene, position: [mx, my], button }) {
+    this._clickIntend = button === 1 && scene.has("clickElement") && { mx, my };
   }
 
   mouseMove({ scene, position: [mx, my] }) {

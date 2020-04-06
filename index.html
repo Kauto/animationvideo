@@ -27,7 +27,7 @@
       Sequence = AnimationVideo.Sequence,
       State = AnimationVideo.State,
       Easing = AnimationVideo.Easing;
-/*
+      
     var scene = new AnimationVideo.Scene({
       images: {
         arrow:
@@ -1001,7 +1001,6 @@
       })
     }).run(); // start the engine
     
-    */
     // -----------
     new AnimationVideo.Engine({
       canvas: document.getElementById("canvasCameraNorm"),
@@ -1010,9 +1009,9 @@
       AnimationVideo.Middleware.Norm,
       AnimationVideo.Middleware.Event,
       AnimationVideo.Middleware.Click,
-      AnimationVideo.Middleware.Camera,
-      AnimationVideo.Middleware.CameraControl,
       AnimationVideo.Middleware.Element,
+      AnimationVideo.Middleware.Camera,
+      AnimationVideo.Middleware.CameraControlSecondButton,
       {
         clickElement({ element, x, y, mx, my }) {
           element.animation = new ANI.Sequence([
@@ -1044,6 +1043,9 @@
           this.spriteMarker.width = x2 - x1;
           this.spriteMarker.height = y2 - y1;
           this.hideAfterTotalTimePassed = this.totalTimePassed;
+        },
+        mouseOut() {
+          this.spriteMarker.enabled = false;
         },
         region({ x1, y1, x2, y2 }) {
           this.spriteMarker.enabled = false;

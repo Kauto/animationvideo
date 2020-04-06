@@ -1,4 +1,5 @@
 import CameraControl from "./CameraControl.mjs";
+const clickTime = 300;
 
 export default class CameraControlSecondButton extends CameraControl {
   mouseUp({ event: e, position: [mx, my], button: i, scene }) {
@@ -15,38 +16,37 @@ export default class CameraControlSecondButton extends CameraControl {
     this._mousePos[i]._isDown = false;
     this._mousePos[i]._numOfFingers -= numCurrentFingers;
 
-
     if (!down || numOfFingers > 1) {
       scene.stopPropagation();
       return;
     }
 
-    if (!(
-      Date.now() - this._mousePos[i]._timestamp < clickTime &&
-      Math.abs(this._mousePos[i].x - mx) < 5 &&
-      Math.abs(this._mousePos[i].y - my) < 5 &&
-      !i // i === 0
-    )) {
+    if (
+      (Date.now() - this._mousePos[i]._timestamp > clickTime ||
+        Math.abs(this._mousePos[i].x - mx) >= 5 ||
+        Math.abs(this._mousePos[i].y - my) >= 5) &&
+        i === 1
+    ) {
       scene.stopPropagation();
-      const [x, y] = this.transformPoint(mx, my);
-      const [ox, oy] = this.transformPoint(
+      const [x, y] = scene.transformPoint(mx, my);
+      const [ox, oy] = scene.transformPoint(
         this._mousePos[i].x,
         this._mousePos[i].y
       );
-      scene.map('region',{
-          event: e,
-          x1: Math.min(ox, x),
-          y1: Math.min(oy, y),
-          x2: Math.max(ox, x),
-          y2: Math.max(oy, y),
-          fromX: ox,
-          fromY: oy,
-          toX: x,
-          toY: y
-        });
+      scene.map("region", {
+        event: e,
+        x1: Math.min(ox, x),
+        y1: Math.min(oy, y),
+        x2: Math.max(ox, x),
+        y2: Math.max(oy, y),
+        fromX: ox,
+        fromY: oy,
+        toX: x,
+        toY: y,
+      });
     }
   }
-  
+
   mouseMove({ event: e, position: [mx, my], button: i, scene }) {
     if (
       !this._mousePos[i] ||
@@ -77,7 +77,9 @@ export default class CameraControlSecondButton extends CameraControl {
           )
         );
 
-        const viewMatrix = scene.camera.viewportByCam(arguments[0], this.toCam).invert();
+        const viewMatrix = scene.camera
+          .viewportByCam(arguments[0], this.toCam)
+          .invert();
         const [ox, oy] = viewMatrix.transformPoint(
           this._mousePos[i].x * scale,
           this._mousePos[i].y * scale
@@ -91,26 +93,25 @@ export default class CameraControlSecondButton extends CameraControl {
       return;
     } else {
       this._mousePos[i]._distance = undefined;
-      
       if (i === 2) {
-      const viewMatrix = scene.camera
-        .viewportByCam(arguments[0], this.toCam)
-        .invert();
-      const [ox, oy] = viewMatrix.transformPoint(
-        this._mousePos[i].x * scale,
-        this._mousePos[i].y * scale
-      );
-      const [nx, ny] = viewMatrix.transformPoint(mx * scale, my * scale);
-      this.toCam.x = this._mousePos[i]._cx + ox - nx;
-      this.toCam.y = this._mousePos[i]._cy + oy - ny;
+        const viewMatrix = scene.camera
+          .viewportByCam(arguments[0], this.toCam)
+          .invert();
+        const [ox, oy] = viewMatrix.transformPoint(
+          this._mousePos[i].x * scale,
+          this._mousePos[i].y * scale
+        );
+        const [nx, ny] = viewMatrix.transformPoint(mx * scale, my * scale);
+        this.toCam.x = this._mousePos[i]._cx + ox - nx;
+        this.toCam.y = this._mousePos[i]._cy + oy - ny;
 
-      this.toCam = scene.camera.clampView(arguments[0], this.toCam);
+        this.toCam = scene.camera.clampView(arguments[0], this.toCam);
       }
     }
-    
+
     if (
-      i === 0 &&
-      scene.has('regionMove') &&
+      i === 1 &&
+      scene.has("regionMove") &&
       !(
         Date.now() - this._mousePos[i]._timestamp < clickTime &&
         Math.abs(this._mousePos[i].x - mx) < 5 &&
@@ -123,7 +124,7 @@ export default class CameraControlSecondButton extends CameraControl {
         this._mousePos[i].x,
         this._mousePos[i].y
       );
-      scene.map('regionMove', {
+      scene.map("regionMove", {
         event: e,
         x1: Math.min(ox, x),
         y1: Math.min(oy, y),
@@ -132,7 +133,7 @@ export default class CameraControlSecondButton extends CameraControl {
         fromX: ox,
         fromY: oy,
         toX: x,
-        toY: y
+        toY: y,
       });
     }
   }

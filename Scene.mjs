@@ -26,7 +26,7 @@ class Scene {
   }
 
   get _output() {
-    return this._engine.getOutput()
+    return this._engine.getOutput();
   }
 
   set middlewares(middlewares) {
@@ -69,7 +69,6 @@ class Scene {
           additionalModifier: [],
         }
       );
-      console.log(this._middleware)
   }
   get middlewares() {
     return this._middleware._all;
@@ -316,18 +315,14 @@ class Scene {
     if (this._imageManager.isLoaded() && this._initDone) {
       this._endTime = this.value("endTime");
       args.progress = "Click to play";
-      this.value("loading", {
-        args,
-      });
+      this.value("loading", args);
       return true;
     }
     args.progress = this._imageManager.getCount()
       ? this._imageManager.getLoaded() / this._imageManager.getCount()
       : "Loading...";
 
-    this.value("loading", {
-      args,
-    });
+    this.value("loading", args);
     return false;
   }
 
@@ -353,6 +348,7 @@ class Scene {
       // Back to the beginning
       timePassed = this._totalTimePassed;
       this.reset();
+      this.initSprites();
       this._totalTimePassed = timePassed;
     } else if (this._endTime && this._endTime <= this._totalTimePassed) {
       // set timepassed to match endtime
@@ -364,7 +360,7 @@ class Scene {
     if (this.value("isChunked")) {
       if (this.value("hasOneChunkedFrame", { timePassed })) {
         // how many frames should be skipped. Maximum is a skip of 2 frames
-        const frames = this.value('calcFrames', {timePassed}) - 1;
+        const frames = this.value("calcFrames", { timePassed }) - 1;
         for (let calcFrame = 0; calcFrame <= frames; calcFrame++) {
           this.fixedUpdate(this.value("tickChunk"), calcFrame === frames);
         }
@@ -388,7 +384,7 @@ class Scene {
     this.map("draw", { canvasId });
     const context = this._output.context[canvasId];
     context.save();
-    
+
     context.setTransform(...this.viewport().m);
 
     this._layerManager.forEach(
@@ -444,7 +440,6 @@ class Scene {
       new LayerManager()
     );
 
-    console.log(result);
     if (Array.isArray(result)) {
       const layers = result;
       result = new LayerManager();

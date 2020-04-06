@@ -59,7 +59,7 @@ export default class CameraControl {
           Date.now() - this._mousePos[i]._timestamp < clickTime &&
           Math.abs(this._mousePos[i].x - mx) < 5 &&
           Math.abs(this._mousePos[i].y - my) < 5 &&
-          !i
+          i === 1
         ) // i === 0
       )
     ) {

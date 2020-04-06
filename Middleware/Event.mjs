@@ -23,10 +23,6 @@ export default class Events {
     const events = scene.map("events");
     events.push(
       [
-        (scene.value("preventDefault") ?? true) && [
-          ["contextmenu"],
-          (e) => e.preventDefault(),
-        ],
         scene.has("mouseDown") && [
           ["touchstart", "mousedown"],
           (event) => this._pushEvent("mouseDown", event, scene),
@@ -46,6 +42,10 @@ export default class Events {
         scene.has("mouseWheel") && [
           ["wheel"],
           (event) => this._pushEvent("mouseWheel", event, scene),
+        ],
+        (scene.value("preventDefault") ?? true) && [
+          ["contextmenu"],
+          (e) => e.preventDefault(),
         ],
       ].filter((v) => v)
     );
@@ -109,6 +109,6 @@ export default class Events {
   }
 
   getMouseButton({ event: e }) {
-    return e.which ? e.which - 1 : e.button || 0;
+    return (e.touches ? e.touches.length : e.buttons ? e.buttons : [0,1,4,2][e.which]) ?? 1;
   }
 }
