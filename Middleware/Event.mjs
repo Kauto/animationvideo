@@ -44,7 +44,7 @@ export default class Events {
           ["wheel"],
           (event) => this._pushEvent("mouseWheel", event, scene),
         ],
-        (scene.value("preventDefault") ?? true) && [
+        (ifNull(scene.value("preventDefault"), true)) && [
           ["contextmenu"],
           (e) => e.preventDefault(),
         ],
