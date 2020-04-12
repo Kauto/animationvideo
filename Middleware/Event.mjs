@@ -3,7 +3,6 @@ export default class Events {
     this.type = "events";
   }
 
-
   _pushEvent(command, event, scene) {
     if (scene.value("preventDefault") ?? true) event.preventDefault();
     const [mx, my] = this.getMousePosition({ event });
@@ -109,6 +108,12 @@ export default class Events {
   }
 
   getMouseButton({ event: e }) {
-    return (e.touches ? e.touches.length : e.buttons ? e.buttons : [0,1,4,2][e.which]) ?? 1;
+    return (
+      (e.touches
+        ? (e.touches.length || e.changedTouches.length)
+        : (e.buttons
+        ? e.buttons
+        : [0, 1, 4, 2][e.which]) ?? 1)
+    );
   }
 }
