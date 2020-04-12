@@ -1,10 +1,12 @@
+import ifNull from '../func/ifNull.mjs'
+
 export default class Events {
   constructor() {
     this.type = "events";
   }
 
   _pushEvent(command, event, scene) {
-    if (scene.value("preventDefault") ?? true) event.preventDefault();
+    if (ifNull(scene.value("preventDefault"), true)) event.preventDefault();
     const [mx, my] = this.getMousePosition({ event });
     const [x, y] = scene.transformPoint(mx, my);
     scene.pipeBack(command, {
@@ -109,11 +111,11 @@ export default class Events {
 
   getMouseButton({ event: e }) {
     return (
-      (e.touches
+      e.touches
         ? (e.touches.length || e.changedTouches.length)
-        : (e.buttons
+        : ifNull(e.buttons
         ? e.buttons
-        : [0, 1, 4, 2][e.which]) ?? 1)
+        : [0, 1, 4, 2][e.which], 1)
     );
   }
 }
