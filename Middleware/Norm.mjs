@@ -1,4 +1,4 @@
-import Transform from '../func/Transform.mjs'
+import Transform from '../func/transform.mjs'
 
 export default class Norm {
   viewport({ engine }, matrix) {
