@@ -300,15 +300,14 @@ class Scene {
   }
 
   _param(additionalParameter) {
-    return {
+    return Object.assign({
       engine: this._engine,
       scene: this,
       imageManager: this._imageManager,
       layerManager: this._layerManager,
       totalTimePassed: this._totalTimePassed,
       output: this._engine && this._output,
-      ...additionalParameter,
-    };
+    }, additionalParameter);
   }
 
   callLoading(args) {

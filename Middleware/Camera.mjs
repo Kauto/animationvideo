@@ -28,7 +28,7 @@ export default class Camera {
   }
 
   additionalModifier({}, additionalModifier) {
-    additionalModifier.cam = {...this.cam};
+    additionalModifier.cam = Object.assign({}, this.cam);
     return additionalModifier;
   }
 
