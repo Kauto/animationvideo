@@ -34,14 +34,14 @@
   "homepage": "http://intergenies.com/programs/nodejs/animationvideo",
   "license": "MIT",
   "dependencies": {
-    "@ctrl/tinycolor": "^2.6.1",
+    "@ctrl/tinycolor": "^3.1.1",
     "eases": "^1.0.8",
     "pasition": "^1.0.3",
-    "stackblur-canvas": "^2.2.0"
+    "stackblur-canvas": "^2.3.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "microbundle": "^0.12.0-next.8",
-    "mocha": "^7.1.1"
+    "microbundle": "^0.12.0",
+    "mocha": "^7.1.2"
   }
 }

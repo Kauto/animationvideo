@@ -1,6 +1,5 @@
 import FastBlur from "./FastBlur.mjs";
-import * as stackblur from "stackblur-canvas";
-const { imageDataRGBA } = stackblur.default || stackblur;
+import { imageDataRGBA } from "stackblur-canvas";
 
 export default class StackBlur extends FastBlur {
   constructor(givenParameter) {

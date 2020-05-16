@@ -1,7 +1,6 @@
 import calc from "../func/calc.mjs";
 import ifNull from "../func/ifNull.mjs";
-import tinycolor from "@ctrl/tinycolor";
-const tinycolorf =  typeof(tinycolor) === 'function' ? tinycolor : tinycolor.tinycolor
+import { TinyColor } from "@ctrl/tinycolor";
 
 const degToRad = 0.017453292519943295; //Math.PI / 180;
 
@@ -84,8 +83,8 @@ export default class ChangeTo {
         data.from = sprite[data.name];
         data.to = data.isFunction(data.from);
         if (data.isColor) {
-          data.colorFrom = tinycolorf(data.from);
-          data.colorTo = tinycolorf(data.to);
+          data.colorFrom = new TinyColor(data.from);
+          data.colorTo = new TinyColor(data.to);
           data.moveAlgorithm = moveColor;
         } else if (data.isPath) {
           [data.pathFrom, data.pathTo] = sprite.changeToPathInit(
@@ -101,8 +100,8 @@ export default class ChangeTo {
           data.moveAlgorithm = moveDefault;
         }
       } else if (data.isColor) {
-        data.colorFrom = tinycolorf(sprite[data.name]);
-        data.colorTo = tinycolorf(data.to);
+        data.colorFrom = new TinyColor(sprite[data.name]);
+        data.colorTo = new TinyColor(data.to);
       } else if (data.isPath) {
         [data.pathFrom, data.pathTo] = sprite.changeToPathInit(
           sprite[data.name],

@@ -87,7 +87,7 @@ class Sequence {
     }
   }
 
-  runSequence(sprite, sequencePosition, timePassed) {
+  _runSequence(sprite, sequencePosition, timePassed) {
     let timeLeft = timePassed;
     while (
       sequencePosition.sequence[sequencePosition.position] &&
@@ -153,7 +153,7 @@ class Sequence {
     let restTime = Infinity;
     for (let i = 0; i < length; i++) {
       if (this.sequences[i].enabled) {
-        const timeLeft = this.runSequence(
+        const timeLeft = this._runSequence(
           sprite,
           this.sequences[i],
           timePassed
