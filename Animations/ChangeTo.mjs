@@ -1,6 +1,6 @@
 import calc from "../func/calc.mjs";
 import ifNull from "../func/ifNull.mjs";
-import { TinyColor } from "@ctrl/tinycolor";
+import { TinyColor } from "@ctrl/tinycolor/dist/module/public_api.js";
 
 const degToRad = 0.017453292519943295; //Math.PI / 180;
 

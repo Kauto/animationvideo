@@ -1,5 +1,5 @@
 import FastBlur from "./FastBlur.mjs";
-import { imageDataRGBA } from "stackblur-canvas";
+import { imageDataRGBA } from "stackblur-canvas/dist/stackblur-es.js";
 
 export default class StackBlur extends FastBlur {
   constructor(givenParameter) {

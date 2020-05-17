@@ -1,5 +1,5 @@
 import Circle from "./Circle.mjs";
-import { TinyColor } from "@ctrl/tinycolor";
+import { TinyColor } from "@ctrl/tinycolor/dist/module/public_api.js";
 
 const gradientSize = 64;
 const gradientResolution = 4;
