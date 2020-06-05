@@ -1,13 +1,13 @@
 import Transform from "../func/transform.mjs";
 
 export default class Camera {
-  constructor() {
+  constructor(config = {}) {
     this.type = "camera";
-    this.cam = {
+    this.cam = Object.assign({
       zoom: 1,
       x: 0,
       y: 0,
-    };
+    }, config);
   }
 
   viewport({}, matrix) {
