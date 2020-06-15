@@ -25,7 +25,7 @@ class Scene {
     }
   }
 
-  get _output() {
+  _output() {
     return this._engine.getOutput();
   }
 
@@ -237,7 +237,7 @@ class Scene {
   }
 
   updateAdditionalModifier() {
-    const output = this._output;
+    const output = this._output();
     this._additionalModifier = this.pipe(
       "additionalModifier",
       {},
@@ -267,7 +267,7 @@ class Scene {
   }
 
   resize() {
-    const output = this._output;
+    const output = this._output();
     this.updateAdditionalModifier();
     this.pipe("resize");
     this._layerManager.forEach(({ element, isFunction }) => {
@@ -306,7 +306,7 @@ class Scene {
       imageManager: this._imageManager,
       layerManager: this._layerManager,
       totalTimePassed: this._totalTimePassed,
-      output: this._engine && this._output,
+      output: this._engine && this._output(),
     }, additionalParameter);
   }
 
@@ -381,7 +381,7 @@ class Scene {
 
   draw(canvasId) {
     this.map("draw", { canvasId });
-    const context = this._output.context[canvasId];
+    const context = this._output().context[canvasId];
     context.save();
 
     context.setTransform(...this.viewport().m);
@@ -412,7 +412,7 @@ class Scene {
   }
 
   initSprites(canvasId) {
-    const context = this._output.context[canvasId];
+    const context = this._output().context[canvasId];
     this._layerManager.forEach(({ element, isFunction }) => {
       if (!isFunction) {
         element.callInit(context, this._additionalModifier);
