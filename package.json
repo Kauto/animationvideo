@@ -9,10 +9,16 @@
   "module": "dist/animationvideo.mjs",
   "source": "animationvideo.mjs",
   "scripts": {
-    "production": "microbundle -f es,cjs && microbundle -f modern,umd --external none",
+    "production": "microbundle -f es,cjs --no-sourcemap --compress --strict && microbundle -f modern,umd --external none --no-sourcemap --compress --strict ",
     "watch": "microbundle watch -f umd --no-compress --external none",
     "test": "NODE_ENV=test ./node_modules/mocha/bin/_mocha --compilers js:babel-core/register --ui bdd --recursive ./test"
   },
+  "browserslist": [
+    "> 0.5%",
+    "last 2 versions",
+    "not dead",
+    "not IE 11"
+  ],
   "keywords": [
     "animation",
     "animations",
