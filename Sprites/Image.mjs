@@ -159,70 +159,72 @@ class Image extends Circle {
           this.scaleY;
       context.globalCompositeOperation = this.compositeOperation;
       context.globalAlpha = this.alpha * additionalModifier.alpha;
-      const isTopLeft = this.position === Image.LEFT_TOP;
+      const isCenter = this.position !== Image.LEFT_TOP;
 
-      if (this.tint && this._currentTint !== this._tintCacheKey()) {
-        const tctx = this._temp_context(frameWidth, frameHeight);
-        tctx.globalAlpha = 1;
-        tctx.globalCompositeOperation = "source-over";
-        tctx.clearRect(0, 0, frameWidth, frameHeight);
-        tctx.globalAlpha = this.tint;
-        tctx.fillStyle = this.color;
-        tctx.fillRect(0, 0, frameWidth, frameHeight);
-        tctx.globalAlpha = 1;
-        tctx.globalCompositeOperation = "destination-atop";
-        tctx.drawImage(
-          this.image,
-          this.frameX,
-          this.frameY,
-          frameWidth,
-          frameHeight,
-          0,
-          0,
-          frameWidth,
-          frameHeight
-        );
-        this._currentTint = this._tintCacheKey();
+      let img = this.image
+      let frameX = this.frameX
+      let frameY = this.frameY
+
+      if (this.tint) {
+        if(this._currentTint !== this._tintCacheKey()) {
+          const tctx = this._temp_context(frameWidth, frameHeight);
+          tctx.globalAlpha = 1;
+          tctx.globalCompositeOperation = "source-over";
+          tctx.clearRect(0, 0, frameWidth, frameHeight);
+          tctx.globalAlpha = this.tint;
+          tctx.fillStyle = this.color;
+          tctx.fillRect(0, 0, frameWidth, frameHeight);
+          tctx.globalAlpha = 1;
+          tctx.globalCompositeOperation = "destination-atop";
+          tctx.drawImage(
+            this.image,
+            this.frameX,
+            this.frameY,
+            frameWidth,
+            frameHeight,
+            0,
+            0,
+            frameWidth,
+            frameHeight
+          );
+          this._currentTint = this._tintCacheKey();
+        }
+        img = this._temp_canvas
+        frameX = 0
+        frameY = 0
+      }
+
+      let cx = 0
+      let cy = 0
+      if (isCenter) {
+        cx = - sX / 2
+        cy = - sY / 2
       }
 
       if (this.rotation == 0) {
-        if (isTopLeft) {
-          context.drawImage(
-            this.tint ? this._temp_canvas : this.image,
-            this.tint ? 0 : this.frameX,
-            this.tint ? 0 : this.frameY,
-            frameWidth,
-            frameHeight,
-            this.x,
-            this.y,
-            sX,
-            sY
-          );
-        } else {
-          context.drawImage(
-            this.tint ? this._temp_canvas : this.image,
-            this.tint ? 0 : this.frameX,
-            this.tint ? 0 : this.frameY,
-            frameWidth,
-            frameHeight,
-            this.x - sX / 2,
-            this.y - sY / 2,
-            sX,
-            sY
-          );
-        }
+        context.drawImage(
+          img,
+          frameX,
+          frameY,
+          frameWidth,
+          frameHeight,
+          this.x + cx,
+          this.y + cy,
+          sX,
+          sY
+        );
       } else {
         context.save();
         context.translate(this.x, this.y);
         context.rotate(this.rotation);
         context.drawImage(
-          this.tint ? this._temp_canvas : this.image,
-          this.tint ? 0 : this.frameX,
-          this.tint ? 0 : this.frameY,
+          img,
+          frameX,
+          frameY,
           frameWidth,
           frameHeight,
-          isTopLeft ? 0 : -sX / 2,
-          isTopLeft ? 0 : -sY / 2,
+          cx,
+          cy,
           sX,
           sY
         );
