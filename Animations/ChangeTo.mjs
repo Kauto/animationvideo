@@ -60,6 +60,7 @@ export default class ChangeTo {
           bezier: isBezier ? value : false,
           isColor,
           isPath,
+          isStatic,
           isFunction: isFunction ? value : false,
           moveAlgorithm: isColor
             ? moveColor
@@ -102,7 +103,7 @@ export default class ChangeTo {
         } else if (Array.isArray(data.to)) {
           data.values = [sprite[data.name], ...data.to];
           data.moveAlgorithm = moveBezier;
-        } else {
+        } else if (!data.isStatic) {
           data.delta = data.to - data.from;
           data.moveAlgorithm = moveDefault;
         }
