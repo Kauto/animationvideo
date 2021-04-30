@@ -8,6 +8,10 @@ function moveDefault(progress, data) {
   return data.from + progress * data.delta;
 }
 
+function moveStatic(progress, data) {
+  return progress >= 0.5 ? data.to : data.from;
+}
+
 function moveBezier(progress, data) {
   var copy = [...data.values],
     copyLength = copy.length,
@@ -40,6 +44,7 @@ export default class ChangeTo {
       const value = k === "rotationInDegree" ? orgValue * degToRad : orgValue;
       const isColor = k === "color" || k === "borderColor";
       const isPath = k === "path";
+      const isStatic = k === "text";
       const isFunction = typeof value === "function";
       const isBezier = !isColor && Array.isArray(value);
       const names =
@@ -62,6 +67,8 @@ export default class ChangeTo {
             ? movePath
             : isBezier
             ? moveBezier
+            : isStatic
+            ? moveStatic
             : moveDefault
         });
       }
