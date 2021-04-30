@@ -83,8 +83,6 @@ export default class Events {
         return acc;
       }, []);
 
-console.log(this._events)
-
     this._events.forEach((v) => {
       v.n.addEventListener(v.e, v.f, true);
     });
