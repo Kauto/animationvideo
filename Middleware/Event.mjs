@@ -18,49 +18,54 @@ export default class Events {
     });
   }
 
+  events({scene}) {
+    return [
+      scene.has("mouseDown") && [
+        ["touchstart", "mousedown"],
+        (event) => this._pushEvent("mouseDown", event, scene),
+      ],
+      scene.has("mouseUp") && [
+        ["touchend", "mouseup"],
+        (event) => this._pushEvent("mouseUp", event, scene),
+      ],
+      scene.has("mouseOut") && [
+        ["touchendoutside", "mouseout"],
+        (event) => this._pushEvent("mouseOut", event, scene),
+      ],
+      scene.has("mouseMove") && [
+        ["touchmove", "mousemove"],
+        (event) => this._pushEvent("mouseMove", event, scene),
+      ],
+      scene.has("mouseWheel") && [
+        ["wheel"],
+        (event) => this._pushEvent("mouseWheel", event, scene),
+      ],
+      (ifNull(scene.value("preventDefault"), true)) && [
+        ["contextmenu"],
+        (e) => e.preventDefault(),
+      ],
+    ].filter((v) => v)
+  }
+
   init({ output, scene }) {
     const element = output.canvas[0];
 
     const events = scene.map("events");
-    events.push(
-      [
-        scene.has("mouseDown") && [
-          ["touchstart", "mousedown"],
-          (event) => this._pushEvent("mouseDown", event, scene),
-        ],
-        scene.has("mouseUp") && [
-          ["touchend", "mouseup"],
-          (event) => this._pushEvent("mouseUp", event, scene),
-        ],
-        scene.has("mouseOut") && [
-          ["touchendoutside", "mouseout"],
-          (event) => this._pushEvent("mouseOut", event, scene),
-        ],
-        scene.has("mouseMove") && [
-          ["touchmove", "mousemove"],
-          (event) => this._pushEvent("mouseMove", event, scene),
-        ],
-        scene.has("mouseWheel") && [
-          ["wheel"],
-          (event) => this._pushEvent("mouseWheel", event, scene),
-        ],
-        (ifNull(scene.value("preventDefault"), true)) && [
-          ["contextmenu"],
-          (e) => e.preventDefault(),
-        ],
-      ].filter((v) => v)
-    );
 
     this._events = events
       .filter(Array.isArray)
+      // flat(1)
       .reduce((acc, cur) => {
-        acc.push.apply(acc, Array.isArray(cur) ? cur : [[cur], (event) => {
-            if (ifNull(scene.value("preventDefault"), true)) event.preventDefault();
-            scene.pipeBack(cur, { event });
-          }
-        ])
+        acc.push.apply(acc, cur);
         return acc;
       }, [])
+      // convert strings to call to function with the same name
+      .map(cur =>
+        Array.isArray(cur) ? cur : [[cur], (event) => {
+          if (ifNull(scene.value("preventDefault"), true)) event.preventDefault();
+          scene.pipeBack(cur, { event });
+        }]
+      )
       .map(([events, func]) =>
         events.map((e) => ({
           n: element,
@@ -77,6 +82,8 @@ export default class Events {
         }
         return acc;
       }, []);
+
+console.log(this._events)
 
     this._events.forEach((v) => {
       v.n.addEventListener(v.e, v.f, true);
