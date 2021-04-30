@@ -41,16 +41,16 @@ export default class TimingAudio extends TimingDefault {
   }
 
   endTime() {
-    return this._audioElement.duration * 1000;
+    return this._audioElement ? this._audioElement.duration * 1000 : Number.POSITIVE_INFINITY;
   }
 
   currentTime() {
     let currentTime = super.currentTime();
     if (this._audioElement) {
-      const currentAudioTime =
-        (this._audioElement.ended
-          ? this._audioElement.duration
-          : this._audioElement.currentTime) * 1000;
+      if (this._audioElement.ended && this._audioElement.duration) {
+        return this._audioElement.duration * 1000;
+      }
+      const currentAudioTime = this._audioElement.currentTime * 1000;
       // Android workaround
       if (this._enableAndroidHack) {
         if (this._audioStartTime === null) {

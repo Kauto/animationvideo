@@ -54,7 +54,11 @@ export default class Events {
     this._events = events
       .filter(Array.isArray)
       .reduce((acc, cur) => {
-        acc.push.apply(acc, cur);
+        acc.push.apply(acc, Array.isArray(cur) ? cur : [[cur], (event) => {
+            if (ifNull(scene.value("preventDefault"), true)) event.preventDefault();
+            scene.pipeBack(cur, { event });
+          }
+        ])
         return acc;
       }, [])
       .map(([events, func]) =>
