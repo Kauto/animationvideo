@@ -1036,18 +1036,18 @@
           });
         },
         regionMove({ x1, y1, x2, y2 }) {
-          this.spriteMarker.enabled = true;
-          this.spriteMarker.x = x1;
-          this.spriteMarker.y = y1;
-          this.spriteMarker.width = x2 - x1;
-          this.spriteMarker.height = y2 - y1;
+          this.spriteMarker.p.enabled = true;
+          this.spriteMarker.p.x = x1;
+          this.spriteMarker.p.y = y1;
+          this.spriteMarker.p.width = x2 - x1;
+          this.spriteMarker.p.height = y2 - y1;
           this.hideAfterTotalTimePassed = this.totalTimePassed;
         },
         mouseOut() {
-          this.spriteMarker.enabled = false;
+          this.spriteMarker.p.enabled = false;
         },
         region({ x1, y1, x2, y2 }) {
-          this.spriteMarker.enabled = false;
+          this.spriteMarker.p.enabled = false;
           this.layerOverlay.addElement(
             new SP.Rect({
               position: SP.Rect.LEFT_TOP,

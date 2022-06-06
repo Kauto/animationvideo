@@ -11,7 +11,7 @@ describe('Animations/ChangeTo', function () {
       y: function (t) {
         return t * 150;
       },
-      color: '#F00',
+      color: '_F00',
       bezier: [300, 100, 200]
     }, 100);
     sprite = {
@@ -31,7 +31,7 @@ describe('Animations/ChangeTo', function () {
 
     expect(sprite.x).to.equal(100);
     expect(sprite.y).to.equal(150);
-    expect(sprite.color).to.equal('#F00');
+    expect(sprite.color).to.equal('_F00');
     expect(sprite.bezier).to.equal(200);
     expect(timeLeft).to.equal(1);
   });
