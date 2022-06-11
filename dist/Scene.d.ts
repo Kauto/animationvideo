@@ -83,7 +83,7 @@ export interface ConfigurationObject extends Record<string, any> {
     fixedUpdate?: (params: ParameterListFixedUpdate) => void;
     draw?: (params: ParameterListCanvas) => void;
     update?: (params: ParameterList) => void;
-    reset?: (params: ParameterListWithoutTime, layerManager: LayerManager) => LayerManager | ISpriteFunctionOrSprite[][];
+    reset?: (params: ParameterListWithoutTime, layerManager: LayerManager | ISpriteFunctionOrSprite[][]) => LayerManager | ISpriteFunctionOrSprite[][];
     preventDefault?: OrFunction<boolean>;
     events?: OrFunction<EventsReturn, [ParameterListInitDestroy]>;
     initSprites?: (params: ParameterListCanvas) => void;

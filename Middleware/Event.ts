@@ -110,7 +110,7 @@ export default class Events implements ConfigurationObject {
     this._events = [];
   }
 
-  reset(params: ParameterListWithoutTime, layerManager:LayerManager) {
+  reset(params: ParameterListWithoutTime, layerManager:LayerManager| ISpriteFunctionOrSprite[][]) {
     return layerManager;
   }
 

@@ -36,7 +36,7 @@ export interface SpriteParticleOptionsInternal extends SpriteBaseOptionsInternal
 class Particle extends SpriteBase<SpriteParticleOptions, SpriteParticleOptionsInternal> {
   _currentScaleX: number | undefined;
   _currentPixelSmoothing: boolean = false;
-  static _Gradient: HTMLCanvasElement[][][] = [[[]]]
+  static _Gradient: HTMLCanvasElement[][][]
 
   constructor(givenParameter: SpriteParticleOptions) {
     super(givenParameter);

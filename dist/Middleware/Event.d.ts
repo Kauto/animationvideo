@@ -2,6 +2,7 @@ import type { ValueOf } from '../helper';
 import LayerManager from '../LayerManager';
 import type { ConfigurationObject, EventsReturn, ParameterListInitDestroy, ParameterListWithoutTime } from '../Scene';
 import Scene from '../Scene';
+import { ISpriteFunctionOrSprite } from '../Sprites/Sprite';
 export default class Events implements ConfigurationObject {
     type: string;
     _reseted: boolean;
@@ -14,7 +15,7 @@ export default class Events implements ConfigurationObject {
     events({ scene }: ParameterListInitDestroy): EventsReturn;
     init({ output, scene }: ParameterListInitDestroy): void;
     destroy(): void;
-    reset(params: ParameterListWithoutTime, layerManager: LayerManager): LayerManager;
+    reset(params: ParameterListWithoutTime, layerManager: LayerManager | ISpriteFunctionOrSprite[][]): LayerManager | ISpriteFunctionOrSprite[][];
     getMousePosition({ event: e }: {
         event: Event | TouchEvent | MouseEvent;
     }): number[];

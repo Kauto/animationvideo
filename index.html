@@ -650,7 +650,7 @@
               this.sprite.ship.x -= 0.01;
               state = "left";
             }
-            this.sprite.ship.animation.setState(state);
+            this.sprite.ship.p.animation.setState(state);
           }
           reset({ layerManager }) {
             layerManager.clear();
@@ -767,6 +767,7 @@
       )
     }).run();
 
+    /*
     // -----
     new AnimationVideo.Engine({
       clickToPlayAudio: true,
@@ -1146,6 +1147,7 @@
         }
       })
     }).run()
+    */
   </script>
 </body>
 

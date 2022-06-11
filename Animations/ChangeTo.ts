@@ -117,7 +117,7 @@ export default class ChangeTo implements IAnimation {
     while (l--) {
       const data: IAlgorithmData = this._changeValues[l];
       // @ts-ignore
-      const from = sprite[data.name] as unknown as TProperty
+      const from = sprite.p[data.name] as unknown as TProperty
       if (data.isFunction) {
         data.from = from;
         // @ts-ignore
@@ -172,7 +172,7 @@ export default class ChangeTo implements IAnimation {
       while (l--) {
         data = this._changeValues[l];
         // @ts-ignore
-        sprite[data.name] = data.to;
+        sprite.p[data.name] = data.to;
       }
     } else {
       let l = this._changeValues.length;
@@ -182,7 +182,7 @@ export default class ChangeTo implements IAnimation {
       while (l--) {
         data = this._changeValues[l];
         // @ts-ignore
-        sprite[data.name] = data.moveAlgorithm(progress, data, sprite);
+        sprite.p[data.name] = data.moveAlgorithm(progress, data, sprite);
       }
     }
     return time - this._duration;
