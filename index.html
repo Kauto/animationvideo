@@ -436,7 +436,7 @@
     });
     engine.run();
 
-    /**
+    
     // -------
     var sceneNorm = new AnimationVideo.Scene(AnimationVideo.Middleware.Norm, AnimationVideo.Middleware.Event,
       class test {
@@ -492,7 +492,7 @@
         update() {
           this.layerMove.addElements(this.newThings);
           this.layerCount.forEach(
-            ({ element }) => (element.text = this.layerMove.count())
+            ({ element }) => (element.p.text = this.layerMove.count())
           );
           this.newThings = [];
         }
@@ -636,19 +636,19 @@
           fixedUpdate({ }) {
             let state = "neutral";
             if (this.keyMap[this.key.down]) {
-              this.sprite.ship.y += 0.01;
+              this.sprite.ship.p.y += 0.01;
               state = "down";
             }
             if (this.keyMap[this.key.up]) {
-              this.sprite.ship.y -= 0.01;
+              this.sprite.ship.p.y -= 0.01;
               state = "up";
             }
             if (this.keyMap[this.key.right]) {
-              this.sprite.ship.x += 0.01;
+              this.sprite.ship.p.x += 0.01;
               state = "right";
             }
             if (this.keyMap[this.key.left]) {
-              this.sprite.ship.x -= 0.01;
+              this.sprite.ship.p.x -= 0.01;
               state = "left";
             }
             this.sprite.ship.p.animation.setState(state);
@@ -767,8 +767,7 @@
         }
       )
     }).run();
-*/
-    /*
+
     // -----
     new AnimationVideo.Engine({
       clickToPlayAudio: true,
@@ -1015,7 +1014,7 @@
       AnimationVideo.Middleware.CameraControlSecondButton,
       {
         clickElement({ element, x, y, mx, my }) {
-          element.animation = new ANI.Sequence([
+          element.p.animation = new ANI.Sequence([
             new ANI.ChangeTo({ color: '#00F', rotationInDegree: 360, tint: 1 }, 0, Easing.quadInOut),
             new ANI.ChangeTo({ color: '#FF0', rotationInDegree: 0, tint: 0 }, 1000, Easing.quadInOut)
           ])
@@ -1052,7 +1051,7 @@
           this.spriteMarker.p.enabled = false;
           this.layerOverlay.addElement(
             new SP.Rect({
-              position: SP.Rect.LEFT_TOP,
+              position: AnimationVideo.Position.LEFT_TOP,
               x: x1,
               y: y1,
               width: x2 - x1,
@@ -1137,7 +1136,7 @@
           this.layerOverlay = layerManager.addLayer()
           this.spriteMarker = this.layerOverlay.addElement(
             new SP.Rect({
-              position: SP.Rect.LEFT_TOP,
+              position: AnimationVideo.Position.LEFT_TOP,
               enabled: false,
               color: '#fff',
               norm: false,
@@ -1148,7 +1147,7 @@
         }
       })
     }).run()
-    */
+    
   </script>
 </body>
 

@@ -320,8 +320,8 @@ class Engine {
       );
     }
 
-    if (!this._realLastTimestamp) {
-      this._realLastTimestamp = timestamp;
+      if (!this._realLastTimestamp) {
+        this._realLastTimestamp = timestamp;
     }
     if (!this._initializedStartTime) {
       this._initializedStartTime = timestamp;
@@ -350,6 +350,9 @@ class Engine {
     }
 
     if (this._scene) {
+      let moveFrame = false;
+      const nowAutoSize = this._now();
+
       if (this._reduceFramerate) {
         this._isOddFrame = !this._isOddFrame;
       }
@@ -366,10 +369,8 @@ class Engine {
         this._lastTimestamp = now + shiftTime;
 
         if (this._isSceneInitialized) {
-          const moveFrame = timePassed !== 0 || this._moveOnce;
+          moveFrame = timePassed !== 0 || this._moveOnce;
           this._moveOnce = false;
-
-          const nowAutoSize = this._now();
 
           if (this._output.canvas[0].width) {
             for (let index = 0; index < this._canvasCount; index++) {
@@ -406,70 +407,6 @@ class Engine {
               }
             }
           }
-
-          if (this._autoSize && this._autoSize.enabled) {
-            const deltaTimestamp = timestamp - this._realLastTimestamp;
-
-            if (this._autoSize.currentWaitedTime < this._autoSize.waitTime) {
-              this._autoSize.currentWaitedTime += deltaTimestamp;
-            } else if (moveFrame) {
-              const targetTime =
-                this._autoSize.offsetTimeTarget! *
-                (this._reduceFramerate ? 2 : 1);
-              const deltaFrame = this._now() - nowAutoSize;
-              const delta =
-                (Math.abs(deltaTimestamp - targetTime) >
-                  Math.abs(deltaFrame - targetTime)
-                  ? deltaTimestamp
-                  : deltaFrame) - targetTime;
-              if (Math.abs(delta) <= this._autoSize.offsetTimeDelta!) {
-                this._autoSize.currentOffsetTime =
-                  this._autoSize.currentOffsetTime >= 0
-                    ? Math.max(
-                      0,
-                      this._autoSize.currentOffsetTime -
-                      this._autoSize.offsetTimeDelta!
-                    )
-                    : Math.min(
-                      0,
-                      this._autoSize.currentOffsetTime +
-                      this._autoSize.offsetTimeDelta!
-                    );
-              } else {
-                if (
-                  delta < 0 &&
-                  this._autoSize.currentScale > this._autoSize.scaleLimitMin
-                ) {
-                  this._autoSize.currentOffsetTime += delta;
-                  if (
-                    this._autoSize.currentOffsetTime <=
-                    -this._autoSize.offsetTimeLimitDown
-                  ) {
-                    this._autoSize.currentScale = Math.max(
-                      this._autoSize.scaleLimitMin,
-                      this._autoSize.currentScale / this._autoSize.scaleFactor
-                    );
-                    this._recalculateCanvasIntend = true;
-                  }
-                } else if (
-                  delta > 0 &&
-                  this._autoSize.currentScale < this._autoSize.scaleLimitMax
-                ) {
-                  this._autoSize.currentOffsetTime += delta;
-                  if (
-                    this._autoSize.currentOffsetTime >=
-                    this._autoSize.offsetTimeLimitUp
-                  ) {
-                    this._autoSize.currentScale = Math.min(
-                      this._autoSize.scaleLimitMax,
-                      this._autoSize.currentScale * this._autoSize.scaleFactor
-                    );
-                    this._recalculateCanvasIntend = true;
-                  }
-                }
-              }
-            }
-          }
         } else {
           for (let i = 0; i < this._canvasCount; i++) {
             this.normContext(this._output.context[i]);
@@ -487,8 +424,74 @@ class Engine {
             }
           }
         }
+      } 
+
+      if (this._isSceneInitialized && this._autoSize && this._autoSize.enabled) {
+        const deltaTimestamp = timestamp - this._realLastTimestamp;
+
+        if (this._autoSize.currentWaitedTime < this._autoSize.waitTime) {
+          this._autoSize.currentWaitedTime += deltaTimestamp;
+        } else if (moveFrame) {
+          const targetTime =
+            this._autoSize.offsetTimeTarget! *
+            (this._reduceFramerate ? 2 : 1);
+          const deltaFrame = this._now() - nowAutoSize;
+          const delta =
+            (Math.abs(deltaTimestamp - targetTime) >
+              Math.abs(deltaFrame - targetTime)
+              ? deltaTimestamp
+              : deltaFrame) - targetTime;
+
+          if (Math.abs(delta) <= this._autoSize.offsetTimeDelta!) {
+            this._autoSize.currentOffsetTime =
+              this._autoSize.currentOffsetTime >= 0
+                ? Math.max(
+                  0,
+                  this._autoSize.currentOffsetTime -
+                  this._autoSize.offsetTimeDelta!
+                )
+                : Math.min(
+                  0,
+                  this._autoSize.currentOffsetTime +
+                  this._autoSize.offsetTimeDelta!
+                );
+          } else {
+            if (
+              delta < 0 &&
+              this._autoSize.currentScale > this._autoSize.scaleLimitMin
+            ) {
+              this._autoSize.currentOffsetTime += delta;
+              if (
+                this._autoSize.currentOffsetTime <=
+                -this._autoSize.offsetTimeLimitDown
+              ) {
+                this._autoSize.currentScale = Math.max(
+                  this._autoSize.scaleLimitMin,
+                  this._autoSize.currentScale / this._autoSize.scaleFactor
+                );
+                this._recalculateCanvasIntend = true;
+              }
+            } else if (
+              delta > 0 &&
+              this._autoSize.currentScale < this._autoSize.scaleLimitMax
+            ) {
+              this._autoSize.currentOffsetTime += delta;
+              if (
+                this._autoSize.currentOffsetTime >=
+                this._autoSize.offsetTimeLimitUp
+              ) {
+                this._autoSize.currentScale = Math.min(
+                  this._autoSize.scaleLimitMax,
+                  this._autoSize.currentScale * this._autoSize.scaleFactor
+                );
+                this._recalculateCanvasIntend = true;
+              }
+            }
+          }
+        }
       }
     }
+
     this._realLastTimestamp = timestamp;
   }
 
