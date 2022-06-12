@@ -5,7 +5,7 @@ import { ISprite, SpriteBase, SpriteBaseOptions, SpriteBaseOptionsInternal } fro
 export type SpriteCallback = (context:CanvasRenderingContext2D, timePassed:number, additionalParameter:AdditionalModifier, sprite:ISprite) => void
 
 export interface SpriteCallbackOptions extends SpriteBaseOptions {
-  callback?: SpriteCallback
+  callback?: SpriteCallback|undefined
 }
 
 export interface SpriteCallbackOptionsInternal extends SpriteBaseOptionsInternal {
@@ -25,7 +25,7 @@ export default class Callback extends SpriteBase<SpriteCallbackOptions,SpriteCal
 
   _getParameterList() {
     return Object.assign({}, this._getBaseParameterList(), {
-      callback: (v:SpriteCallback|undefined) => (typeof v === undefined ? () => {} : v) as SpriteCallback
+      callback: (v:SpriteCallbackOptions['callback']) => ((typeof v === undefined ? () => {} : v) as SpriteCallback)
     });
   }
 

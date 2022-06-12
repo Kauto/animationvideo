@@ -29,7 +29,7 @@ export declare type ISpriteFunction = (params: ParameterListWithoutTime & {
 }) => number | boolean;
 export declare type ISpriteFunctionOrSprite = ISpriteFunction | ISprite;
 export interface SpriteBaseOptions {
-    animation?: OrFunction<Sequence | IAnimation[]>;
+    animation?: OrFunction<Sequence | (IAnimation | number | string)[]>;
     enabled?: OrFunction<boolean>;
     isClickable?: OrFunction<boolean>;
     tag?: OrFunction<string[] | string>;
@@ -49,10 +49,10 @@ export declare class SpriteBase<O extends SpriteBaseOptions = SpriteBaseOptions,
     constructor(givenParameter: O);
     _parseParameterList(parameterList: TParameterList<O, P>, givenParameter: O): P;
     _getBaseParameterList(): {
-        animation: (value: OrFunction<Sequence | IAnimation[]> | undefined, givenParameter: O) => Sequence | undefined;
+        animation: (value: SpriteBaseOptions['animation'], givenParameter: O) => Sequence | undefined;
         enabled: boolean;
         isClickable: boolean;
-        tag: (value: OrFunction<string | undefined | string[]>, givenParameter: O) => string[];
+        tag: (value: SpriteBaseOptions['tag'], givenParameter: O) => string[];
     };
     _getParameterList(): TParameterList<O, P>;
     getElementsByTag(tag: TTagParameter): ISprite[];

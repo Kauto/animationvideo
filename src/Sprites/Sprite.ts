@@ -37,7 +37,7 @@ export type ISpriteFunctionOrSprite = ISpriteFunction | ISprite
 
 
 export interface SpriteBaseOptions {
-    animation?: OrFunction<Sequence | IAnimation[]>
+    animation?: OrFunction<Sequence | (IAnimation|number|string)[]>
     enabled?: OrFunction<boolean>
     isClickable?: OrFunction<boolean>
     tag?: OrFunction<string[] | string>
@@ -78,7 +78,7 @@ export class SpriteBase<O extends SpriteBaseOptions = SpriteBaseOptions, P exten
     _getBaseParameterList() {
         return {
             // animation
-            animation: (value: OrFunction<Sequence | IAnimation[]> | undefined, givenParameter: O) => {
+            animation: (value: SpriteBaseOptions['animation'], givenParameter: O) => {
                 const result = calc(value);
                 return Array.isArray(result) ? new Sequence(result) : result;
             },
@@ -87,7 +87,7 @@ export class SpriteBase<O extends SpriteBaseOptions = SpriteBaseOptions, P exten
             // if you can click it or not
             isClickable: false,
             // tags to mark the sprites
-            tag: (value: OrFunction<string | undefined | string[]>, givenParameter: O) => {
+            tag: (value: SpriteBaseOptions['tag'], givenParameter: O) => {
                 const v: string | string[] | undefined = calc(value)
                 return Array.isArray(v) ? v : v ? [v] : [];
             }

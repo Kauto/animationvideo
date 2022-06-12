@@ -67,7 +67,7 @@ export default class ChangeTo implements IAnimation {
   _changeValues: IChangeValueMeta[]
   _duration: number
   _ease: (t: number) => number
-  constructor(changeValues: Record<string, TChangeValue>, duration: number, ease: (t: number) => number) {
+  constructor(changeValues: Record<string, TChangeValue>, duration: number, ease?: (t: number) => number) {
     this._changeValues = [];
     for (let k in changeValues) {
       const orgValue = changeValues[k];
