@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "module": "ESNext",
+        "target": "ESNext",
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "allowSyntheticDefaultImports": true
+    },
+    "include": [
+        "./**/*"
+    ],
+    "exclude": ["node_modules","dist"],
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "display": "Recommended"
+}
