@@ -71,8 +71,8 @@ export default class Path extends Group<SpritePathOptions,SpritePathOptionsInter
   // helper function for changeTo
   changeToPathInit(from: number[][][] | string, to: number[][][] | string): number[][][] {
     return pasition._preprocessing(
-      typeof from === "string" ? pasition.path2shapes(from) : from,
-      typeof to === "string" ? pasition.path2shapes(to) : to
+      typeof from === "string" ? pasition.path2shapes(from) : Array.isArray(from) ? from : [],
+      typeof to === "string" ? pasition.path2shapes(to) : Array.isArray(to) ? to : []
     );
   }
   
