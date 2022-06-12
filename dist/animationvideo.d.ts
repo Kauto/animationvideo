@@ -6,4 +6,6 @@ import Animations from './src/Animations';
 import Easing from 'eases';
 import Middleware from './src/Middleware';
 import { Position } from './src/Position';
-export { Engine, Scene, ImageManager, Sprites, Animations, Easing, Middleware, Position };
+import LayerManager from './src/LayerManager';
+import Layer from './src/Layer';
+export { Engine, Scene, ImageManager, Sprites, Animations, Easing, Middleware, Position, LayerManager, Layer };

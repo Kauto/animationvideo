@@ -6,6 +6,8 @@ import Animations from './src/Animations';
 import Easing from 'eases';
 import Middleware from './src/Middleware';
 import {Position} from './src/Position';
+import LayerManager from './src/LayerManager';
+import Layer from './src/Layer';
 
 
 export {
@@ -16,5 +18,7 @@ export {
   Animations,
   Easing,
   Middleware,
-  Position
+  Position,
+  LayerManager,
+  Layer
 };
