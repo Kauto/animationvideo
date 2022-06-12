@@ -7,7 +7,7 @@
     "default": "./dist/animationvideo.modern.js"
   },
   "amdName": "AnimationVideo",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Javascript-Libary for animation and audio syncing",
   "main": "./dist/animationvideo.cjs",
   "module": "./dist/animationvideo.module.js",
