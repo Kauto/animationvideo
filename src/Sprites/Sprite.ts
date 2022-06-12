@@ -37,14 +37,14 @@ export type ISpriteFunctionOrSprite = ISpriteFunction | ISprite
 
 
 export interface SpriteBaseOptions {
-    animation?: OrFunction<Sequence | (IAnimation|number|string)[]>
+    animation?: OrFunction<IAnimation | (IAnimation|number|string)[]>
     enabled?: OrFunction<boolean>
     isClickable?: OrFunction<boolean>
     tag?: OrFunction<string[] | string>
 }
 
 export interface SpriteBaseOptionsInternal {
-    animation: Sequence | undefined
+    animation: IAnimation | undefined
     enabled: boolean
     isClickable: boolean
     tag: string[]

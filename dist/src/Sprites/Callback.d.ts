@@ -11,7 +11,7 @@ export default class Callback extends SpriteBase<SpriteCallbackOptions, SpriteCa
     _timePassed: number;
     constructor(givenParameter: SpriteCallbackOptions | SpriteCallbackOptions['callback']);
     _getParameterList(): {
-        animation: (value: import("../helper.js").OrFunction<import("../Animations/Sequence.js").default | (string | number | import("../Animations/Animation.js").IAnimation)[], []> | undefined, givenParameter: SpriteCallbackOptions) => import("../Animations/Sequence.js").default | undefined;
+        animation: (value: import("../helper.js").OrFunction<import("../Animations/Animation.js").IAnimation | (string | number | import("../Animations/Animation.js").IAnimation)[], []> | undefined, givenParameter: SpriteCallbackOptions) => import("../Animations/Animation.js").IAnimation | undefined;
         enabled: boolean;
         isClickable: boolean;
         tag: (value: import("../helper.js").OrFunction<string | string[], []> | undefined, givenParameter: SpriteCallbackOptions) => string[];
