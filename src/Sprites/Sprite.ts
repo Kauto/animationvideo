@@ -2,7 +2,7 @@ import type { OutputInfo } from "../Engine"
 import type { AdditionalModifier, ParameterListWithoutTime } from "../Scene"
 import type { OrFunction, OrPromise } from "../helper";
 import type Layer from "../Layer";
-import Sequence from "../Animations/Sequence";
+import Sequence, { TAnimationSequence } from "../Animations/Sequence";
 import { IAnimation } from "../Animations/Animation";
 import calc from "../func/calc";
 import ifNull from "../func/ifnull";
@@ -37,7 +37,7 @@ export type ISpriteFunctionOrSprite = ISpriteFunction | ISprite
 
 
 export interface SpriteBaseOptions {
-    animation?: OrFunction<IAnimation | (IAnimation|number|string)[]>
+    animation?: OrFunction<TAnimationSequence>
     enabled?: OrFunction<boolean>
     isClickable?: OrFunction<boolean>
     tag?: OrFunction<string[] | string>

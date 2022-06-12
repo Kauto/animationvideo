@@ -1,6 +1,6 @@
 import { ISprite } from '../Sprites/Sprite';
 import type { IAnimation } from './Animation';
-import Sequence from './Sequence';
+import Sequence, { TAnimationSequence } from './Sequence';
 declare class State implements IAnimation {
     _states: Record<string, Sequence | State>;
     _transitions: Record<string, Sequence | State>;
@@ -8,8 +8,8 @@ declare class State implements IAnimation {
     _currentState: Sequence | State | undefined;
     _isTransitioningToStateName: string | undefined;
     constructor({ states, transitions, defaultState }: {
-        states?: Record<string, IAnimation[] | Sequence>;
-        transitions?: Record<string, IAnimation[] | Sequence>;
+        states?: Record<string, TAnimationSequence>;
+        transitions?: Record<string, TAnimationSequence>;
         defaultState: string;
     });
     setState(name: string): void;

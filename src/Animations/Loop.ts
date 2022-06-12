@@ -2,14 +2,14 @@ import calc from "../func/calc";
 import ifNull from "../func/ifnull";
 import { ISprite } from "../Sprites/Sprite";
 import type { IAnimation } from "./Animation";
-import Sequence from "./Sequence";
+import Sequence, { AnimationSequenceOptions } from "./Sequence";
 
 export default class Loop implements IAnimation {
   _Aniobject: Sequence
   _times:number
   _timesOrg:number
 
-  constructor(times:number, ...Aniobject:IAnimation[]) {
+  constructor(times:number, ...Aniobject:AnimationSequenceOptions) {
     this._Aniobject =
       Aniobject[0] instanceof Sequence
         ? Aniobject[0]

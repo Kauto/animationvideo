@@ -1,6 +1,6 @@
 import { ISprite } from '../Sprites/Sprite';
 import type { IAnimation } from './Animation';
-import Sequence from './Sequence';
+import Sequence, { TAnimationSequence } from './Sequence';
 
 class State implements IAnimation {
   _states: Record<string, Sequence | State>
@@ -14,8 +14,8 @@ class State implements IAnimation {
     transitions = {},
     defaultState
   }: {
-    states?: Record<string, IAnimation[] | Sequence>
-    transitions?: Record<string, IAnimation[] | Sequence>
+    states?: Record<string, TAnimationSequence>
+    transitions?: Record<string, TAnimationSequence>
     defaultState: string
   }) {
     // save possible states

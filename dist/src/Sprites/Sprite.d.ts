@@ -2,6 +2,7 @@ import type { OutputInfo } from "../Engine";
 import type { AdditionalModifier, ParameterListWithoutTime } from "../Scene";
 import type { OrFunction, OrPromise } from "../helper";
 import type Layer from "../Layer";
+import Sequence, { TAnimationSequence } from "../Animations/Sequence";
 import { IAnimation } from "../Animations/Animation";
 export declare type TTagParameter = string | string[] | ((value: string, index: number, array: string[]) => unknown);
 export interface ISprite {
@@ -28,7 +29,7 @@ export declare type ISpriteFunction = (params: ParameterListWithoutTime & {
 }) => number | boolean;
 export declare type ISpriteFunctionOrSprite = ISpriteFunction | ISprite;
 export interface SpriteBaseOptions {
-    animation?: OrFunction<IAnimation | (IAnimation | number | string)[]>;
+    animation?: OrFunction<TAnimationSequence>;
     enabled?: OrFunction<boolean>;
     isClickable?: OrFunction<boolean>;
     tag?: OrFunction<string[] | string>;
@@ -48,7 +49,7 @@ export declare class SpriteBase<O extends SpriteBaseOptions = SpriteBaseOptions,
     constructor(givenParameter: O);
     _parseParameterList(parameterList: TParameterList<O, P>, givenParameter: O): P;
     _getBaseParameterList(): {
-        animation: (value: SpriteBaseOptions['animation'], givenParameter: O) => IAnimation | undefined;
+        animation: (value: SpriteBaseOptions['animation'], givenParameter: O) => Sequence | undefined;
         enabled: boolean;
         isClickable: boolean;
         tag: (value: SpriteBaseOptions['tag'], givenParameter: O) => string[];
