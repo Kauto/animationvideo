@@ -26,11 +26,11 @@ export default class Path extends Group<SpritePathOptions, SpritePathOptionsInte
     _path2D: Path2D;
     constructor(givenParameters: SpritePathOptions);
     _getParameterList(): never;
-    changeToPathInit(from: number[][][] | string, to: number[][][] | string): number[][][];
+    changeToPathInit(from: number[][][] | string, to: number[][][] | string): [number[][][], number[][][]];
     changeToPath(progress: number, data: {
         pathFrom: number[][][];
         pathTo: number[][][];
-    }): any;
+    }): number[][][];
     detect(context: CanvasRenderingContext2D, x: number, y: number): import("./Sprite").ISprite | undefined;
     draw(context: CanvasRenderingContext2D, additionalModifier: AdditionalModifier): void;
 }

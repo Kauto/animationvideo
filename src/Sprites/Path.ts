@@ -69,7 +69,7 @@ export default class Path extends Group<SpritePathOptions,SpritePathOptionsInter
   }
 
   // helper function for changeTo
-  changeToPathInit(from: number[][][] | string, to: number[][][] | string): number[][][] {
+  changeToPathInit(from: number[][][] | string, to: number[][][] | string): [number[][][], number[][][]] {
     return pasition._preprocessing(
       typeof from === "string" ? pasition.path2shapes(from) : Array.isArray(from) ? from : [],
       typeof to === "string" ? pasition.path2shapes(to) : Array.isArray(to) ? to : []
@@ -79,7 +79,7 @@ export default class Path extends Group<SpritePathOptions,SpritePathOptionsInter
   changeToPath(progress: number, data: {
     pathFrom: number[][][]
     pathTo: number[][][]
-  }) {
+  }):number[][][] {
     return pasition._lerp(data.pathFrom, data.pathTo, progress);
   }
 
