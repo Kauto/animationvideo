@@ -3,7 +3,7 @@ export interface EngineOptions {
     canvas: HTMLCanvasElement;
     scene?: null | Scene;
     sceneParameter?: Record<any, any>;
-    autoSize?: AutoSizeSettings | boolean;
+    autoSize?: Partial<AutoSizeSettings> | boolean;
     clickToPlayAudio?: boolean;
     reduceFramerate?: boolean;
 }
