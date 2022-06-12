@@ -9,9 +9,10 @@
   "amdName": "AnimationVideo",
   "version": "1.0.1",
   "description": "Javascript-Libary for animation and audio syncing",
-  "main": "dist/animationvideo.cjs",
-  "module": "dist/animationvideo.module.js",
-  "unpkg": "dist/animationvideo.umd.js",
+  "main": "./dist/animationvideo.cjs",
+  "module": "./dist/animationvideo.module.js",
+  "unpkg": "./dist/animationvideo.umd.js",
+  "types": "./dist/animationvideo.d.ts",
   "scripts": {
     "build": "microbundle -f es,cjs --compress --strict && microbundle -f modern,umd --external none --compress --strict ",
     "dev": "microbundle watch -f umd --no-compress --external none",

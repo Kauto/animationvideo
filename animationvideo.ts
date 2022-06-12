@@ -18,14 +18,3 @@ export {
   Middleware,
   Position
 };
-
-export default {
-  Engine,
-  Scene,
-  ImageManager,
-  Sprites,
-  Animations,
-  Easing,
-  Middleware,
-  Position
-};
