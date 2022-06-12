@@ -171,7 +171,7 @@ export interface AdditionalModifier {
   radius?: number
 }
 
-const defaultMiddlewareCommandList = {
+const defaultMiddlewareCommandList = ()=>({
   _all: [],
   init: [],
   isDrawFrame: [],
@@ -190,7 +190,7 @@ const defaultMiddlewareCommandList = {
   calcFrames: [],
   tickChunk: [],
   additionalModifier: [],
-}
+})
 
 
 
@@ -199,7 +199,7 @@ class Scene {
   _imageManager: typeof ImageManager
   _totalTimePassed: number
   _engine: Engine | undefined
-  _middleware: MiddlewareCommandList<ConfigurationObject> = defaultMiddlewareCommandList
+  _middleware: MiddlewareCommandList<ConfigurationObject> = defaultMiddlewareCommandList()
   _stopPropagation: boolean = false
   _transform: Transform | undefined
   _transformInvert: Transform | undefined
@@ -243,7 +243,7 @@ class Scene {
           if (c.type) middlewareCommandList[`t_${c.type}`] = [c];
           return middlewareCommandList;
         },
-        defaultMiddlewareCommandList
+        defaultMiddlewareCommandList()
       );
   }
   get middlewares() {

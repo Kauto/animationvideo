@@ -156,12 +156,14 @@ export default class Element implements ConfigurationObject {
 
       const p = ctx.getImageData(cx, cy, 1, 1).data;
       if (p[3]) {
+        const layerId = p[2];
+        const elementId = p[0] + (p[1] << 8);
         Object.assign(param, {
-          layerId: p[2],
-          elementId: p[0] + (p[1] << 8),
+          layerId,
+          elementId,
           element: layerManager
-            .getById(param.layerId)
-            .getById(param.elementId)  
+            .getById(layerId)
+            .getById(elementId)  
         })
         this._dispatchEvent(scene, isClick, param);
       } else {

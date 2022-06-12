@@ -7,7 +7,7 @@ import { ISpriteFunctionOrSprite } from '../Sprites/Sprite';
 
 export default class Events implements ConfigurationObject {
   type = "events"
-  _reseted:boolean = false
+  _reseted: boolean = false
 
   _events: {
     n: HTMLElement,
@@ -110,7 +110,8 @@ export default class Events implements ConfigurationObject {
     this._events = [];
   }
 
-  reset(params: ParameterListWithoutTime, layerManager:LayerManager| ISpriteFunctionOrSprite[][]) {
+  reset(params: ParameterListWithoutTime, layerManager: LayerManager | ISpriteFunctionOrSprite[][]) {
+    this._reseted = true;
     return layerManager;
   }
 

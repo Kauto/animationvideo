@@ -64,7 +64,6 @@ export default class TimingAudio extends TimingDefault implements ConfigurationO
 
   currentTime() {
     let currentTime = super.currentTime();
-    console.log(1);
     if (this._audioElement) {
       if (this._audioElement.ended && this._audioElement.duration) {
         return this._audioElement.duration * 1000;
