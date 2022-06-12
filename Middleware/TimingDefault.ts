@@ -6,8 +6,8 @@ import type { ConfigurationObject, ParameterList, ParameterListWithoutTime } fro
 
 export interface MiddlewareTimingDefaultOptions {
   tickChunk?: OrFunction<number>
-  maxSkippedTickChunk?:OrFunction<number|undefined>
-  tickChunkTolerance?:OrFunction<number|undefined>
+  maxSkippedTickChunk?: OrFunction<number | undefined>
+  tickChunkTolerance?: OrFunction<number | undefined>
 }
 
 export default class TimingDefault implements ConfigurationObject {
@@ -19,9 +19,9 @@ export default class TimingDefault implements ConfigurationObject {
   type = "timing"
   totalTimePassed = 0
 
-  constructor(configuration:MiddlewareTimingDefaultOptions = {}) {
+  constructor(configuration: MiddlewareTimingDefaultOptions = {}) {
     this._configuration = configuration;
-    this._tickChunk = ifNull(calc(this._configuration.tickChunk), 120)
+    this._tickChunk = ifNull(calc(this._configuration.tickChunk), 1000 / 60)
     this._maxSkippedTickChunk = ifNull(
       calc(this._configuration.maxSkippedTickChunk),
       120
@@ -32,23 +32,20 @@ export default class TimingDefault implements ConfigurationObject {
     );
   }
 
-  init(_params:ParameterListWithoutTime) {}
+  init(_params: ParameterListWithoutTime) { }
 
   currentTime() {
-    return window.performance ? performance.now() : Date.now();
+    return window.performance ? window.performance.now() : Date.now();
   }
 
-  clampTime({ timePassed } : ParameterList) {
+  clampTime({ timePassed }: ParameterList) {
     const maxTime = this._tickChunk
       ? this._tickChunk * this._maxSkippedTickChunk
       : 2000;
-    if (timePassed > maxTime) {
-      return maxTime;
-    }
-    return timePassed;
+    return timePassed > maxTime ? maxTime : timePassed
   }
 
-  shiftTime({ timePassed } : ParameterList) {
+  shiftTime({ timePassed }: ParameterList) {
     return this._tickChunk ? -(timePassed % this._tickChunk) : 0;
   }
 
@@ -60,11 +57,11 @@ export default class TimingDefault implements ConfigurationObject {
     return !!this._tickChunk;
   }
 
-  hasOneChunkedFrame({ timePassed } : ParameterList) {
+  hasOneChunkedFrame({ timePassed }: ParameterList) {
     return timePassed >= this._tickChunk - this._tickChunkTolerance;
   }
 
-  calcFrames({ timePassed } : ParameterList) {
+  calcFrames({ timePassed }: ParameterList) {
     return Math.min(
       this._maxSkippedTickChunk,
       Math.floor((timePassed + this._tickChunkTolerance) / this._tickChunk)

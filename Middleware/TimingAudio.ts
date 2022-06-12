@@ -10,8 +10,8 @@ export default class TimingAudio extends TimingDefault implements ConfigurationO
   _audioStartTime: number | undefined = undefined
   _audioPosition: number | undefined = undefined
   _enableAndroidHack: boolean = false
-  _audioElement: undefined|HTMLMediaElement & {
-    controller?: Record<string,any>
+  _audioElement: undefined | HTMLMediaElement & {
+    controller?: Record<string, any>
   }
 
   constructor(configuration: MiddlewareTimingAudioOptions) {
@@ -50,7 +50,7 @@ export default class TimingAudio extends TimingDefault implements ConfigurationO
         };
         this._audioElement!.addEventListener("canplaythrough", canplaythrough);
         this._audioElement!.onerror = () => {
-          this._audioElement=undefined
+          this._audioElement = undefined
           resolve(undefined);
         }
         this._audioElement!.load();
@@ -64,6 +64,7 @@ export default class TimingAudio extends TimingDefault implements ConfigurationO
 
   currentTime() {
     let currentTime = super.currentTime();
+    console.log(1);
     if (this._audioElement) {
       if (this._audioElement.ended && this._audioElement.duration) {
         return this._audioElement.duration * 1000;
