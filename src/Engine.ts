@@ -495,7 +495,7 @@ class Engine {
     this._realLastTimestamp = timestamp;
   }
 
-  async run(runParameter: Record<any, any>) {
+  async run(runParameter?: Record<any, any>) {
     this._runParameter = runParameter || {};
 
     await this.stop();

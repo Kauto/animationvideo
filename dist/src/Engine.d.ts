@@ -73,7 +73,7 @@ declare class Engine {
     switchScene(scene: Scene | null | undefined, sceneParameter?: undefined | Record<any, any>): this;
     _now(): number;
     _mainLoop(timestamp: number): void;
-    run(runParameter: Record<any, any>): Promise<this>;
+    run(runParameter?: Record<any, any>): Promise<this>;
     stop(): Promise<void>;
     destroy(): Promise<this>;
 }
