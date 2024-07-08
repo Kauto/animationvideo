@@ -113,13 +113,14 @@ import QuadInOut from "eases/quad-in-out";
 This is possible with [Webpack >= 4](https://webpack.js.org/) and other packers. For older packers you can use the main package and extract the needed components.
 
 ```js
-import AnimationVideo from "animationvideo";
+import AnimationVideo from "lib/animationvideo";
+
 const {
-  Engine,
-  Scenes: { Norm },
-  Animations: { Forever, ChangeTo },
-  Sprites: { Image, FastBlur },
-  Easing: { QuadInOut }
+    Engine,
+    Scenes: {Norm},
+    Animations: {Forever, ChangeTo},
+    Sprites: {Image, FastBlur},
+    Easing: {QuadInOut}
 } = AnimationVideo;
 ```
 
@@ -693,86 +694,87 @@ new Engine({
 This scene is similar to the [Default](#default)-scene. But the coordinates are different: the middle of the canvas will be at 0, 0, left and bottom of the canvas at -1, -1 and the top right is at 1, 1. In addition the Norm has a function named `transformPoint(x,y)` that will transform normal x, y coordinates of the canvas (f.e. mouse position) into Norm-coordinates.
 
 ```js
-import Animationvideo from "animationvideo";
+import Animationvideo from "lib/animationvideo";
+
 const {
-  Engine,
-  Scenes: { Norm },
-  Animations: { Forever, ChangeTo },
-  Sprites: { Circle, FastBlur },
-  Easing: { CubicInOut }
+    Engine,
+    Scenes: {Norm},
+    Animations: {Forever, ChangeTo},
+    Sprites: {Circle, FastBlur},
+    Easing: {CubicInOut}
 } = Animationvideo;
 
 // The Engine runs the scene "Norm"
 new Engine({
-  // enable autoSize
-  autoSize: true,
-  // set canvas
-  canvas: document.querySelector("canvas"),
-  // The Engine uses the scene "Norm"
-  scene: new Norm(
-    class myExample {
-      // mouse event that we will bind
-      eventMouseMove(e) {
-        // use transforPoint to transform mouse coordinates to internal Norm-ccordinates
-        [this.mx, this.my] = this.scene.transformPoint(e.offsetX, e.offsetY);
-      }
+    // enable autoSize
+    autoSize: true,
+    // set canvas
+    canvas: document.querySelector("canvas"),
+    // The Engine uses the scene "Norm"
+    scene: new Norm(
+        class myExample {
+            // mouse event that we will bind
+            eventMouseMove(e) {
+                // use transforPoint to transform mouse coordinates to internal Norm-ccordinates
+                [this.mx, this.my] = this.scene.transformPoint(e.offsetX, e.offsetY);
+            }
 
-      init({ engine, output, scene }) {
-        // set values we need for position tracking
-        this.mx = 1;
-        this.my = 0.5;
-        this.scene = scene;
+            init({engine, output, scene}) {
+                // set values we need for position tracking
+                this.mx = 1;
+                this.my = 0.5;
+                this.scene = scene;
 
-        // add mouse move event
-        output.canvas.addEventListener(
-          "mousemove",
-          this.eventMouseMove.bind(this)
-        );
-      }
+                // add mouse move event
+                output.canvas.addEventListener(
+                    "mousemove",
+                    this.eventMouseMove.bind(this)
+                );
+            }
 
-      destroy({ output }) {
-        // don't forget to clean up
-        output.canvas.removeEventListener("mousemove", this.eventMouseMove);
-      }
+            destroy({output}) {
+                // don't forget to clean up
+                output.canvas.removeEventListener("mousemove", this.eventMouseMove);
+            }
 
-      reset({ layerManager }) {
-        // background will be a feedback effect
-        layerManager.addLayer().addElement(
-          new FastBlur({
-            alpha: 0.9,
-            scaleX: 10,
-            scaleY: 10,
-            darker: 0.3,
-            clear: true,
-            pixel: true
-          })
-        );
+            reset({layerManager}) {
+                // background will be a feedback effect
+                layerManager.addLayer().addElement(
+                    new FastBlur({
+                        alpha: 0.9,
+                        scaleX: 10,
+                        scaleY: 10,
+                        darker: 0.3,
+                        clear: true,
+                        pixel: true
+                    })
+                );
 
-        // above is a circle that will move to the mouse every 500ms
-        this.layerMove = layerManager.addLayer();
-        layerManager.addLayer().addElements([
-          new Circle({
-            x: this.mx,
-            y: this.my,
-            scaleX: 0.1,
-            scaleY: 0.1,
-            color: "#F00",
-            animation: new Forever([
-              new ChangeTo(
-                {
-                  x: () => this.mx,
-                  y: () => this.my
-                },
-                500,
-                CubicInOut
-              )
-            ])
-          })
-        ]);
-        return layerManager;
-      }
-    }
-  )
+                // above is a circle that will move to the mouse every 500ms
+                this.layerMove = layerManager.addLayer();
+                layerManager.addLayer().addElements([
+                    new Circle({
+                        x: this.mx,
+                        y: this.my,
+                        scaleX: 0.1,
+                        scaleY: 0.1,
+                        color: "#F00",
+                        animation: new Forever([
+                            new ChangeTo(
+                                {
+                                    x: () => this.mx,
+                                    y: () => this.my
+                                },
+                                500,
+                                CubicInOut
+                            )
+                        ])
+                    })
+                ]);
+                return layerManager;
+            }
+        }
+    )
 }).run(); // start the engine
 ```
 
@@ -784,106 +786,111 @@ This is a [Norm](#norm)-Scene that has controls for zooming and moving the conte
 
 ```js
 import "./styles.css";
-import Animationvideo from "animationvideo";
+import Animationvideo from "lib/animationvideo";
+
 const {
-  Engine,
-  Scenes: { NormCamera },
-  Animations: { Remove, ChangeTo },
-  Sprites: { Image, Rect },
-  Easing: { QuadOut }
+    Engine,
+    Scenes: {NormCamera},
+    Animations: {Remove, ChangeTo},
+    Sprites: {Image, Rect},
+    Easing: {QuadOut}
 } = Animationvideo;
 
 // The Engine runs the scene "NormCamera"
 new Engine({
-  autoSize: true,
-  canvas: document.querySelector("canvas"),
-  // The Engine uses the scene "NormCamera"
-  scene: new NormCamera({
-    cam: {
-      // use alternative camera controls
-      // -> you will move the camera with second mouse button/two finger touch
-      alternative: true,
-      zoomMax: 10, // max zoom factor
-      zoomMin: 0.5, // min zoom factor
-      zoomFactor: 1.2, // scoll factor of the mouse wheel
-      tween: 4, // how fast to interpolate the new position - higher = slower
-      registerEvents: true, // let NormCamera be the mouse
-      preventDefault: true, // block all other events that are bound
-      enabled: true, // enable camera movement - with this you can lock the camera
-      callResize: true, // call the resize events of the sprites
-      doubleClickDetectInterval: 350 // how long to wait (ms) for double click detection
-    },
-    // click event
-    // x, y is in Norm-space
-    click({ event, scene, x, y, imageManager }) {
-      scene.zoomTo(x - 0.2, y - 0.2, x + 0.2, y + 0.2);
-    },
-    // double click event
-    // x, y is in Norm-space
-    doubleClick({ event, scene, x, y, imageManager }) {
-      scene.zoomTo(-1, -1, 1, 1);
-    },
-    // event while marking a region - only with alternative camera controls
-    // x1,y1 will be the upper left corner, x2,y2 the bottom right corner in Norm Space
-    // fromX, fromY is the start position of the region
-    // toX, toY is the current position of the region
-    regionMove({ event, scene, x1, y1, x2, y2, fromX, fromY, toX, toY, imageManager }) {
-      this.spriteMarker.enabled = true;
-      this.spriteMarker.x = x1;
-      this.spriteMarker.y = y1;
-      this.spriteMarker.width = x2 - x1;
-      this.spriteMarker.height = y2 - y1;
-    },
-    // event after marking a region - only with alternative camera controls
-    // x1,y1 will be the upper left corner, x2,y2 the bottom right corner in Norm Space
-    // fromX, fromY is the start position of the region
-    // toX, toY is the current position of the region
-    region({ event, scene, x1, y1, x2, y2, fromX, fromY, toX, toY, imageManager }) {
-      this.spriteMarker.enabled = false;
-      this.layerOverlay.addElement(
-        new Rect({
-          x: x1,
-          y: y1,
-          width: x2 - x1,
-          height: y2 - y1,
-          color: "#fff",
-          compositeOperation: "lighter",
-          animation: [new ChangeTo({ alpha: 0 }, 3000, QuadOut), new Remove()]
-        })
-      );
-    },
-    // event when moving the mouse/finger over the canvas
-    mouseMove({ event, scene, x, y, imageManager }) {},
-    // event when start clicking the mouse/touching the finger over the canvas
-    mouseDown({ event, scene, x, y, imageManager }) {},
-    // event when end clicking the mouse/touching the finger over the canvas
-    mouseUp({ event, scene, x, y, imageManager }) {},
-    // event when moving the mouse out of the canvas
-    mouseOut({ event, scene, imageManager }) {},
+    autoSize: true,
+    canvas: document.querySelector("canvas"),
+    // The Engine uses the scene "NormCamera"
+    scene: new NormCamera({
+        cam: {
+            // use alternative camera controls
+            // -> you will move the camera with second mouse button/two finger touch
+            alternative: true,
+            zoomMax: 10, // max zoom factor
+            zoomMin: 0.5, // min zoom factor
+            zoomFactor: 1.2, // scoll factor of the mouse wheel
+            tween: 4, // how fast to interpolate the new position - higher = slower
+            registerEvents: true, // let NormCamera be the mouse
+            preventDefault: true, // block all other events that are bound
+            enabled: true, // enable camera movement - with this you can lock the camera
+            callResize: true, // call the resize events of the sprites
+            doubleClickDetectInterval: 350 // how long to wait (ms) for double click detection
+        },
+        // click event
+        // x, y is in Norm-space
+        click({event, scene, x, y, imageManager}) {
+            scene.zoomTo(x - 0.2, y - 0.2, x + 0.2, y + 0.2);
+        },
+        // double click event
+        // x, y is in Norm-space
+        doubleClick({event, scene, x, y, imageManager}) {
+            scene.zoomTo(-1, -1, 1, 1);
+        },
+        // event while marking a region - only with alternative camera controls
+        // x1,y1 will be the upper left corner, x2,y2 the bottom right corner in Norm Space
+        // fromX, fromY is the start position of the region
+        // toX, toY is the current position of the region
+        regionMove({event, scene, x1, y1, x2, y2, fromX, fromY, toX, toY, imageManager}) {
+            this.spriteMarker.enabled = true;
+            this.spriteMarker.x = x1;
+            this.spriteMarker.y = y1;
+            this.spriteMarker.width = x2 - x1;
+            this.spriteMarker.height = y2 - y1;
+        },
+        // event after marking a region - only with alternative camera controls
+        // x1,y1 will be the upper left corner, x2,y2 the bottom right corner in Norm Space
+        // fromX, fromY is the start position of the region
+        // toX, toY is the current position of the region
+        region({event, scene, x1, y1, x2, y2, fromX, fromY, toX, toY, imageManager}) {
+            this.spriteMarker.enabled = false;
+            this.layerOverlay.addElement(
+                new Rect({
+                    x: x1,
+                    y: y1,
+                    width: x2 - x1,
+                    height: y2 - y1,
+                    color: "#fff",
+                    compositeOperation: "lighter",
+                    animation: [new ChangeTo({alpha: 0}, 3000, QuadOut), new Remove()]
+                })
+            );
+        },
+        // event when moving the mouse/finger over the canvas
+        mouseMove({event, scene, x, y, imageManager}) {
+        },
+        // event when start clicking the mouse/touching the finger over the canvas
+        mouseDown({event, scene, x, y, imageManager}) {
+        },
+        // event when end clicking the mouse/touching the finger over the canvas
+        mouseUp({event, scene, x, y, imageManager}) {
+        },
+        // event when moving the mouse out of the canvas
+        mouseOut({event, scene, imageManager}) {
+        },
 
-    images() {
-      return { imageFile: "https://placekitten.com/400/400" };
-    },
-    reset({ layerManager }) {
-      layerManager.addLayer().addElement(new Rect({ clear: true }));
-      layerManager.addLayer().addElement(
-        new Image({
-          normCover: true,
-          image: "imageFile"
-        })
-      );
-      this.layerOverlay = layerManager.addLayer();
-      this.spriteMarker = this.layerOverlay.addElement(
-        new Rect({
-          enabled: false,
-          color: "#fff",
-          norm: false,
-          compositeOperation: "difference"
-        })
-      );
-      return layerManager;
-    }
-  })
+        images() {
+            return {imageFile: "https://placekitten.com/400/400"};
+        },
+        reset({layerManager}) {
+            layerManager.addLayer().addElement(new Rect({clear: true}));
+            layerManager.addLayer().addElement(
+                new Image({
+                    normCover: true,
+                    image: "imageFile"
+                })
+            );
+            this.layerOverlay = layerManager.addLayer();
+            this.spriteMarker = this.layerOverlay.addElement(
+                new Rect({
+                    enabled: false,
+                    color: "#fff",
+                    norm: false,
+                    compositeOperation: "difference"
+                })
+            );
+            return layerManager;
+        }
+    })
 }).run(); // start the engine
 ```
 
@@ -898,242 +905,243 @@ Every scene is given a timing, that describes, how time is measured and how ofte
 After setting a "**audioElement**" the time for the animation is given by this audio-element. "**end**" of the scene will be automatically called without giving "**endTime**".
 
 ```js
-import Animationvideo from "animationvideo";
+import Animationvideo from "lib/animationvideo";
+
 const {
-  Engine,
-  Scenes: { Default: SceneDefault },
-  Timing: { Audio: TimingAudio },
-  Animations: { ChangeTo, Wait, Remove },
-  Sprites: { Rect, Path, StarField, FastBlur },
-  Easing: { QuadInOut, ElasticOut, BounceOut, QuadOut }
+    Engine,
+    Scenes: {Default: SceneDefault},
+    Timing: {Audio: TimingAudio},
+    Animations: {ChangeTo, Wait, Remove},
+    Sprites: {Rect, Path, StarField, FastBlur},
+    Easing: {QuadInOut, ElasticOut, BounceOut, QuadOut}
 } = Animationvideo;
 
 new Engine({
-  // clicking on the canvas will start the audio
-  clickToPlayAudio: true,
-  // the canvas for the animation
-  canvas: document.querySelector("canvas"),
-  // The Engine uses the scene "Audio"
-  scene: new SceneDefault({
-    // audio element that plays the music
-    timing: new TimingAudio({
-      audioElement: document.getElementById('audio')
-    }),
-    // function that runs when the audio ends
-    end() {
-      window.alert("audio done");
-    },
-    // show totalTimePassed
-    update({ totalTimePassed }) {
-      const tickElement = document.getElementById("tick");
-      if (tickElement) {
-        tickElement.innerText = Math.round(totalTimePassed);
-      }
-    },
-    // initialisation of the scene with sprites
-    reset() {
-      return [
-        // first layer is the background
-        [
-          new Rect({
-            color: "#117",
-            animation: [
-              500,
-              new ChangeTo({ color: "#88C" }, 1000),
-              new Wait(14500),
-              new ChangeTo({ color: "#C88" }, 300),
-              new ChangeTo({ color: "#FCC" }, 3000)
-            ]
-          })
-        ],
-        // effect rects
-        [
-          new Rect({
-            color: "#66b",
-            width: 100,
-            x: -100,
-            animation: [
-              500,
-              new ChangeTo({ x: 100 }, 1000, ElasticOut),
-              new Wait(14500),
-              new ChangeTo({ alpha: 0 }, 300),
-              new Remove()
-            ]
-          }),
-          new Rect({
-            color: "#66b",
-            width: 100,
-            x: 800,
-            animation: [
-              500,
-              new ChangeTo({ x: 600 }, 1000, ElasticOut),
-              new Wait(14500),
-              new ChangeTo({ alpha: 0 }, 300),
-              new Remove()
-            ]
-          }),
-          new Rect({
-            color: "#449",
-            width: 100,
-            x: -100,
-            animation: [
-              500,
-              new ChangeTo({ x: 200 }, 1000, ElasticOut),
-              new Wait(14500),
-              new ChangeTo({ alpha: 0 }, 300),
-              new Remove()
-            ]
-          }),
-          new Rect({
-            color: "#449",
-            width: 100,
-            x: 800,
-            animation: [
-              500,
-              new ChangeTo({ x: 500 }, 1000, ElasticOut),
-              new Wait(14500),
-              new ChangeTo({ alpha: 0 }, 300),
-              new Remove()
-            ]
-          }),
-          new Rect({
-            color: "#227",
-            width: 100,
-            x: -100,
-            animation: [
-              500,
-              new ChangeTo({ x: 300 }, 1000, ElasticOut),
-              new Wait(14500),
-              new ChangeTo({ alpha: 0 }, 300),
-              new Remove()
-            ]
-          }),
-          new Rect({
-            color: "#227",
-            width: 100,
-            x: 800,
-            animation: [
-              500,
-              new ChangeTo({ x: 400 }, 1000, ElasticOut),
-              new Wait(14500),
-              new ChangeTo({ alpha: 0 }, 300),
-              new Remove()
-            ]
-          })
-        ],
-        // logo that morphs
-        [
-          new Path({
-            path:
-              "M123.3 5.5c-5.7 1.3-10.9 4.8-14.6 9.8-9 12.1-4.8 31 8.6 37.8L121 55v47.7l-4 3.2c-3.7 3-5.3 3.4-19.9 5.7l-15.9 2.5-3.6-2.5c-8.3-5.6-24.3-6.2-31.6-1.1-2.8 1.9-4.3 3.9-5 6.5l-1 3.7-9.7 1.6c-12 2-16.5 4.8-20.5 12.7-3.5 6.9-4.8 13.8-4.8 25.4 0 10 2.3 16.9 7.2 21.3 2.2 2.1 68.6 37.5 80.3 42.9l5 2.3 36-2.9c19.8-1.6 39.2-3.1 43-3.4 40.2-3.1 37.7-2.8 42.2-6.2 5.5-4.2 7.5-12.4 6.3-25.1-1-9.5-2.5-12.8-20.3-43.8-20.4-35.6-22.3-38.4-29.1-41.9-3.3-1.7-6.9-3.9-8-5-5.8-5.1-13.9-7.1-23.7-5.8l-5.6.8-.6-14c-1.2-25.1-1.3-24.2 3.2-26.5 14.2-7.3 17.6-27.4 6.8-39.7-2.2-2.5-5.1-5.1-6.6-5.8-4.7-2.5-12.2-3.3-17.8-2.1z",
-            color: "#000",
-            borderColor: "#FFF",
-            lineWidth: 3,
-            x: 270,
-            y: 30,
-            alpha: 0,
-            scaleY: 0.7,
-            rotationInDegree: -5,
-            animation: [
-              // wait 2000 ms
-              2000,
-              // intro
-              new ChangeTo(
-                {
-                  rotationInDegree: 0,
-                  scaleY: 1,
-                  alpha: 1
-                },
-                1500,
-                BounceOut
-              ),
-              new Wait(500),
-              new ChangeTo(
-                {
-                  x: 260,
-                  y: 20,
-                  scaleX: 1.1,
-                  scaleY: 1.1
-                },
-                4000,
-                QuadInOut
-              ),
-              new Wait(1000),
-              // morph
-              new ChangeTo(
-                {
-                  path:
-                    "M384,48.734c-70.692,0-128,57.308-128,128c0-70.692-57.308-128-128-128s-128,57.308-128,128c0,137.424,188.048,252.681,241.805,282.821c8.823,4.947,19.567,4.947,28.39,0C323.952,429.416,512,314.158,512,176.734C512,106.042,454.692,48.734,384,48.734z",
-                  scaleX: 0.5,
-                  scaleY: 0.5
-                },
-                1000,
-                BounceOut
-              ),
-              new Wait(6000),
-              new ChangeTo(
-                {
-                  x: 215,
-                  y: -25,
-                  scaleX: 0.7,
-                  scaleY: 0.7
-                },
-                6500,
-                QuadInOut
-              )
-            ]
-          })
-        ],
-        // effect stars
-        [
-          new StarField({
-            moveX: 0,
-            animation: [
-              4000,
-              new ChangeTo({ moveY: -4 }, 1000, QuadInOut),
-              new Wait(2000),
-              new ChangeTo({ moveY: 0 }, 200, QuadOut),
-              new Wait(3300),
-              new ChangeTo(
-                {
-                  moveX: 4,
-                  moveY: -2
-                },
-                1000,
-                QuadInOut
-              ),
-              new Wait(3000),
-              new ChangeTo(
-                {
-                  moveX: 0,
-                  moveY: 0
-                },
-                200,
-                QuadOut
-              ),
-              new Remove()
-            ]
-          })
-        ],
-        // last layer consits of a blur effect
-        [
-          new FastBlur({
-            compositeOperation: "lighter", // make a glow
-            gridSize: 10, // the glow has the size of 10 times 10
-            // pixel: true,
-            darker: 0.5, // turn down the glow
-            alpha: 0, // not visible
-            animation: [
-              // wait 2000 ms
-              2000,
-              // blend in the half visible glow
-              new ChangeTo({ alpha: 0.4 }, 1500, QuadInOut)
-            ]
-          })
-        ]
-      ];
-    }
-  })
+    // clicking on the canvas will start the audio
+    clickToPlayAudio: true,
+    // the canvas for the animation
+    canvas: document.querySelector("canvas"),
+    // The Engine uses the scene "Audio"
+    scene: new SceneDefault({
+        // audio element that plays the music
+        timing: new TimingAudio({
+            audioElement: document.getElementById('audio')
+        }),
+        // function that runs when the audio ends
+        end() {
+            window.alert("audio done");
+        },
+        // show totalTimePassed
+        update({totalTimePassed}) {
+            const tickElement = document.getElementById("tick");
+            if (tickElement) {
+                tickElement.innerText = Math.round(totalTimePassed);
+            }
+        },
+        // initialisation of the scene with sprites
+        reset() {
+            return [
+                // first layer is the background
+                [
+                    new Rect({
+                        color: "#117",
+                        animation: [
+                            500,
+                            new ChangeTo({color: "#88C"}, 1000),
+                            new Wait(14500),
+                            new ChangeTo({color: "#C88"}, 300),
+                            new ChangeTo({color: "#FCC"}, 3000)
+                        ]
+                    })
+                ],
+                // effect rects
+                [
+                    new Rect({
+                        color: "#66b",
+                        width: 100,
+                        x: -100,
+                        animation: [
+                            500,
+                            new ChangeTo({x: 100}, 1000, ElasticOut),
+                            new Wait(14500),
+                            new ChangeTo({alpha: 0}, 300),
+                            new Remove()
+                        ]
+                    }),
+                    new Rect({
+                        color: "#66b",
+                        width: 100,
+                        x: 800,
+                        animation: [
+                            500,
+                            new ChangeTo({x: 600}, 1000, ElasticOut),
+                            new Wait(14500),
+                            new ChangeTo({alpha: 0}, 300),
+                            new Remove()
+                        ]
+                    }),
+                    new Rect({
+                        color: "#449",
+                        width: 100,
+                        x: -100,
+                        animation: [
+                            500,
+                            new ChangeTo({x: 200}, 1000, ElasticOut),
+                            new Wait(14500),
+                            new ChangeTo({alpha: 0}, 300),
+                            new Remove()
+                        ]
+                    }),
+                    new Rect({
+                        color: "#449",
+                        width: 100,
+                        x: 800,
+                        animation: [
+                            500,
+                            new ChangeTo({x: 500}, 1000, ElasticOut),
+                            new Wait(14500),
+                            new ChangeTo({alpha: 0}, 300),
+                            new Remove()
+                        ]
+                    }),
+                    new Rect({
+                        color: "#227",
+                        width: 100,
+                        x: -100,
+                        animation: [
+                            500,
+                            new ChangeTo({x: 300}, 1000, ElasticOut),
+                            new Wait(14500),
+                            new ChangeTo({alpha: 0}, 300),
+                            new Remove()
+                        ]
+                    }),
+                    new Rect({
+                        color: "#227",
+                        width: 100,
+                        x: 800,
+                        animation: [
+                            500,
+                            new ChangeTo({x: 400}, 1000, ElasticOut),
+                            new Wait(14500),
+                            new ChangeTo({alpha: 0}, 300),
+                            new Remove()
+                        ]
+                    })
+                ],
+                // logo that morphs
+                [
+                    new Path({
+                        path:
+                            "M123.3 5.5c-5.7 1.3-10.9 4.8-14.6 9.8-9 12.1-4.8 31 8.6 37.8L121 55v47.7l-4 3.2c-3.7 3-5.3 3.4-19.9 5.7l-15.9 2.5-3.6-2.5c-8.3-5.6-24.3-6.2-31.6-1.1-2.8 1.9-4.3 3.9-5 6.5l-1 3.7-9.7 1.6c-12 2-16.5 4.8-20.5 12.7-3.5 6.9-4.8 13.8-4.8 25.4 0 10 2.3 16.9 7.2 21.3 2.2 2.1 68.6 37.5 80.3 42.9l5 2.3 36-2.9c19.8-1.6 39.2-3.1 43-3.4 40.2-3.1 37.7-2.8 42.2-6.2 5.5-4.2 7.5-12.4 6.3-25.1-1-9.5-2.5-12.8-20.3-43.8-20.4-35.6-22.3-38.4-29.1-41.9-3.3-1.7-6.9-3.9-8-5-5.8-5.1-13.9-7.1-23.7-5.8l-5.6.8-.6-14c-1.2-25.1-1.3-24.2 3.2-26.5 14.2-7.3 17.6-27.4 6.8-39.7-2.2-2.5-5.1-5.1-6.6-5.8-4.7-2.5-12.2-3.3-17.8-2.1z",
+                        color: "#000",
+                        borderColor: "#FFF",
+                        lineWidth: 3,
+                        x: 270,
+                        y: 30,
+                        alpha: 0,
+                        scaleY: 0.7,
+                        rotationInDegree: -5,
+                        animation: [
+                            // wait 2000 ms
+                            2000,
+                            // intro
+                            new ChangeTo(
+                                {
+                                    rotationInDegree: 0,
+                                    scaleY: 1,
+                                    alpha: 1
+                                },
+                                1500,
+                                BounceOut
+                            ),
+                            new Wait(500),
+                            new ChangeTo(
+                                {
+                                    x: 260,
+                                    y: 20,
+                                    scaleX: 1.1,
+                                    scaleY: 1.1
+                                },
+                                4000,
+                                QuadInOut
+                            ),
+                            new Wait(1000),
+                            // morph
+                            new ChangeTo(
+                                {
+                                    path:
+                                        "M384,48.734c-70.692,0-128,57.308-128,128c0-70.692-57.308-128-128-128s-128,57.308-128,128c0,137.424,188.048,252.681,241.805,282.821c8.823,4.947,19.567,4.947,28.39,0C323.952,429.416,512,314.158,512,176.734C512,106.042,454.692,48.734,384,48.734z",
+                                    scaleX: 0.5,
+                                    scaleY: 0.5
+                                },
+                                1000,
+                                BounceOut
+                            ),
+                            new Wait(6000),
+                            new ChangeTo(
+                                {
+                                    x: 215,
+                                    y: -25,
+                                    scaleX: 0.7,
+                                    scaleY: 0.7
+                                },
+                                6500,
+                                QuadInOut
+                            )
+                        ]
+                    })
+                ],
+                // effect stars
+                [
+                    new StarField({
+                        moveX: 0,
+                        animation: [
+                            4000,
+                            new ChangeTo({moveY: -4}, 1000, QuadInOut),
+                            new Wait(2000),
+                            new ChangeTo({moveY: 0}, 200, QuadOut),
+                            new Wait(3300),
+                            new ChangeTo(
+                                {
+                                    moveX: 4,
+                                    moveY: -2
+                                },
+                                1000,
+                                QuadInOut
+                            ),
+                            new Wait(3000),
+                            new ChangeTo(
+                                {
+                                    moveX: 0,
+                                    moveY: 0
+                                },
+                                200,
+                                QuadOut
+                            ),
+                            new Remove()
+                        ]
+                    })
+                ],
+                // last layer consits of a blur effect
+                [
+                    new FastBlur({
+                        compositeOperation: "lighter", // make a glow
+                        gridSize: 10, // the glow has the size of 10 times 10
+                        // pixel: true,
+                        darker: 0.5, // turn down the glow
+                        alpha: 0, // not visible
+                        animation: [
+                            // wait 2000 ms
+                            2000,
+                            // blend in the half visible glow
+                            new ChangeTo({alpha: 0.4}, 1500, QuadInOut)
+                        ]
+                    })
+                ]
+            ];
+        }
+    })
 }).run(); // start the engine
 ```
 

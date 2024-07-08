@@ -13,28 +13,23 @@
   <canvas id="canvasCameraNorm" width="800" height="300">Browser too old</canvas>
   <div>
     <canvas id="canvasAudio" width="800" height="300">Browser too old</canvas><br />
-    <audio id="audio" controls style="width:800px"
+    <audio id="audio2" controls style="width:800px"
       src="https://incompetech.com/music/royalty-free/mp3-royaltyfree/The%20Curtain%20Rises.mp3"></audio>
     <div> Tick: <span id="tick">0</span></div>
     <p>"The Curtain Rises" Kevin MacLeod (incompetech.com)<br />
       Licensed under Creative Commons: By Attribution 3.0 License<br />
       http://creativecommons.org/licenses/by/3.0/</p>
   </div>
-  <script src="dist/animationvideo.umd.js"></script>
-  <script>
-    var SP = AnimationVideo.Sprites,
-      ANI = AnimationVideo.Animations,
-      Sequence = AnimationVideo.Sequence,
-      State = AnimationVideo.State,
-      Easing = AnimationVideo.Easing;
+  <script type="module">
+    import {Sprites as SP, Animations as ANI, Easing, Scene, Engine, Middleware, Position} from "./lib/animationvideo.ts"
 
-    var scene = new AnimationVideo.Scene({
+    var scene = new Scene({
       images: {
         arrow:
           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAp1JREFUeNqEU21IU1EYfu7unW5Ty6aBszYs6MeUjGVYokHYyH5E1B9rZWFEFPQnAwmy6Hc/oqhfJsRKSSZGH1JIIX3MNCsqLTD9o1Oj6ebnnDfvvefezrnbdCHhCw/n433P8z7nPe/hBEEAtX0U7hc164uwuvVSXKwZLoOmaRDim+7m9vZa0WiEKSUFFpNpCWlmMyypqTDRuYn6t3k8vmQ2gRDCxs0t9fW45F52aBTROJLtZl7nEZad2m+KtoQCQ0FBARyOCGRZ/q92I1WgqqXlfdd95VsrK8/pChIEqqpCkiQsiCII0aBQZZoWl8lzFDwsFjMl0DBLY8Lj41hBwK4jSQrWOIphL6xYyhwJDWGo6wFSaH1Y3PTCAsITE1oyAa8flhWkbSiCLX8vun11eiGIpiJ/z2nYdx5HqLdVV7elrOzsuqysL3rmBIGiKPizKCHHWY4PLVeQbnXAdegqdhy+hu8dDTBnbqQJZJ1A7u+vz7RaiymWCZgCRSF6Edk8b9cx+B/W6WuVxPaZnyiqXoPpyUmVYvkKTIFClHigEieKjYuSvETUllaF4GAUM1NT6ooaJDKx+aDfC9fByxj90REb+9ppmIoAscH/6leg8MS9DJXPAM9xHCM443K57C6biMjcHDaVVCHw9RmCA2/RGC5C00AqXk/m4p20HZK4CM/J3Zk9n0ecMBhDQnJHcrTisyMfdQXOilrdMfxcwoHq/fg5R59TiQV3hYGKo6X2J/c7LyQIjOx9GXhOw/zoJ8wEevRGyp53o/lGMNYsBgPtEwLecwov7/jGDKa1twT6o3KpL4MdZgGsWZLtfPr7f1q58k1JNHy7YYaM+J+K3Y2PmAIbRavX66229hrGVvvL5uzsHDEUvUu+NT1my78CDAAMK1a8/QaZCgAAAABJRU5ErkJggg=="
       },
       reset({ output: scene }) {
-        layer = [];
+        var layer = [];
         var l;
         l = [
           // new SP.FastBlur({
@@ -430,7 +425,7 @@
         return layer;
       }
     });
-    var engine = new AnimationVideo.Engine({
+    var engine = new Engine({
       canvas: document.getElementById("canvas"),
       scene: scene
     });
@@ -438,7 +433,7 @@
 
     
     // -------
-    var sceneNorm = new AnimationVideo.Scene(AnimationVideo.Middleware.Norm, AnimationVideo.Middleware.Event,
+    var sceneNorm = new Scene(Middleware.Norm, Middleware.Event,
       class test {
         mouseMove({x,y}) {
           [this.mx, this.my] = [x, y];
@@ -574,7 +569,7 @@
         }
       }
     );
-    var engineNorm = new AnimationVideo.Engine({
+    var engineNorm = new Engine({
       reduceFramerate: true,
       canvas: document.getElementById("canvasNorm"),
       autoSize: { setCanvasStyle: true, currentScale: 4 }
@@ -584,9 +579,9 @@
 
 
     // -------
-    new AnimationVideo.Engine({
+    new Engine({
       canvas: document.getElementById("canvasStarNorm"),
-      scene: new AnimationVideo.Scene(AnimationVideo.Middleware.Norm,
+      scene: new Scene(Middleware.Norm,
         class StateTest {
           constructor() {
             this.keyMap = [];
@@ -769,13 +764,13 @@
     }).run();
 
     // -----
-    new AnimationVideo.Engine({
+    new Engine({
       clickToPlayAudio: true,
       canvas: document.getElementById("canvasAudio"),
       // The Engine uses the scene "Audio"
-      scene: new AnimationVideo.Scene(new AnimationVideo.Middleware.TimingAudio({
+      scene: new Scene(new Middleware.TimingAudio({
           audioElement: document.getElementById('audio')
-        }), AnimationVideo.Middleware.LoadingScreen, {
+        }), Middleware.LoadingScreen, {
         end() {
           window.alert('audio done');
         },
@@ -1003,15 +998,15 @@
     }).run(); // start the engine
 
     // -----------
-    new AnimationVideo.Engine({
+    new Engine({
       canvas: document.getElementById("canvasCameraNorm"),
       // The Engine uses the scene "Audio"
-      scene: new AnimationVideo.Scene(
-      AnimationVideo.Middleware.Norm,
-      AnimationVideo.Middleware.Event,
-      AnimationVideo.Middleware.Element,
-      AnimationVideo.Middleware.Camera,
-      AnimationVideo.Middleware.CameraControlSecondButton,
+      scene: new Scene(
+      Middleware.Norm,
+      Middleware.Event,
+      Middleware.Element,
+      Middleware.Camera,
+      Middleware.CameraControlSecondButton,
       {
         clickElement({ element, x, y, mx, my }) {
           element.p.animation = new ANI.Sequence([
@@ -1051,7 +1046,7 @@
           this.spriteMarker.p.enabled = false;
           this.layerOverlay.addElement(
             new SP.Rect({
-              position: AnimationVideo.Position.LEFT_TOP,
+              position: Position.LEFT_TOP,
               x: x1,
               y: y1,
               width: x2 - x1,
@@ -1136,7 +1131,7 @@
           this.layerOverlay = layerManager.addLayer()
           this.spriteMarker = this.layerOverlay.addElement(
             new SP.Rect({
-              position: AnimationVideo.Position.LEFT_TOP,
+              position: Position.LEFT_TOP,
               enabled: false,
               color: '#fff',
               norm: false,
