@@ -1,7 +1,16 @@
 {
   "name": "animationvideo",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "type": "module",
+  "files": ["dist"],
+  "main": "./dist/animationvideo.umd.cjs",
+  "module": "./dist/animationvideo.js",
+  "exports": {
+    ".": {
+      "import": "./dist/animationvideo.js",
+      "require": "./dist/animationvideo.umd.cjs"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
