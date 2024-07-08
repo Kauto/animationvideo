@@ -1,7 +1,6 @@
 import calc from "../func/calc";
 import type { OrFunction } from "../helper.js";
-import type {ISpriteWithPosition} from "../Sprites/Sprite.js";
-
+import type { ISpriteWithPosition } from "../Sprites/Sprite.js";
 
 export default class Shake {
   _initialized = false;

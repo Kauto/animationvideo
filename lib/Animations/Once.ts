@@ -17,7 +17,7 @@ export default class Once implements IAnimation {
       return time;
     } else {
       const t = this._Aniobject.run(sprite, time);
-      if (typeof t === 'number' && t >= 0) {
+      if (typeof t === "number" && t >= 0) {
         this._times--;
       }
       return t;

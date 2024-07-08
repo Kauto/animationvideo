@@ -25,7 +25,17 @@ export default class ImageFrame implements IAnimation {
     this._duration = this._frameNumber.length * this._durationBetweenFrames;
   }
 
-  run(sprite: ISprite & {p: {frameX?: number, frameY?: number, frameWidth?: number, frameHeight?: number}}, time: number) {
+  run(
+    sprite: ISprite & {
+      p: {
+        frameX?: number;
+        frameY?: number;
+        frameWidth?: number;
+        frameHeight?: number;
+      };
+    },
+    time: number,
+  ) {
     let currentFrame = 0;
     if (time >= this._duration) {
       currentFrame = this._frameNumber[this._frameNumber.length - 1];

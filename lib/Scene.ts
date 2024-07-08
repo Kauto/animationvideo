@@ -1,6 +1,6 @@
 import ImageManager from "./ImageManager";
 import LayerManager from "./LayerManager";
-import calc, { WithoutFunction } from "./func/calc";
+import {calcB, WithoutFunction} from "./func/calc";
 import toArray from "./func/toArray";
 import Transform from "./func/transform";
 import TimingDefault from "./Middleware/TimingDefault";
@@ -17,10 +17,11 @@ import type { CameraPosition } from "./Middleware/Camera";
 import type CameraControl from "./Middleware/CameraControl";
 import type TimingAudio from "./Middleware/TimingAudio";
 
-type PickMatching<T, V> =
-    { [K in keyof T as T[K] extends V ? K : never]: T[K] }
+type PickMatching<T, V> = {
+  [K in keyof T as T[K] extends V ? K : never]: T[K];
+};
 
-type ExtractMethods<T> = PickMatching<T, Function|undefined>;
+type ExtractMethods<T> = PickMatching<T, Function | undefined>;
 
 export interface RectPosition {
   x1: number;
@@ -91,14 +92,14 @@ export interface ParameterListPositionEvent extends ParameterListWithoutTime {
 
 export interface ParameterListRegion extends ParameterListWithoutTime {
   event: Event | MouseEvent | TouchEvent;
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-  fromX: number,
-  fromY: number,
-  toX:number,
-  toY:number,
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  fromX: number;
+  fromY: number;
+  toX: number;
+  toY: number;
 }
 
 export type EventsReturn = (
@@ -234,8 +235,14 @@ const defaultMiddlewareCommandList = () => ({
 });
 
 class Scene<
-  TRunParameter extends Record<string | symbol, unknown> = Record<string | symbol, unknown>,
-  TSceneParameter extends Record<string | symbol, unknown> = Record<string | symbol, unknown>,
+  TRunParameter extends Record<string | symbol, unknown> = Record<
+    string | symbol,
+    unknown
+  >,
+  TSceneParameter extends Record<string | symbol, unknown> = Record<
+    string | symbol,
+    unknown
+  >,
 > {
   _layerManager: LayerManager;
   _imageManager: typeof ImageManager;
@@ -318,13 +325,17 @@ class Scene<
   }
 
   do<
-      OBJ extends ConfigurationObject = ConfigurationObject,
+    OBJ extends ConfigurationObject = ConfigurationObject,
     K extends keyof ExtractMethods<OBJ> = keyof ExtractMethods<OBJ>,
     D = OBJ[K],
-    P = Omit<
-        OBJ[K] extends (...args: any[]) => any ? Parameters<OBJ[K]>[0] : {},
-      keyof ParameterListWithoutTime
-    > | undefined,
+    P =
+      | Omit<
+          OBJ[K] extends (...args: any[]) => any
+            ? Parameters<OBJ[K]>[0]
+            : undefined,
+          keyof ParameterListWithoutTime
+        >
+      | undefined,
     R = D | undefined,
   >(
     command: K,
@@ -336,9 +347,10 @@ class Scene<
       defaultValue: D | undefined,
     ) => R,
   ) {
-    const objs =
-        (this._middleware[command as keyof MiddlewareCommandList] ||
-      this._middleware._all.filter((c) => command in c)).filter((v: ConfigurationObject) => v.enabled) as OBJ[];
+    const objs = (
+      this._middleware[command as keyof MiddlewareCommandList] ||
+      this._middleware._all.filter((c) => command in c)
+    ).filter((v: ConfigurationObject) => v.enabled) as OBJ[];
     if (!objs.length) {
       return defaultValue;
     }
@@ -347,17 +359,22 @@ class Scene<
   }
 
   map<
-      OBJ extends ConfigurationObject = ConfigurationObject,
-    K extends keyof ExtractMethods<OBJ> =  keyof ExtractMethods<OBJ>,
+    OBJ extends ConfigurationObject = ConfigurationObject,
+    K extends keyof ExtractMethods<OBJ> = keyof ExtractMethods<OBJ>,
     R = OBJ[K] extends (...args: any[]) => any ? ReturnType<OBJ[K]> : OBJ[K],
     P = Omit<
-        OBJ[K] extends (...args: any[]) => any ? Parameters<OBJ[K]>[0] : OBJ[K],
+      OBJ[K] extends (...args: any[]) => any ? Parameters<OBJ[K]>[0] : OBJ[K],
       keyof ParameterListWithoutTime
     >,
   >(command: K, params: P) {
-    return this.do<OBJ, K, R[], P, R[]>(command, params, [], (objs, fullParams) => {
-      return objs.map((c) => calc(c[command], [fullParams]) as R);
-    }) as R[];
+    return this.do<OBJ, K, R[], P, R[]>(
+      command,
+      params,
+      [],
+      (objs, fullParams) => {
+        return objs.map((c) => calcB(c[command], c, fullParams) as R);
+      },
+    ) as R[];
   }
 
   pipe<
@@ -365,7 +382,9 @@ class Scene<
     K extends keyof ExtractMethods<OBJ>,
     R = OBJ[K] extends (...args: any[]) => any ? ReturnType<OBJ[K]> : OBJ[K],
     P extends Record<string, unknown> = Omit<
-        OBJ[K] extends (...args: any[]) => any ? Parameters<OBJ[K]>[0] : {},
+      OBJ[K] extends (...args: any[]) => any
+        ? Parameters<OBJ[K]>[0]
+        : undefined,
       keyof ParameterListWithoutTime
     >,
   >(command: K, params: P, pipe: R | undefined = undefined): R | undefined {
@@ -373,7 +392,7 @@ class Scene<
       let res = pipe;
       this._stopPropagation = false;
       for (const c of objs) {
-        res = calc(c[command], [fullParams, res]) as R;
+        res = calcB(c[command], c, fullParams, res) as R;
         if (this._stopPropagation) break;
       }
       return res;
@@ -381,20 +400,22 @@ class Scene<
   }
 
   pipeBack<
-      OBJ extends ConfigurationObject,
-      K extends keyof ExtractMethods<OBJ>,
+    OBJ extends ConfigurationObject,
+    K extends keyof ExtractMethods<OBJ>,
     R = OBJ[K] extends (...args: any[]) => any ? ReturnType<OBJ[K]> : OBJ[K],
     P extends Record<string, unknown> = Omit<
-        OBJ[K] extends (...args: any[]) => any ? Parameters<OBJ[K]>[0] : {},
+      OBJ[K] extends (...args: any[]) => any
+        ? Parameters<OBJ[K]>[0]
+        : undefined,
       keyof ParameterListWithoutTime
     >,
   >(command: K, params: P, pipe: R | undefined = undefined) {
-    return this.do<OBJ, K, R>(command, params, pipe, (objs, fullParams) => {
+    return this.do<OBJ, K, R, P>(command, params, pipe, (objs, fullParams) => {
       let res = pipe;
       this._stopPropagation = false;
       for (let i = objs.length - 1; i >= 0; i--) {
         const c: OBJ = objs[i];
-        res = calc(c[command], [fullParams, res]) as R;
+        res = calcB(c[command], c, fullParams, res) as R;
         if (this._stopPropagation) break;
       }
       return res;
@@ -402,11 +423,13 @@ class Scene<
   }
 
   pipeMax<
-      OBJ extends ConfigurationObject,
+    OBJ extends ConfigurationObject,
     K extends keyof ExtractMethods<OBJ>,
-      R = OBJ[K] extends (...args: any[]) => any ? ReturnType<OBJ[K]> : OBJ[K],
+    R = OBJ[K] extends (...args: any[]) => any ? ReturnType<OBJ[K]> : OBJ[K],
     P = Omit<
-        OBJ[K] extends (...args: any[]) => any ? Parameters<OBJ[K]>[0] : {},
+      OBJ[K] extends (...args: any[]) => any
+        ? Parameters<OBJ[K]>[0]
+        : undefined,
       keyof ParameterListWithoutTime
     >,
   >(command: K, params: P, pipe: R | undefined = undefined) {
@@ -423,7 +446,9 @@ class Scene<
         if (Array.isArray(res)) {
           // res is number
           for (const c of objs) {
-            const newRes = calc(c[command], [fullParams, res]) as number | number[];
+            const newRes = calcB(c[command], c, fullParams, res) as
+              | number
+              | number[];
             if (Array.isArray(newRes)) {
               res = (res as unknown as number[]).map((v, i) =>
                 Math.max(v, (newRes as number[])[i]),
@@ -435,7 +460,9 @@ class Scene<
           }
         } else {
           for (const c of objs) {
-            const newRes = calc(c[command], [fullParams, res]) as number | number[];
+            const newRes = calcB(c[command], c, fullParams, res) as
+              | number
+              | number[];
             if (Array.isArray(newRes)) {
               res = newRes.map((v) => Math.max(v, res as number));
             } else {
@@ -450,13 +477,15 @@ class Scene<
   }
 
   async pipeAsync<
-  OBJ extends ConfigurationObject,
-      K extends keyof ExtractMethods<OBJ>,
-  R = OBJ[K] extends (...args: any[]) => any ? ReturnType<OBJ[K]> : OBJ[K],
-  P = Omit<
-      OBJ[K] extends (...args: any[]) => any ? Parameters<OBJ[K]>[0] : {},
+    OBJ extends ConfigurationObject,
+    K extends keyof ExtractMethods<OBJ>,
+    R = OBJ[K] extends (...args: any[]) => any ? ReturnType<OBJ[K]> : OBJ[K],
+    P = Omit<
+      OBJ[K] extends (...args: any[]) => any
+        ? Parameters<OBJ[K]>[0]
+        : undefined,
       keyof ParameterListWithoutTime
-  >,
+    >,
   >(command: K, params: P, pipe: R | undefined = undefined) {
     return this.do<OBJ, K, R, P, Promise<R | undefined>>(
       command,
@@ -466,7 +495,7 @@ class Scene<
         let res = pipe;
         this._stopPropagation = false;
         for (const c of objs) {
-          res = await calc(c[command], [fullParams, res]) as R;
+          res = (await calcB(c[command], c, fullParams, res)) as R;
           if (this._stopPropagation) break;
         }
         return res;
@@ -475,22 +504,25 @@ class Scene<
   }
 
   value<
-  OBJ = ConfigurationObject,
-      K extends keyof OBJ = keyof OBJ,
-      R = OBJ[K] extends (...args: any[]) => any ? ReturnType<OBJ[K]> : OBJ[K],
-      P = Omit<
-          OBJ[K] extends (...args: any[]) => any ? Parameters<OBJ[K]>[0] : {},
-          keyof ParameterListWithoutTime
-      >,
+    OBJ = ConfigurationObject,
+    K extends keyof OBJ = keyof OBJ,
+    R = OBJ[K] extends (...args: any[]) => any ? ReturnType<OBJ[K]> : OBJ[K],
+    P = Omit<
+      OBJ[K] extends (...args: any[]) => any
+        ? Parameters<OBJ[K]>[0]
+        : undefined,
+      keyof ParameterListWithoutTime
+    >,
   >(
     command: K,
     params: P | undefined = undefined,
   ): WithoutFunction<R> | undefined {
-    const objs =
-        (this._middleware[
+    const objs = (
+      this._middleware[
         command as keyof MiddlewareCommandList<ConfigurationObject>
       ] ||
-      this._middleware._all.filter((c: ConfigurationObject) => command in c)).filter((v) => v.enabled) as OBJ[];
+      this._middleware._all.filter((c: ConfigurationObject) => command in c)
+    ).filter((v) => v.enabled) as OBJ[];
     if (!objs.length) {
       return undefined;
     }
@@ -694,7 +726,12 @@ class Scene<
       this.map<ConfigurationObject, "end">("end", { timePassed });
     }
     if (this.value("isChunked")) {
-      if (this.value<{hasOneChunkedFrame: unknown}, 'hasOneChunkedFrame'>("hasOneChunkedFrame", { timePassed })) {
+      if (
+        this.value<{ hasOneChunkedFrame: unknown }, "hasOneChunkedFrame">(
+          "hasOneChunkedFrame",
+          { timePassed },
+        )
+      ) {
         // how many frames should be skipped. Maximum is a skip of 2 frames
         const frames = this.value("calcFrames", { timePassed })! - 1;
         for (let calcFrame = 0; calcFrame <= frames; calcFrame++) {
@@ -766,7 +803,7 @@ class Scene<
     this._totalTimePassed = 0;
     this._resetIntend = false;
     let result = this.pipe<
-        ConfigurationObject,
+      ConfigurationObject,
       "reset",
       LayerManager | ISpriteFunctionOrSprite[][],
       Record<string, never>

@@ -34,7 +34,7 @@ export default class Image {
     this._initialized = false;
   }
 
-  run(sprite: ISprite & {p: {image?: HTMLImageElement}}, time: number) {
+  run(sprite: ISprite & { p: { image?: HTMLImageElement } }, time: number) {
     if (!this._initialized) {
       this._initialized = true;
       this._current = -1;

@@ -1,5 +1,7 @@
 import { resolve } from "path";
 import { defineConfig } from "vite";
+import dts from "vite-plugin-dts";
+import pkg from "./package.json" assert { type: "json" };
 
 export default defineConfig({
   build: {
@@ -10,5 +12,10 @@ export default defineConfig({
       // the proper extensions will be added
       fileName: "animationvideo",
     },
+    rollupOptions: {
+      treeshake: "safest"
+    },
+    target: "esnext", // transpile as little as possible
   },
+  plugins: [dts()],
 });

@@ -1,4 +1,4 @@
-import {ParameterListPositionEvent} from "../Scene.js";
+import { ParameterListPositionEvent } from "../Scene.js";
 import CameraControl from "./CameraControl.js";
 const clickTime = 300;
 

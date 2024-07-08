@@ -3,9 +3,12 @@ import toArray from "./func/toArray.js";
 import type TimingAudio from "./Middleware/TimingAudio.js";
 import type Scene from "./Scene";
 
-export interface EngineOptions<TSceneParameter> {
+export interface EngineOptions<
+  TRunParameter extends Record<string | symbol, unknown>,
+  TSceneParameter extends Record<string | symbol, unknown>,
+> {
   canvas: HTMLCanvasElement;
-  scene?: null | Scene;
+  scene?: null | Scene<TRunParameter, TSceneParameter>;
   sceneParameter?: TSceneParameter;
   autoSize?: Partial<AutoSizeSettings> | boolean;
   clickToPlayAudio?: boolean;
@@ -47,8 +50,14 @@ export interface OutputInfo {
 }
 
 class Engine<
-  TRunParameter extends Record<string | symbol, unknown> = Record<string | symbol, unknown>,
-  TSceneParameter extends Record<string | symbol, unknown> = Record<string | symbol, unknown>,
+  TRunParameter extends Record<string | symbol, unknown> = Record<
+    string | symbol,
+    unknown
+  >,
+  TSceneParameter extends Record<string | symbol, unknown> = Record<
+    string | symbol,
+    unknown
+  >,
 > {
   _output: OutputInfo;
   _events: EventSafe[];
@@ -71,10 +80,12 @@ class Engine<
   _moveOnce: boolean = false;
 
   constructor(
-    canvasOrOptions: HTMLCanvasElement | EngineOptions<TSceneParameter>,
+    canvasOrOptions:
+      | HTMLCanvasElement
+      | EngineOptions<TRunParameter, TSceneParameter>,
   ) {
-    let givenOptions: EngineOptions<TSceneParameter> =
-      canvasOrOptions as EngineOptions<TSceneParameter>;
+    let givenOptions: EngineOptions<TRunParameter, TSceneParameter> =
+      canvasOrOptions as EngineOptions<TRunParameter, TSceneParameter>;
     if (typeof canvasOrOptions !== "object") {
       throw new Error("No canvas given for Engine constructor");
     }
@@ -82,13 +93,13 @@ class Engine<
       givenOptions = {
         canvas: canvasOrOptions as HTMLCanvasElement,
       };
-    } else if (!(canvasOrOptions as EngineOptions<TSceneParameter>).canvas) {
+    } else if (
+      !(canvasOrOptions as EngineOptions<TRunParameter, TSceneParameter>).canvas
+    ) {
       throw new Error("No canvas given for Engine constructor");
     }
-    const options: EngineOptions<TSceneParameter> = Object.assign(
-      {},
-      givenOptions,
-    );
+    const options: EngineOptions<TRunParameter, TSceneParameter> =
+      Object.assign({}, givenOptions);
 
     this._output = {
       canvas: [],
@@ -293,7 +304,7 @@ class Engine<
   }
 
   switchScene(
-    scene: Scene | null | undefined,
+    scene: Scene<TRunParameter, TSceneParameter> | null | undefined,
     sceneParameter: TSceneParameter | undefined,
   ) {
     if (scene) {
@@ -511,7 +522,7 @@ class Engine<
     this._realLastTimestamp = timestamp;
   }
 
-  async run(runParameter: TRunParameter) {
+  async run(runParameter: TRunParameter | undefined = undefined) {
     this._runParameter = runParameter;
 
     await this.stop();

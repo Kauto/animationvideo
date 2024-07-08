@@ -68,7 +68,9 @@ export default class Events implements ConfigurationObject {
         (event: Event) => this._pushEvent("mouseWheel", event, scene),
       ],
       ifNull(
-        scene.value<{"preventDefault": boolean}, "preventDefault">("preventDefault"),
+        scene.value<{ preventDefault: boolean }, "preventDefault">(
+          "preventDefault",
+        ),
         true,
       ) && [["contextmenu"], (e: Event) => e.preventDefault()],
     ].filter((v) => v) as EventsReturn;

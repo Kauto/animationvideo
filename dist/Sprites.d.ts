@@ -1,0 +1,32 @@
+import { default as Callback } from './Sprites/Callback';
+import { default as Canvas } from './Sprites/Canvas';
+import { default as Circle } from './Sprites/Circle';
+import { default as Emitter } from './Sprites/Emitter';
+import { default as FastBlur } from './Sprites/FastBlur';
+import { default as Group } from './Sprites/Group';
+import { default as Image } from './Sprites/Image';
+import { default as Text } from './Sprites/Text';
+import { default as Particle } from './Sprites/Particle';
+import { default as Path } from './Sprites/Path';
+import { default as Rect } from './Sprites/Rect';
+import { default as Scroller } from './Sprites/Scroller';
+import { default as StackBlur } from './Sprites/StackBlur';
+import { default as StarField } from './Sprites/StarField';
+
+declare const _default: {
+    Callback: typeof Callback;
+    Canvas: typeof Canvas;
+    Circle: typeof Circle;
+    Emitter: typeof Emitter;
+    FastBlur: typeof FastBlur;
+    Group: typeof Group;
+    Image: typeof Image;
+    Text: typeof Text;
+    Particle: typeof Particle;
+    Path: typeof Path;
+    Rect: typeof Rect;
+    Scroller: typeof Scroller;
+    StackBlur: typeof StackBlur;
+    StarField: typeof StarField;
+};
+export default _default;
