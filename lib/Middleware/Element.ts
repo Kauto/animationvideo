@@ -144,6 +144,8 @@ export default class Element implements ConfigurationObject {
       const { mx, my } = this._clickIntend || this._hoverIntend!;
       const scale = scene.additionalModifier.scaleCanvas;
       const ctx = output.context[0];
+      // @ts-expect-error willReadFrequently is new property
+      ctx.willReadFrequently = true;
       const cx = Math.round(mx / scale);
       const cy = Math.round(my / scale);
       const [x, y] = scene.transformPoint(mx, my);

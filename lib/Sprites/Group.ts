@@ -20,7 +20,7 @@ export interface SpriteGroupOptions extends SpriteBaseOptions {
   scaleY?: OrFunction<number>;
   scale?: OrFunction<number>;
   alpha?: OrFunction<number>;
-  sprite?: OrFunction<ISprite>;
+  sprite?: OrFunction<ISprite[]>;
 }
 
 export interface SpriteGroupOptionsInternal extends SpriteBaseOptionsInternal {
@@ -107,16 +107,27 @@ export default class Group<
 
   detectDraw(context: CanvasRenderingContext2D, color: string) {
     if (this.p.enabled) {
+      context.save();
+      context.translate(this.p.x!, this.p.y!);
+      context.scale(this.p.scaleX, this.p.scaleY);
+      context.rotate(this.p.rotation);
       for (const sprite of this.p.sprite) {
         sprite.detectDraw(context, color);
       }
+      context.restore();
     }
   }
 
   detect(context: CanvasRenderingContext2D, x: number, y: number) {
     if (this.p.enabled) {
+      if (this.p.isClickable) return "c";
       for (const sprite of this.p.sprite) {
+        context.save();
+        context.translate(this.p.x!, this.p.y!);
+        context.scale(this.p.scaleX, this.p.scaleY);
+        context.rotate(this.p.rotation);
         const a = sprite.detect(context, x, y);
+        context.restore();
         if (a) return a;
       }
     }

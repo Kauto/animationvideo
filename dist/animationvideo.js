@@ -1143,16 +1143,22 @@ class Bt extends ft {
       i.callInit(t, e);
   }
   detectDraw(t, e) {
-    if (this.p.enabled)
+    if (this.p.enabled) {
+      t.save(), t.translate(this.p.x, this.p.y), t.scale(this.p.scaleX, this.p.scaleY), t.rotate(this.p.rotation);
       for (const i of this.p.sprite)
         i.detectDraw(t, e);
+      t.restore();
+    }
   }
   detect(t, e, i) {
-    if (this.p.enabled)
+    if (this.p.enabled) {
+      if (this.p.isClickable) return "c";
       for (const s of this.p.sprite) {
+        t.save(), t.translate(this.p.x, this.p.y), t.scale(this.p.scaleX, this.p.scaleY), t.rotate(this.p.rotation);
         const r = s.detect(t, e, i);
-        if (r) return r;
+        if (t.restore(), r) return r;
       }
+    }
   }
   // draw-methode
   draw(t, e) {
@@ -2543,6 +2549,9 @@ class Je extends Bt {
   changeToPath(t, e) {
     return Pt._lerp(e.pathFrom, e.pathTo, t);
   }
+  detectDraw(t, e) {
+    t.save(), t.translate(this.p.x, this.p.y), t.scale(this.p.scaleX, this.p.scaleY), t.rotate(this.p.rotation), t.fillStyle = e, t.fill(this._path2D), t.restore();
+  }
   detect(t, e, i) {
     return this._detectHelper(this.p, t, e, i, !1, () => t.isPointInPath(this._path2D, e, i));
   }
@@ -3773,7 +3782,9 @@ class Ls {
   draw(t) {
     const { engine: e, scene: i, layerManager: s, output: r, canvasId: n } = t;
     if (!n && this._hasDetectImage) {
-      const o = !!this._clickIntend, { mx: c, my: f } = this._clickIntend || this._hoverIntend, p = i.additionalModifier.scaleCanvas, y = r.context[0], k = Math.round(c / p), C = Math.round(f / p), [X, D] = i.transformPoint(c, f), E = Object.assign(
+      const o = !!this._clickIntend, { mx: c, my: f } = this._clickIntend || this._hoverIntend, p = i.additionalModifier.scaleCanvas, y = r.context[0];
+      y.willReadFrequently = !0;
+      const k = Math.round(c / p), C = Math.round(f / p), [X, D] = i.transformPoint(c, f), E = Object.assign(
         {
           mx: c,
           my: f,
